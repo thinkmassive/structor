@@ -56,12 +56,12 @@
     
   <property>
     <name>yarn.nodemanager.resource.memory-mb</name>
-    <value>2048</value>
+    <value><%= @vm_mem.to_i - 1024 %></value>
   </property>
     
   <property>
     <name>yarn.scheduler.minimum-allocation-mb</name>
-    <value><%= @client_mem %></value>
+    <value><%= @am_mem %></value>
   </property>
     
   <property>
