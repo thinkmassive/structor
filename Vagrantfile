@@ -88,6 +88,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", profile[:vm_mem] ]
+    vb.customize ["modifyvm", :id, "--cpus", profile[:vm_cpus] || 1 ]
   end
 
   config.vm.provider :vmware_fusion do |vm|
@@ -118,9 +119,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "security" => profile[:security],
           "realm" => profile[:realm],
           "clients" => profile[:clients],
-          "server_mem" => profile[:server_mem],
+          "am_mem" => profile[:am_mem],
           "client_mem" => profile[:client_mem],
+          "server_mem" => profile[:server_mem],
+          "vm_mem" => profile[:vm_mem],
           "profile" => profile,
+
+          "hive_options" => profile[:options][:hive],
         }
       end
     end

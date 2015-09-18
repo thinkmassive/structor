@@ -16,6 +16,8 @@
 class hive_client {
   require yarn_client
 
+  $path="/bin:/usr/bin"
+
   package { "hive${package_version}":
     ensure => installed,
   }
@@ -43,6 +45,14 @@ class hive_client {
   file { '/etc/hive/hdp/hive-site.xml':
     ensure => file,
     content => template('hive_client/hive-site.erb'),
+  }
+
+  if $hive_options {
+    exec {"python /vagrant/files/xmlcombine.py /etc/hive/hdp/hive-site.xml hive_client $hive_options":
+        cwd => "/",
+        path => $path,
+        require => File["/etc/hive/hdp/hive-site.xml"]
+    }
   }
 
   file { '/etc/hive/hdp/hive-log4j.properties':

@@ -85,6 +85,10 @@ if hasrole($roles, 'hive-meta') {
   include hive_meta
 }
 
+if hasrole($roles, 'jvmtop') {
+  include jvmtop
+}
+
 if hasrole($roles, 'knox') {
   include knox_gateway
 }
@@ -100,6 +104,10 @@ if hasrole($roles, 'oozie') {
 if hasrole($roles, 'slave') {
   include hdfs_datanode
   include yarn_node_manager
+}
+
+if hasrole($roles, 'wildfly') {
+  include wildfly
 }
 
 if hasrole($roles, 'yarn') {
