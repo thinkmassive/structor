@@ -24,9 +24,12 @@ KEYDIR=/vagrant/generated/keytabs
             'yarn' => ['rm', 'jhs', 'HTTP'],
             'slave' => ['nm', 'dn', 'HTTP'],
             'hive-meta' => ['hive'],
+            'hive-server2' => ['hive'],
+            'llap-server' => ['hive'],
             'oozie' => ['oozie', 'HTTP'],
             'hbase-master' => ['hbase', 'HTTP'],
             'hbase-regionserver' => ['hbase', 'HTTP'],
+            'flume' => ['flume', 'HTTP'],
             'zk' => ['zookeeper']}; -%>
 
 # ensure we don't have old keytabs

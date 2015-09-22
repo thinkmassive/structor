@@ -50,6 +50,7 @@ class hive_meta {
     user => "hive",
     cwd => "/",
     path => "/usr/hdp/current/hive-metastore/bin:$path",
+    unless => 'schematool -dbType mysql -info',
   }
   ->
   service { 'hive-metastore':
