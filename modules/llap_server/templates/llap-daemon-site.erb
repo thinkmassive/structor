@@ -34,24 +34,24 @@
 
   <property>
     <name>llap.daemon.num.executors</name>
-    <value>4</value>
+    <value><%= @vm_cpus.to_i / 2 %></value>
     <description>Num executors for each daemon</description>
   </property>
 
   <property>
     <name>hive.llap.io.threadpool.size</name>
-    <value>4</value>
+    <value><%= @vm_cpus.to_i / 2 %></value>
     <description>Number of IO threads for each daemon</description>
   </property>
 
   <property>
     <name>hive.llap.io.threadpool.size</name>
-    <value>4</value>
+    <value><%= @vm_cpus.to_i / 2 %></value>
   </property>
 
   <property>
     <name>llap.daemon.memory.per.instance.mb</name>
-    <value>2048</value>
+    <value><%= @vm_mem.to_i / 2 %></value>
   </property>
 
   <property>
@@ -68,6 +68,6 @@
 
   <property>
     <name>hive.llap.io.cache.orc.size</name>
-    <value>1073741824</value>
+    <value><%= @vm_mem.to_i / 4 %></value>
   </property>
 </configuration>

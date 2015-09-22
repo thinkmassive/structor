@@ -13,12 +13,12 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class jvmtop {
+class jvmtop_client {
   require jdk
 
   file { '/usr/bin/jvmtop.jar':
     ensure => file,
-    source => 'puppet:///modules/jvmtop/jvmtop.jar',
+    source => 'puppet:///modules/jvmtop_client/jvmtop.jar',
     owner => root,
     group => root,
     mode => '644',
@@ -26,7 +26,7 @@ class jvmtop {
 
   file { '/usr/bin/jvmtop.sh':
     ensure => file,
-    source => 'puppet:///modules/jvmtop/jvmtop.sh',
+    source => 'puppet:///modules/jvmtop_client/jvmtop.sh',
     owner => root,
     group => root,
     mode => '755',
