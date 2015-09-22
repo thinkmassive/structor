@@ -13,23 +13,18 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class hdfs_client {
+class flume_server {
   require repos_setup
   require hdp_select
   require jdk
 
-  $conf_dir="/etc/hadoop/hdp"
   $path="${jdk::HOME}/bin:/bin:/usr/bin"
-  $log_dir="/var/log/hadoop"
-  $data_dir="/var/lib/hadoop"
-  $pid_dir="/var/run/pid"
-  $keytab_dir="/etc/security/hadoop"
 
   package { "flume${package_version}":
     ensure => installed,
   }
   ->
-  exec { "hdp-select set flume ${hdp_version}":
+  exec { "hdp-select set flume-server ${hdp_version}":
     cwd => "/",
     path => "$path",
   }

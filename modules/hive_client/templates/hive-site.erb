@@ -111,6 +111,19 @@
        special string _HOST will be replaced automatically with the correct
        host name.</description>
   </property>
+
+  <property>
+    <name>hive.server2.authentication</name>
+    <value>KERBEROS</value>
+  </property>
+  <property>
+    <name>hive.server2.authentication.kerberos.keytab</name>
+    <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/hive.keytab</value>
+  </property>
+  <property>
+    <name>hive.server2.authentication.kerberos.principal</name>
+    <value>hive/_HOST@<%= @realm %></value>
+  </property>
 <% end -%>
 
   <property>

@@ -8,11 +8,10 @@
   "am_mem": 512,
   "server_mem": 768,
   "client_mem": 1024,
-  "clients" : [ "hdfs", "hive", "pig", "tez", "yarn", "zk" ],
+  "clients" : [ "hdfs", "hive", "pig", "spark", "tez", "yarn", "zk" ],
   "nodes": [
     {"hostname": "nn", "ip": "240.0.0.11",
-     "roles": ["client", "hive-db", "hive-meta", "nn", "slave",
-               "yarn", "zk"]}
+     "roles": ["client", "flume-server", "hive-db", "hive-meta", "hive-server2", "nn", "postgres", "slave", "yarn", "zk"]}
   ],
   "options": {
     "hive" : "acid"

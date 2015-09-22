@@ -66,6 +66,10 @@ profile[:hdp_short_version] ||= default_hdp_short_version
 profile[:ambari_version] ||= default_ambari_version
 profile[:java_version] ||= default_java_version
 profile[:os] ||= default_os
+profile[:vm_cpus] ||= 1
+profile[:am_mem] ||= 512
+profile[:server_mem] ||= 768
+profile[:client_mem] ||= 1024
 hdp_version = findVersion(profile)
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -88,7 +92,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", profile[:vm_mem] ]
-    vb.customize ["modifyvm", :id, "--cpus", profile[:vm_cpus] || 1 ]
+    vb.customize ["modifyvm", :id, "--cpus", profile[:vm_cpus] ]
   end
 
   config.vm.provider :vmware_fusion do |vm|
@@ -123,6 +127,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "client_mem" => profile[:client_mem],
           "server_mem" => profile[:server_mem],
           "vm_mem" => profile[:vm_mem],
+          "vm_cpus" => profile[:vm_cpus],
           "profile" => profile,
 
           "hive_options" => profile[:options][:hive],

@@ -52,11 +52,17 @@ if hasrole($roles, 'client') {
   if hasrole($clients, 'hive') {
     include hive_client
   }
+  if hasrole($roles, 'jvmtop') {
+    include jvmtop_client
+  }
   if hasrole($clients, 'oozie') {
     include oozie_client
   }
   if hasrole($clients, 'pig') {
     include pig_client
+  }
+  if hasrole($clients, 'spark') {
+    include spark_client
   }
   if hasrole($clients, 'tez') {
     include tez_client
@@ -67,6 +73,10 @@ if hasrole($roles, 'client') {
   if hasrole($clients, 'zk') {
     include zookeeper_client
   }
+}
+
+if hasrole($roles, 'flume-server') {
+  include flume_server
 }
 
 if hasrole($roles, 'hbase-master') {
@@ -85,8 +95,8 @@ if hasrole($roles, 'hive-meta') {
   include hive_meta
 }
 
-if hasrole($roles, 'jvmtop') {
-  include jvmtop
+if hasrole($roles, 'hive-server2') {
+  include hive_server2
 }
 
 if hasrole($roles, 'knox') {
@@ -99,6 +109,10 @@ if hasrole($roles, 'nn') {
 
 if hasrole($roles, 'oozie') {
   include oozie_server
+}
+
+if hasrole($roles, 'postgres') {
+  include postgres_server
 }
 
 if hasrole($roles, 'slave') {
@@ -122,7 +136,7 @@ if islastslave($nodes, $hostname) {
   include install_hdfs_tarballs
 }
 
-# Ensure the kdc is brought up before the namenode and hive metastore
+# Ensure the kdc is brought up before major services.
 if $security == "true" and hasrole($roles, 'kdc') {
   if hasrole($roles, 'nn') {
     Class['kerberos_kdc'] -> Class['hdfs_namenode']
@@ -178,6 +192,11 @@ if hasrole($roles, 'hive-db') {
   if hasrole($roles, 'oozie') {
     Class['hive_db'] -> Class['oozie_server']
   }
+}
+
+# Bring up the metastore before HiveServer2.
+if hasrole($roles, 'hive-server2') {
+  Class['hive_meta'] -> Class['hive_server2']
 }
 
 # Ensure oozie runs after the datanode on the same node
