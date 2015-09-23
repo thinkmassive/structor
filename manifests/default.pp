@@ -103,6 +103,10 @@ if hasrole($roles, 'knox') {
   include knox_gateway
 }
 
+if hasrole($roles, 'llap') {
+  include llap_server
+}
+
 if hasrole($roles, 'nn') {
   include hdfs_namenode
 }

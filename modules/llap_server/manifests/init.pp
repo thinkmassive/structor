@@ -22,19 +22,21 @@ class llap_server {
   $INSTALL_ROOT="/usr/hdp/autobuild"
   $TEZ_VERSION="0.8.0-TEZ-2003-SNAPSHOT"
   $TEZ_BRANCH="TEZ-2003"
-  $HIVE_VERSION="1.2.1"
-  $LLAP_BRANCH="branch-1.2"
+  $HIVE_VERSION="2.0.0-SNAPSHOT"
+  $LLAP_BRANCH="llap"
   $HADOOP_VERSION="2.6.0"
   $PROTOBUF_VER="protobuf-2.5.0"
   $PROTOBUF_DIST="http://protobuf.googlecode.com/files/$PROTOBUF_VER.tar.bz2"
 
-  $path="/bin:/usr/bin:$INSTALL_ROOT/protoc/bin:/usr/local/share/apache-maven-3.2.1/bin/mvn"
+  # XXX: This path only works on Owen's base box!
+  $path="/bin:/usr/bin:$INSTALL_ROOT/protoc/bin:/usr/local/share/apache-maven-3.2.1/bin"
+
   $target_tez="/tmp/tez/tez-dist/target/tez-$TEZ_VERSION.tar.gz"
   $hive_package="apache-hive-$HIVE_VERSION-bin"
   $target_hive="/tmp/hive/packaging/target/$hive_package.tar.gz"
 
   # Build tools I need.
-  package { [ "curl", "gcc", "g++", "cmake", "git" ]:
+  package { [ "curl", "gcc", "gcc-c++", "cmake", "git" ]:
     ensure => installed,
     before => Exec["curl -O $PROTOBUF_DIST"],
   }
@@ -62,24 +64,27 @@ class llap_server {
   exec {"tar -xvf $PROTOBUF_VER.tar.bz2":
     cwd => "/tmp",
     path => $path,
-    creates => "/tmp/$PROTOBUF_VER"
+    creates => "/tmp/$PROTOBUF_VER",
   }
   ->
   exec {"/tmp/$PROTOBUF_VER/configure --prefix=$INSTALL_ROOT/protoc/":
     cwd => "/tmp/$PROTOBUF_VER",
     path => $path,
+    creates => "/tmp/$PROTOBUF_VER/Makefile",
   }
   ->
   exec {"Build Protobuf":
     cwd => "/tmp/$PROTOBUF_VER",
     path => $path,
     command => "make",
+    creates => "/tmp/$PROTOBUF_VER/src/protoc",
   }
   ->
   exec {"Install Protobuf":
     cwd => "/tmp/$PROTOBUF_VER",
     path => $path,
     command => "make install -k",
+    creates => "$INSTALL_ROOT/protoc",
   }
 
   # Build Tez.
@@ -87,12 +92,22 @@ class llap_server {
     cwd => "/tmp",
     path => $path,
     require => Exec["Install Protobuf"],
+    creates => "/tmp/tez",
+    user => "vagrant",
   }
   ->
-  exec {"mvn clean package install -DskipTests -Dhadoop.version=$HADOOP_VERSION -Paws -Phadoop24 -P\!hadoop26":
-    cwd => "/tmp",
+  exec {"Update Tez":
+    command => "git pull",
+    cwd => "/tmp/tez",
+    path => $path,
+    user => "vagrant",
+  }
+  ->
+  exec {"mvn clean package install -DskipTests -Dhadoop.version=$HADOOP_VERSION -Paws -Phadoop24 -P\\!hadoop26":
+    cwd => "/tmp/tez",
     path => $path,
     creates => $target_tez,
+    user => "vagrant",
   }
   ->
   file { "$INSTALL_ROOT/tez":
@@ -111,19 +126,31 @@ class llap_server {
   exec {"Deploy Tez to HDFS":
     cwd => "/tmp/hive",
     path => $path,
-    command => "hdfs dfs -copyFromLocal $target_tez /hdp/apps/$package_version/tez/tez.tar.gz",
+    command => "hdfs dfs -copyFromLocal -f $target_tez /hdp/apps/${hdp_version}/tez/tez.tar.gz",
+    user => "hdfs",
   }
+
+  # Needed?
+  #exec {'sed -i~ "s@<tez.version>.*</tez.version>@<tez.version>$TEZ_VERSION</tez.version>@" pom.xml':
+  #  cwd => "/tmp/hive",
+  #  path => $path,
+  #  user => "vagrant",
+  #}
 
   # Build Hive / LLAP.
   exec {"git clone --branch $LLAP_BRANCH https://github.com/apache/hive":
     cwd => "/tmp",
     path => $path,
     require => Exec["Install Protobuf"],
+    creates => "/tmp/hive",
+    user => "vagrant",
   }
   ->
-  exec {'sed -i~ "s@<tez.version>.*</tez.version>@<tez.version>$TEZ_VERSION</tez.version>@" pom.xml':
+  exec {"Update Hive":
+    command => "git pull",
     cwd => "/tmp/hive",
     path => $path,
+    user => "vagrant",
   }
   ->
   exec { "Build Hive":
@@ -131,13 +158,7 @@ class llap_server {
     path => $path,
     command => "mvn clean package -Denforcer.skip=true -DskipTests=true -Pdir -Pdist -Phadoop-2 -Dhadoop-0.23.version=$HADOOP_VERSION -Dbuild.profile=nohcat",
     creates => $target_hive,
-  }
-  ->
-  file { "$INSTALL_ROOT/hive":
-    ensure => directory,
-    owner => root,
-    group => root,
-    mode => '755',
+    user => "vagrant",
   }
   ->
   exec {"Deploy Hive":
@@ -146,7 +167,7 @@ class llap_server {
     command => "tar -C $INSTALL_ROOT -xzvf $target_hive",
   }
   ->
-  exec {"$INSTALL_ROOT/hive":
+  file {"$INSTALL_ROOT/hive":
     ensure => link,
     target => "$INSTALL_ROOT/$hive_package",
   }
@@ -154,6 +175,6 @@ class llap_server {
   # Configuration files.
   file { "/etc/hive/conf/llap-daemon-site.xml":
     ensure => file,
-    content => template('llap/llap-daemon-site.erb'),
+    content => template('llap_server/llap-daemon-site.erb'),
   }
 }
