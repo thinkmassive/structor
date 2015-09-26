@@ -19,6 +19,14 @@ class yarn_node_manager {
 
   $path="/bin:/usr/bin"
 
+  $component = "hadoop-yarn-nodemanager"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+  }
+
   if $security == "true" {
     require kerberos_http
 
@@ -52,7 +60,7 @@ class yarn_node_manager {
   ->
   file { "/etc/init.d/hadoop-yarn-nodemanager":
     ensure => 'link',
-    target => "/usr/hdp/current/hadoop-yarn-nodemanager/../etc/${start_script_path}/hadoop-yarn-nodemanager",
+    target => "$start_script",
   }
   ->
   exec { "chgrp yarn /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":

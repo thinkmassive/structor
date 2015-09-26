@@ -17,7 +17,13 @@ class hive_server2 {
   require hive_meta
 
   $path="/bin:/usr/bin"
-  $start_script="/usr/hdp/$hdp_version/etc/rc.d/init.d/hive-server2"
+  $component = "hive-server2"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/$hdp_version/hive/etc/rc.d/init.d/${component}"
+  }
+  else {
+    $start_script="/usr/hdp/current/${component}/../etc/${platform_start_script_path}/${component}"
+  }
 
   package { "hive${package_version}-server2":
     ensure => installed,
@@ -28,10 +34,11 @@ class hive_server2 {
     path => "$path",
   }
   ->
-  file { "$start_script":
+  file { "hive-server2 start script":
     ensure => file,
-    # XXX: Replacing for now due to bugs in startup script.
     source => 'puppet:///modules/hive_server2/hive-server2',
+    path => "$start_script",
+    # XXX: Replacing for now due to bugs in startup script.
     replace => true,
   }
   ->

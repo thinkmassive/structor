@@ -46,9 +46,13 @@ def findVersion(profile)
   fileObj = File.new(path, 'r')
   match = /^#VERSION_NUMBER=(?<ver>[-0-9.]*)/.match(fileObj.gets)
   fileObj.close()
-  result = match['ver']
-  puts "HDP Build = %s\n" % result
-  return result
+  version = match['ver']
+  versions = version.split(".")
+  major = versions[0].to_i
+  minor = versions[1].to_i
+  patch = versions[2].to_i
+  puts "HDP Build = %s\n" % version
+  return [version, major, minor, patch]
 end
 
 ###############################################################################
@@ -70,7 +74,7 @@ profile[:vm_cpus] ||= 1
 profile[:am_mem] ||= 512
 profile[:server_mem] ||= 768
 profile[:client_mem] ||= 1024
-hdp_version = findVersion(profile)
+(hdp_version, hdp_version_major, hdp_version_minor, hdp_version_patch) = findVersion(profile)
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if Vagrant.has_plugin?("vagrant-cachier")
@@ -83,11 +87,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if (profile[:os] == "centos")
     config.vm.box = "omalley/centos6_x64"
     package_version = "_" + (hdp_version.gsub /[.-]/, '_')
-    start_script_path = "rc.d/init.d"
+    platform_start_script_path = "rc.d/init.d"
   elsif (profile[:os] == "ubuntu")
     config.vm.box = "ubuntu/trusty64"
     package_version = "-" + (hdp_version.gsub /[.-]/, '-')
-    start_script_path = "init.d"
+    platform_start_script_path = "init.d"
   end
 
   config.vm.provider :virtualbox do |vb|
@@ -113,12 +117,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "hdp_short_version" => profile[:hdp_short_version],
           "ambari_version" => profile[:ambari_version],
 	  "package_version" => package_version,
-          "start_script_path" => start_script_path,
+          "platform_start_script_path" => platform_start_script_path,
 
           "hostname" => node[:hostname],
           "roles" => node[:roles],
           "nodes" => profile[:nodes],
-	  "hdp_version" => hdp_version,
           "domain" => profile[:domain],
           "security" => profile[:security],
           "realm" => profile[:realm],
@@ -130,7 +133,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "vm_cpus" => profile[:vm_cpus],
           "profile" => profile,
 
-          "hive_options" => profile[:options][:hive],
+	  "hdp_version" => hdp_version,
+	  "hdp_version_major" => hdp_version_major,
+	  "hdp_version_minor" => hdp_version_minor,
+	  "hdp_version_patch" => hdp_version_patch,
+
+          "hive_options" => profile[:hive_options],
         }
       end
     end

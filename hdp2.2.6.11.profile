@@ -11,9 +11,7 @@
   "clients" : [ "hdfs", "hive", "pig", "spark", "tez", "yarn", "zk" ],
   "nodes": [
     {"hostname": "nn", "ip": "240.0.0.11",
-     "roles": ["client", "flume-server", "hive-db", "hive-meta", "hive-server2", "nn", "postgres", "slave", "yarn", "zk"]}
+     "roles": ["client", "flume-server", "hive-db", "hive-meta", "hive-server2", "nn", "postgres", "slave", "yarn", "zk", "hive-llap"]}
   ],
-  "options": {
-    "hive" : "acid"
-  }
+  "hive_options" : "acid"
 }

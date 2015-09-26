@@ -21,6 +21,14 @@ class hdfs_namenode {
   $dirs="/user/yarn /user/yarn/history /user/yarn/app-logs /user/vagrant /user/hive /user/oozie /apps/hive/warehouse /apps/hbase /tmp /hdp/apps/${hdp_version}/mapreduce /hdp/apps/${hdp_version}/tez /hdp/apps/${hdp_version}/pig /hdp/apps/${hdp_version}/hive"
   $mode177_dirs="/user/yarn/app-logs /apps/hive/warehouse /apps/hbase /tmp"
 
+  $component = "hadoop-hdfs-namenode"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+  }
+
   if $security == "true" {
     require kerberos_http
     file { "${hdfs_client::keytab_dir}/nn.keytab":
@@ -48,9 +56,10 @@ class hdfs_namenode {
     path => "$path",
   }
   ->
+
   file { "/etc/init.d/hadoop-hdfs-namenode":
     ensure => 'link',
-    target => "/usr/hdp/current/hadoop-hdfs-namenode/../etc/${start_script_path}/hadoop-hdfs-namenode",
+    target => "$start_script",
   }
   ->
   exec {"namenode-format":

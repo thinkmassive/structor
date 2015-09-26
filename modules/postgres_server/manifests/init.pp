@@ -28,6 +28,12 @@ class postgres_server {
     ensure => installed,
   }
   ->
+  exec { 'service postgresql initdb':
+    cwd => "/",
+    path => "${PATH}",
+    creates => '/var/lib/pgsql/data/pg_log',
+  }
+  ->
   file { '/var/lib/pgsql/data/pg_hba.conf':
     ensure => file,
     source => "puppet:///modules/postgres_server/pg_hba.conf",
@@ -47,15 +53,9 @@ class postgres_server {
   service { 'postgresql':
     ensure => running,
     enable => true,
-    before => Exec['service postgresql initdb'],
+    before => Exec['createuser -sw vagrant'],
   }
 
-  # User access.
-  exec { 'service postgresql initdb':
-    cwd => "/",
-    path => "${PATH}",
-    creates => '/var/lib/pgsql/data',
-  }
   exec { 'createuser -sw vagrant':
     cwd => "/",
     path => "${PATH}",

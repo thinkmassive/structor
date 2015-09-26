@@ -55,6 +55,9 @@ if hasrole($roles, 'client') {
   if hasrole($roles, 'jvmtop') {
     include jvmtop_client
   }
+  if hasrole($clients, 'odbc') {
+    include odbc_client
+  }
   if hasrole($clients, 'oozie') {
     include oozie_client
   }
@@ -103,8 +106,8 @@ if hasrole($roles, 'knox') {
   include knox_gateway
 }
 
-if hasrole($roles, 'llap') {
-  include llap_server
+if hasrole($roles, 'hive-llap') {
+  include hive_llap
 }
 
 if hasrole($roles, 'nn') {
@@ -117,6 +120,10 @@ if hasrole($roles, 'oozie') {
 
 if hasrole($roles, 'postgres') {
   include postgres_server
+}
+
+if hasrole($roles, 'sample-data') {
+  include sample_data
 }
 
 if hasrole($roles, 'slave') {
@@ -200,7 +207,12 @@ if hasrole($roles, 'hive-db') {
 
 # Bring up the metastore before HiveServer2.
 if hasrole($roles, 'hive-server2') {
-  Class['hive_meta'] -> Class['hive_server2']
+  if hasrole($roles, 'hive-meta') {
+    Class['hive_meta'] -> Class['hive_server2']
+  }
+  if hasrole($roles, 'hive-llap') {
+    Class['hive_server2'] -> Class['hive_llap']
+  }
 }
 
 # Ensure oozie runs after the datanode on the same node

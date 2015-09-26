@@ -17,6 +17,13 @@ class zookeeper_server {
   require zookeeper_client
 
   $path="/bin:/sbin:/usr/bin"
+  $component = "zookeeper-server"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+  }
 
   if $security == "true" {
     file { "${zookeeper_client::conf_dir}/zookeeper-server.jaas":
@@ -74,7 +81,7 @@ class zookeeper_server {
   ->
   file { "/etc/init.d/zookeeper-server":
     ensure => 'link',
-    target => "/usr/hdp/current/zookeeper-server/../etc/${start_script_path}/zookeeper-server",
+    target => "$start_script",
   }
   ->
   file { "${zookeeper_client::data_dir}":

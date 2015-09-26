@@ -18,6 +18,16 @@ class yarn_resource_manager {
   require hadoop_server
 
   $path="/usr/bin"
+  $yarn_component = "hadoop-yarn-resourcemanager"
+  $mapreduce_component = "hadoop-mapreduce-historyserver"
+  if ($hdp_version_minor >= 3) {
+    $yarn_start_script="/usr/hdp/current/$yarn_component/etc/$platform_start_script_path/$yarn_component"
+    $mapreduce_start_script="/usr/hdp/current/$mapreduce_component/etc/$platform_start_script_path/$mapreduce_component"
+  }
+  else {
+    $yarn_start_script="/usr/hdp/current/$yarn_component/../etc/$platform_start_script_path/$yarn_component"
+    $mapreduce_start_script="/usr/hdp/current/$mapreduce_component/../etc/$platform_start_script_path/$mapreduce_component"
+  }
 
   if $security == "true" {
     require kerberos_http
@@ -54,7 +64,7 @@ class yarn_resource_manager {
   ->
   file { "/etc/init.d/hadoop-yarn-resourcemanager":
     ensure => 'link',
-    target => "/usr/hdp/current/hadoop-yarn-resourcemanager/../etc/${start_script_path}/hadoop-yarn-resourcemanager",
+    target => "$yarn_start_script",
   }
   ->
   service {"hadoop-yarn-resourcemanager":
@@ -73,7 +83,7 @@ class yarn_resource_manager {
   ->
   file { "/etc/init.d/hadoop-mapreduce-historyserver":
     ensure => 'link',
-    target => "/usr/hdp/current/hadoop-mapreduce-historyserver/../etc/${start_script_path}/hadoop-mapreduce-historyserver",
+    target => "$mapreduce_start_script",
   }
   ->
   service {"hadoop-mapreduce-historyserver":

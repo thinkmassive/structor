@@ -19,6 +19,14 @@ class hdfs_datanode {
 
   $path="/usr/bin"
 
+  $component = "hadoop-hdfs-datanode"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+  }
+
   if $security == "true" {
     require kerberos_http
 
@@ -44,7 +52,7 @@ class hdfs_datanode {
   ->
   file { "/etc/init.d/hadoop-hdfs-datanode":
     ensure => 'link',
-    target => "/usr/hdp/current/hadoop-hdfs-datanode/../etc/${start_script_path}/hadoop-hdfs-datanode",
+    target => "$start_script",
   }
   ->
   service {"hadoop-hdfs-datanode":
