@@ -24,8 +24,8 @@ class odbc_client {
   $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/2.0.0-1000/centos6/$driver"
 
   $config_path="/usr/local/odbc"
-  $odbcini_path="$config_path/myodbc.ini"
-  $odbcsysini_path="$config_path/myodbcinst.ini"
+  $odbcini_path="$config_path/odbc.ini"
+  $odbcinstini_path="$config_path/odbcinst.ini"
   $driverini_path="/usr/lib/hive/lib/native/Linux-amd64-64/hortonworks.hiveodbc.ini"
 
   package { [ "unixODBC", "unixODBC-devel", "cyrus-sasl-gssapi", "cyrus-sasl-plain" ]:
@@ -57,6 +57,7 @@ class odbc_client {
     cwd => "/tmp/$tarbase",
     path => "$path",
     unless => "rpm -qa | grep $build",
+    before => File["$config_path"],
   }
 
   # Config files.
@@ -72,9 +73,9 @@ class odbc_client {
     content => template('odbc_client/odbc.ini.erb'),
   }
   ->
-  file { "$odbcsysini_path":
+  file { "$odbcinstini_path":
     ensure => file,
-    content => template('odbc_client/myodbcinst.ini.erb'),
+    content => template('odbc_client/odbcinst.ini.erb'),
   }
   ->
   file { "$driverini_path":

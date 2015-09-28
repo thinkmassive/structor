@@ -20,6 +20,12 @@
    @is_metastore = @metastores.include? @hostname;
    @dblist = eval(@nodes).select {|node| node[:roles].include? 'hive-db'};
    @db = (@dblist.size == 0 ? "unknown" : @dblist[0][:hostname]) +"."+ @domain;
+   @hive_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'hive-server2'}.
+      map{|node| node[:hostname]};
+   @zookeeper_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'zk'}.
+      map{|node| node[:hostname] + "." + @domain + ":2181"}.join(",");
  -%>
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
@@ -58,43 +64,7 @@
     <description>password to use against metastore database</description>
   </property>
 
-  <property>
-    <name>hive.compactor.initiator.on</name>
-    <value>true</value>
-  </property>
-
-  <property>
-    <name>hive.compactor.worker.threads</name>
-    <value>1</value>
-  </property>
 <% end -%>
-
-  <property>
-    <name>hive.metastore.sasl.enabled</name>
-    <value><%= @security %></value>
-    <description>If true, the metastore thrift interface will be secured with 
-      SASL. Clients must authenticate with Kerberos.</description>
-  </property>
-
-  <property>
-    <name>hive.security.authorization.enabled</name>
-    <value>true</value>
-    <description>enable or disable the hive client authorization</description>
-  </property>
-
-  <property>
-    <name>hive.metastore.execute.setugi</name>
-    <value>true</value>
-  </property>
-
-  <property>
-    <name>hive.security.authorization.manager</name>
-    <value>org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider</value>
-    <description>the hive client authorization manager class name.
-      The user defined authorization class should implement interface 
-       HiveAuthorizationProvider.
-    </description>
-  </property>
 
 <% if @security == "true" -%>
   <property>
@@ -116,45 +86,34 @@
     <name>hive.server2.authentication</name>
     <value>KERBEROS</value>
   </property>
+
   <property>
     <name>hive.server2.authentication.kerberos.keytab</name>
     <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/hive.keytab</value>
   </property>
+
   <property>
     <name>hive.server2.authentication.kerberos.principal</name>
     <value>hive/_HOST@<%= @realm %></value>
   </property>
 <% end -%>
 
+<% if @hive_servers.length > 1 -%>
   <property>
-    <name>hive.metastore.warehouse.dir</name>
-    <value>/apps/hive/warehouse</value>
-    <description>location of default database for the warehouse</description>
-  </property>
-
-  <property>
-    <name>hive.metastore.cache.pinobjtypes</name>
-    <value>Table,Database,Type,FieldSchema,Order</value>
-    <description>List of comma separated metastore object types that should be
-       pinned in the cache</description>
-  </property>
-  
-  <property>
-    <name>hadoop.clientside.fs.operations</name>
-    <value>true</value>
-    <description>FS operations are owned by client</description>
-  </property>
-
-  <property>
-    <name>hive.metastore.client.socket.timeout</name>
-    <value>60</value>
-    <description>MetaStore Client socket timeout in seconds</description>
-  </property>
-
-  <property>
-    <name>hive.optimize.ppd.storage</name>
+    <name>hive.server2.support.dynamic.service.discovery</name>
     <value>true</value>
   </property>
+
+  <property>
+    <name>hive.server2.zookeeper.namespace</name>
+    <value>hiveserver2</value>
+  </property>
+
+  <property>
+    <name>hive.zookeeper.quorum</name>
+    <value><%= @zookeeper_servers %></value>
+  </property>
+<% end %>
 
   <property>
     <name>datanucleus.autoStartMechanism</name>
@@ -167,6 +126,83 @@
   </property>
 
   <property>
+    <name>hadoop.clientside.fs.operations</name>
+    <value>true</value>
+    <description>FS operations are owned by client</description>
+  </property>
+
+  <property>
+    <name>hive.compactor.initiator.on</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.compactor.worker.threads</name>
+    <value>1</value>
+  </property>
+
+  <property>
+    <name>hive.enforce.bucketing</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.exec.dynamic.partition.mode</name>
+    <value>nonstrict</value>
+  </property>
+
+  <property>
+    <name>hive.metastore.cache.pinobjtypes</name>
+    <value>Table,Database,Type,FieldSchema,Order</value>
+    <description>List of comma separated metastore object types that should be
+       pinned in the cache</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.client.socket.timeout</name>
+    <value>60</value>
+    <description>MetaStore Client socket timeout in seconds</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.execute.setugi</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.metastore.sasl.enabled</name>
+    <value><%= @security %></value>
+    <description>If true, the metastore thrift interface will be secured with 
+      SASL. Clients must authenticate with Kerberos.</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.warehouse.dir</name>
+    <value>/apps/hive/warehouse</value>
+    <description>location of default database for the warehouse</description>
+  </property>
+
+  <property>
+    <name>hive.optimize.ppd.storage</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.security.authorization.enabled</name>
+    <value>true</value>
+    <description>enable or disable the hive client authorization</description>
+  </property>
+
+  <property>
+    <name>hive.security.authorization.manager</name>
+    <value>org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider</value>
+    <description>the hive client authorization manager class name.
+      The user defined authorization class should implement interface 
+       HiveAuthorizationProvider.
+    </description>
+  </property>
+
+  <property>
     <name>hive.support.concurrency</name>
     <value>true</value>
   </property>
@@ -176,13 +212,39 @@
     <value>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager</value>
   </property>
 
+  <!-- Optimizations -->
   <property>
-    <name>hive.exec.dynamic.partition.mode</name>
-    <value>nonstrict</value>
+    <name>hive.auto.convert.join</name>
+    <value>true</value>
   </property>
 
   <property>
-    <name>hive.enforce.bucketing</name>
+    <name>hive.auto.convert.join.noconditionaltask</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.auto.convert.sortmerge.join</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.auto.convert.sortmerge.join.to.mapjoin</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.cbo.enable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.compute.query.using.stats</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.convert.join.bucket.mapjoin.tez</name>
     <value>true</value>
   </property>
 
@@ -191,4 +253,48 @@
     <value>tez</value>
   </property>
 
+  <property>
+    <name>hive.mapjoin.optimized.hashtable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.constant.propagation</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.index.filter</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.metadataonly</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.execution.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.execution.reduce.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.groupby.checkinterval</name>
+    <value>4096</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.groupby.flush.percent</name>
+    <value>0.1</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.groupby.maxentries</name>
+    <value>10000</value>
+  </property>
 </configuration>

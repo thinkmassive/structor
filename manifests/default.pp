@@ -76,6 +76,11 @@ if hasrole($roles, 'client') {
   if hasrole($clients, 'zk') {
     include zookeeper_client
   }
+
+  # Add kerberos client if we are in secure mode.
+  #if $security == "true" {
+  #  include kerberos_client
+  #}
 }
 
 if hasrole($roles, 'flume-server') {
@@ -100,6 +105,10 @@ if hasrole($roles, 'hive-meta') {
 
 if hasrole($roles, 'hive-server2') {
   include hive_server2
+}
+
+if hasrole($roles, 'hue') {
+  include hue_server
 }
 
 if hasrole($roles, 'knox') {
@@ -145,6 +154,11 @@ if hasrole($roles, 'zk') {
 
 if islastslave($nodes, $hostname) {
   include install_hdfs_tarballs
+
+  if ($extras and hasrole($extras, 'sample-hive-data')) {
+    include sample_hive_data
+    Class['install_hdfs_tarballs'] -> Class['sample_hive_data']
+  }
 }
 
 # Ensure the kdc is brought up before major services.
@@ -205,13 +219,13 @@ if hasrole($roles, 'hive-db') {
   }
 }
 
-# Bring up the metastore before HiveServer2.
+# Bring up the metastore before Hive servers.
 if hasrole($roles, 'hive-server2') {
   if hasrole($roles, 'hive-meta') {
     Class['hive_meta'] -> Class['hive_server2']
   }
   if hasrole($roles, 'hive-llap') {
-    Class['hive_server2'] -> Class['hive_llap']
+    Class['hive_meta'] -> Class['hive_llap']
   }
 }
 

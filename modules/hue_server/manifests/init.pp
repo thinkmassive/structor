@@ -13,45 +13,31 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class hive_server2 {
-  require hive_client
-
-  $path="/bin:/usr/bin"
-  $component = "hive-server2"
-  if ($hdp_version_minor >= 3) {
-    $start_script="/usr/hdp/$hdp_version/hive/etc/rc.d/init.d/${component}"
-  }
-  else {
-    $start_script="/usr/hdp/current/${component}/../etc/${platform_start_script_path}/${component}"
-  }
+class hue_server {
+  require repos_setup
 
   if $security == "true" {
-    require hive_keytab
+    file { "${hdfs_client::keytab_dir}/hue.keytab":
+      ensure => file,
+      source => "/vagrant/generated/keytabs/${hostname}/hue.keytab",
+      owner => 'hue',
+      group => 'hadoop',
+      mode => '400',
+    }
+    ->
+    Package["hue"]
   }
 
-  package { "hive${package_version}-server2":
-    ensure => installed,
+  package { "hue":
+    ensure => installed
   }
   ->
-  exec { "hdp-select set hive-server2 ${hdp_version}":
-    cwd => "/",
-    path => "$path",
-  }
-  ->
-  file { "hive-server2 start script":
+  file { "/etc/hue/conf/hue.ini":
     ensure => file,
-    source => 'puppet:///modules/hive_server2/hive-server2',
-    path => "$start_script",
-    # XXX: Replacing for now due to bugs in startup script.
-    replace => true,
+    content => template('hue_server/hue.ini.erb'),
   }
   ->
-  file { '/etc/init.d/hive-server2':
-    ensure => link,
-    target => $start_script,
-  }
-  ->
-  service { 'hive-server2':
+  service { 'hue':
     ensure => running,
     enable => true,
   }

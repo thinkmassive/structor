@@ -1,4 +1,4 @@
 #!/bin/sh
 
-export ODBCINI=/usr/local/odbc/myodbc.ini
-export ODBCSYSINI=/usr/local/odbc/myodbcinst.ini
+export ODBCINI=/usr/local/odbc
+export ODBCSYSINI=/usr/local/odbc

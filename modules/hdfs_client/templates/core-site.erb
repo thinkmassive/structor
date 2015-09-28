@@ -18,11 +18,15 @@
       eval(@nodes).select {|node| node[:roles].include? 'nn'}[0][:hostname] +
       "." + @domain;
    # The list of roles and hive servers that need to proxy for others
-   @hive_roles = ['hive-meta', 'hs2'];
+   @hcat_roles = ['hcat', 'hue'];
+   @hive_roles = ['hive-meta', 'hive-server2'];
+   @hcat_servers = eval(@nodes).
+      select {|node| (node[:roles] & @hcat_roles).length > 0}.
+      map{|node| node[:hostname] + "." + @domain}.join(",");
    @hive_servers = eval(@nodes).
       select {|node| (node[:roles] & @hive_roles).length > 0}.
       map{|node| node[:hostname] + "." + @domain}.join(",");
-   @hcat_servers = eval(@nodes).select {|node| node[:roles].include? 'hcat'
+   @hue_servers = eval(@nodes).select {|node| node[:roles].include? 'hue'
        }.map{|node| node[:hostname] + "." + @domain}.join(",");
    @oozie_servers = eval(@nodes).
       select {|node| node[:roles].include? 'oozie'}.
@@ -88,7 +92,7 @@
     <name>ipc.client.connection.maxidletime</name>
     <value>30000</value>
   </property>
-    
+
 <% if @oozie_servers.length > 0 -%>
   <property>
     <name>hadoop.proxyuser.oozie.groups</name>
@@ -98,6 +102,18 @@
   <property>
     <name>hadoop.proxyuser.oozie.hosts</name>
     <value><%= @oozie_servers %></value>
+  </property>
+<% end -%>
+
+<% if @hue_servers.length > 0 -%>
+  <property>
+    <name>hadoop.proxyuser.hue.hosts</name>
+    <value><%= @hue_servers %></value>
+  </property>
+
+  <property>
+    <name>hadoop.proxyuser.hue.groups</name>
+    <value>hue,users</value>
   </property>
 <% end -%>
 

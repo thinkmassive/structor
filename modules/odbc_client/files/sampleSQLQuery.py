@@ -1,6 +1,6 @@
 import pyodbc
 
-cnxn = pyodbc.connect('DSN=Sample Hortonworks Hive DSN 64;UID=vagrant;PWD=vagrant', autocommit=True)
+cnxn = pyodbc.connect('DSN=Hortonworks Hive DSN;UID=vagrant;PWD=vagrant', autocommit=True)
 cursor = cnxn.cursor()
 
 print "Number of records in sales_fact_1997 database:"

@@ -28,5 +28,4 @@ class ambari_server {
   exec { "ambari-server-start":
     command => "/usr/sbin/ambari-server start --silent"
   }
-
 }

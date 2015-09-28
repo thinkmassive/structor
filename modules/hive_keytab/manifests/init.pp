@@ -13,40 +13,15 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class hive_meta {
-  require hive_client
-  require hive_db
-
-  $path="/bin:/usr/bin"
-
+class hive_keytab {
   if $security == "true" {
-    require hive_keytab
-  }
-
-  package { "hive${package_version}-metastore":
-    ensure => installed,
-  }
-  ->
-  exec { "hdp-select set hive-metastore ${hdp_version}":
-    cwd => "/",
-    path => "$path",
-  }
-  ->
-  file { '/etc/init.d/hive-metastore':
-    ensure => file,
-    content => template('hive_meta/hive-metastore.erb'),
-    mode => 'a+rx',
-  }
-  ->
-  exec { "schematool -dbType mysql -initSchema":
-    user => "hive",
-    cwd => "/",
-    path => "/usr/hdp/current/hive-metastore/bin:$path",
-    unless => 'schematool -dbType mysql -info',
-  }
-  ->
-  service { 'hive-metastore':
-    ensure => running,
-    enable => true,
+    file { "Hiveserver2 Keytab":
+      path => "${hdfs_client::keytab_dir}/hive.keytab",
+      ensure => file,
+      source => "/vagrant/generated/keytabs/${hostname}/hive.keytab",
+      owner => hive,
+      group => hadoop,
+      mode => '400',
+    }
   }
 }
