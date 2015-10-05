@@ -17,11 +17,11 @@ class jdk {
   $HOME = "/usr/lib/jvm/java"
 
   if ($operatingsystem == "centos") {
-    package { "java-1.7.0-openjdk":
+    package { "$java_version":
       ensure => installed,
     }
 
-    package { "java-1.7.0-openjdk-devel":
+    package { "$java_version-devel":
       ensure => installed,
     }
   }

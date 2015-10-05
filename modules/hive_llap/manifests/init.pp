@@ -126,6 +126,7 @@ class hive_llap {
     path => $path,
     creates => $target_tez,
     user => "vagrant",
+    timeout => 900,
     require => Exec['Add Vendor Repos'],
   }
   ->
@@ -177,6 +178,7 @@ class hive_llap {
     command => 'mvn clean package -Denforcer.skip=true -DskipTests=true -Pdir -Pdist -Phadoop-2 -Dhadoop-0.23.version=$(hadoop version | head -1 | cut -d" " -f2) -Dbuild.profile=nohcat',
     creates => $target_hive,
     user => "vagrant",
+    timeout => 900,
     require => Exec['Add Vendor Repos'],
   }
   ->

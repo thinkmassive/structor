@@ -18,6 +18,14 @@ class hbase_regionserver {
 
   $path="/bin:/sbin:/usr/bin"
 
+  $component = "hbase-regionserver"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+  }
+
   case $operatingsystem {
     'centos': {
       package { "hbase${package_version}-regionserver" :
@@ -38,7 +46,7 @@ class hbase_regionserver {
       }
       # Fix incorrect startup script permissions (XXX: Is a bug filed for this?).
       ->
-      file { "/usr/hdp/${hdp_version}/etc/init.d/hbase-regionserver":
+      file { "$start_script":
         ensure => file,
         mode => '755',
       }
@@ -50,16 +58,26 @@ class hbase_regionserver {
     path => "$path",
   }
   ->
-  file { "/etc/init.d/hbase-regionserver":
-    ensure => file,
-    source => "puppet:///files/init.d/hbase-regionserver",
-    owner => root,
-    group => root,
-  }
-  ->
   service {"hbase-regionserver":
     ensure => running,
     enable => true,
     subscribe => File['/etc/hbase/conf/hbase-site.xml'],
+  }
+
+  # Replace broken start scripts if needed.
+  if ($hdp_version_major == 2 and $hdp_version_minor <= 3) {
+    file { "/etc/init.d/hbase-regionserver":
+      ensure => file,
+      source => "puppet:///files/init.d/hbase-regionserver",
+      owner => root,
+      group => root,
+      before => Service["hbase-regionserver"],
+    }
+  } else {
+    file { "/etc/init.d/hbase-regionserver":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hbase-regionserver"],
+    }
   }
 }

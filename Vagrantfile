@@ -117,6 +117,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "hdp_short_version" => profile[:hdp_short_version],
           "ambari_version" => profile[:ambari_version],
 	  "package_version" => package_version,
+          "java_version" => profile[:java_version],
           "platform_start_script_path" => platform_start_script_path,
 
           "am_mem" => profile[:am_mem],

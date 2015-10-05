@@ -159,6 +159,11 @@ if islastslave($nodes, $hostname) {
     include sample_hive_data
     Class['install_hdfs_tarballs'] -> Class['sample_hive_data']
   }
+
+  if ($extras and hasrole($extras, 'sample-phoenix-data')) {
+    include sample_phoenix_data
+    Class['hbase_regionserver'] -> Class['sample_phoenix_data']
+  }
 }
 
 # Ensure the kdc is brought up before major services.

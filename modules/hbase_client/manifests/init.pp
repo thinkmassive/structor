@@ -65,4 +65,21 @@ class hbase_client {
     ensure => file,
     content => template('hbase_client/regionservers.erb'),
   }
+
+  # Override Phoenix scripts to better support Kerberos.
+  # Should be removed at some point.
+  if ($hdp_version_major == 2 and $hdp_version_minor <= 3) {
+    file { '/usr/hdp/current/phoenix-client/bin/psql.py':
+      ensure => file,
+      source => "puppet:///modules/hbase_client/psql.py",
+      replace => true,
+      require => Package["phoenix${package_version}"],
+    }
+    file { '/usr/hdp/current/phoenix-client/bin/sqlline.py':
+      ensure => file,
+      source => "puppet:///modules/hbase_client/sqlline.py",
+      replace => true,
+      require => Package["phoenix${package_version}"],
+    }
+  }
 }

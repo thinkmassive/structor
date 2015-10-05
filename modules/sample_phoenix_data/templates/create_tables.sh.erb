@@ -1,0 +1,9 @@
+#!/bin/sh
+<%
+   @zookeeper_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'zk'}.
+      map{|node| node[:hostname] + "." + @domain + ":2181"}.join(",");
+ -%>
+/usr/hdp/current/phoenix-client/bin/psql.py \
+	<%= @zookeeper_servers %>:/hbase \
+	/vagrant/modules/sample_phoenix_data/files/foodmart_phoenix.sql

@@ -1,0 +1,10 @@
+#!/bin/sh
+<%
+   @zookeeper_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'zk'}.
+      map{|node| node[:hostname] + "." + @domain + ":2181"}.join(",");
+ -%>
+/usr/hdp/current/phoenix-client/bin/sqlline.py <%= @zookeeper_servers %>:/hbase 2>/dev/null << QUERY | egrep "'[0-9]+'"
+!outputformat csv
+select count(*) from foodmart.store;
+QUERY

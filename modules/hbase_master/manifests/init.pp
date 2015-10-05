@@ -18,6 +18,14 @@ class hbase_master {
 
   $path="/bin:/sbin:/usr/bin"
 
+  $component = "hbase-master"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+  }
+
   case $operatingsystem {
     'centos': {
       package { "hbase${package_version}-master" :
@@ -44,16 +52,26 @@ class hbase_master {
     path => "$path",
   }
   ->
-  file { "/etc/init.d/hbase-master":
-    ensure => file,
-    source => "puppet:///files/init.d/hbase-master",
-    owner => root,
-    group => root,
-  }
-  ->
   service {"hbase-master":
     ensure => running,
     enable => true,
     subscribe => File['/etc/hbase/conf/hbase-site.xml'],
+  }
+
+  # Replace broken start scripts if needed.
+  if ($hdp_version_major == 2 and $hdp_version_minor <= 3) {
+    file { "/etc/init.d/hbase-master":
+      ensure => file,
+      source => "puppet:///files/init.d/hbase-master",
+      owner => root,
+      group => root,
+      before => Service["hbase-master"],
+    }
+  } else {
+    file { "/etc/init.d/hbase-master":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hbase-master"],
+    }
   }
 }
