@@ -30,23 +30,33 @@ class hbase_master {
     'centos': {
       package { "hbase${package_version}-master" :
         ensure => installed,
+        before => Exec["hdp-select set hbase-master ${hdp_version}"],
       }
     }
-    # XXX: Work around BUG-39010.
     'ubuntu': {
-      exec { "apt-get download hbase${package_version}-master":
-        cwd => "/tmp",
-        path => "$path",
+      if ($hdp_version_major <= 2 and $hdp_version_minor < 3) {
+        # XXX: Work around BUG-39010.
+        exec { "apt-get download hbase${package_version}-master":
+          cwd => "/tmp",
+          path => "$path",
+        }
+        ->
+        exec { "dpkg -i --force-overwrite hbase${package_version}*master*.deb":
+          cwd => "/tmp",
+          path => "$path",
+          user => "root",
+          before => Exec["hdp-select set hbase-master ${hdp_version}"],
+        }
       }
-      ->
-      exec { "dpkg -i --force-overwrite hbase${package_version}*master*.deb":
-        cwd => "/tmp",
-        path => "$path",
-        user => "root",
+      else {
+        package { "hbase${package_version}-master" :
+          ensure => installed,
+          before => Exec["hdp-select set hbase-master ${hdp_version}"],
+        }
       }
     }
   }
-  ->
+
   exec { "hdp-select set hbase-master ${hdp_version}":
     cwd => "/",
     path => "$path",

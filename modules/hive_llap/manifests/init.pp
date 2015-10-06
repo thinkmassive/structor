@@ -18,6 +18,7 @@
 class hive_llap {
   require hive_client
   require tez_client
+  require slider
 
   $INSTALL_ROOT="/usr/hdp/autobuild"
   $TEZ_BRANCH="master"
@@ -37,7 +38,7 @@ class hive_llap {
   $target_tez="/tmp/tezsrc/tez-dist/target/tez-$TEZ_VERSION.tar.gz"
 
   # Build tools I need.
-  package { [ "curl", "gcc", "gcc-c++", "cmake", "git", "slider" ]:
+  package { [ "curl", "gcc", "gcc-c++", "cmake", "git" ]:
     ensure => installed,
     before => Exec["curl -O $PROTOBUF_DIST"],
   }
@@ -182,10 +183,26 @@ class hive_llap {
     require => Exec['Add Vendor Repos'],
   }
   ->
+  exec {"rm -rf /usr/hdp/autobuild/hive/conf.dist":
+    cwd => "/",
+    path => $path,
+  }
+  ->
   exec {"Deploy Hive":
     cwd => "/tmp/hivesrc",
     path => $path,
     command => "tar -C $INSTALL_ROOT -xzvf $target_hive",
+  }
+  ->
+  exec {"mv /usr/hdp/autobuild/hive/conf /usr/hdp/autobuild/hive/conf.dist":
+    cwd => "/",
+    path => $path,
+  }
+  ->
+  file {"/usr/hdp/autobuild/hive/conf":
+    ensure => link,
+    target => "/etc/hive/conf",
+    replace => "true",
   }
   ->
   file {"$INSTALL_ROOT/hive":

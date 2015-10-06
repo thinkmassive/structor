@@ -46,29 +46,39 @@ class zookeeper_server {
     'centos': {
       package { "zookeeper${package_version}-server":
         ensure => installed,
+        before => Exec["hdp-select set zookeeper-server ${hdp_version}"],
       }
     }
-    # XXX: Work around BUG-39010.
     'ubuntu': {
-      exec { "apt-get download zookeeper${package_version}-server":
-        cwd => "/tmp",
-        path => "$path",
+      if ($hdp_version_major <= 2 and $hdp_version_minor < 3) {
+        # XXX: Work around BUG-39010.
+        exec { "apt-get download zookeeper${package_version}-server":
+          cwd => "/tmp",
+          path => "$path",
+        }
+        ->
+        exec { "dpkg -i --force-overwrite zookeeper${package_version}*.deb":
+          cwd => "/tmp",
+          path => "$path",
+          user => "root",
+        }
+        # Fix incorrect startup script permissions.
+        ->
+        file { "/usr/hdp/${hdp_version}/etc/init.d/zookeeper-server":
+          ensure => file,
+          mode => '755',
+          before => Exec["hdp-select set zookeeper-server ${hdp_version}"],
+        }
       }
-      ->
-      exec { "dpkg -i --force-overwrite zookeeper${package_version}*.deb":
-        cwd => "/tmp",
-        path => "$path",
-        user => "root",
-      }
-      # Fix incorrect startup script permissions (XXX: Is a bug filed for this?).
-      ->
-      file { "/usr/hdp/${hdp_version}/etc/init.d/zookeeper-server":
-        ensure => file,
-        mode => '755',
+      else {
+        package { "zookeeper${package_version}-server":
+          ensure => installed,
+          before => Exec["hdp-select set zookeeper-server ${hdp_version}"],
+        }
       }
     }
   }
-  ->
+
   exec { "hdp-select set zookeeper-server ${hdp_version}":
     cwd => "/",
     path => "$path",
