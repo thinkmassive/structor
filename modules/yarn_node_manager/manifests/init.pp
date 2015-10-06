@@ -61,23 +61,26 @@ class yarn_node_manager {
   file { "/etc/init.d/hadoop-yarn-nodemanager":
     ensure => 'link',
     target => "$start_script",
+    before => Service["hadoop-yarn-nodemanager"],
   }
-  ->
-  exec { "chgrp yarn /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":
-    # Bug: The Ubuntu packages don't work on secure cluster due to wrong group membership.
-    cwd => "/",
-    path => "$path",
+
+  if ($operatingsystem == "ubuntu" and $hdp_version_major <= 2 and $hdp_version_minor <= 3 and $hdp_version_patch <= 2) {
+    exec { "chgrp yarn /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":
+      # Bug: The Ubuntu packages don't work on secure cluster due to wrong group membership.
+      cwd => "/",
+      path => "$path",
+    }
+    ->
+    exec { "chmod 6050 /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":
+      # Bug: Puppet can't deal with a mode of 6050.
+      cwd => "/",
+      path => "$path",
+      before => Service["hadoop-yarn-nodemanager"],
+    }
   }
-  ->
-  exec { "chmod 6050 /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":
-    # Bug: Puppet can't deal with a mode of 6050.
-    cwd => "/",
-    path => "$path",
-  }
-  ->
+
   service {"hadoop-yarn-nodemanager":
     ensure => running,
     enable => true,
   }
-
 }
