@@ -25,6 +25,13 @@ class hdfs_client {
   $pid_dir="/var/run/pid"
   $keytab_dir="/etc/security/hadoop"
 
+  if ($operatingsystem == "ubuntu") {
+    $cacerts_path="/etc/ssl/certs/java/cacerts"
+  }
+  else {
+    $cacerts_path="/etc/pki/java/cacerts"
+  }
+
   package { "hadoop${package_version}":
     ensure => installed,
   }
@@ -148,7 +155,7 @@ class hdfs_client {
     exec {"keytool -importcert -noprompt -alias horton-ca -keystore ${jdk::HOME}/jre/lib/security/cacerts -storepass changeit -file ca.crt":
       cwd => "/vagrant/generated/ssl-ca",
       path => "$path",
-      unless => "keytool -list -alias horton-ca -keystore /etc/pki/java/cacerts -storepass changeit",
+      unless => "keytool -list -alias horton-ca -keystore ${cacerts_path} -storepass changeit",
     }
 
     file {"${conf_dir}/ssl-client.xml":
