@@ -48,6 +48,15 @@ class zookeeper_server {
         ensure => installed,
         before => Exec["hdp-select set zookeeper-server ${hdp_version}"],
       }
+      if ($hdp_version_major == 2 and $hdp_version_minor == 3 and $hdp_version_patch == 2) {
+        file { "$start_script":
+          ensure => 'file',
+          source => 'puppet:///modules/zookeeper_server/zookeeper-server',
+          replace => true,
+          require => Package["zookeeper${package_version}-server"],
+          before => Service["zookeeper-server"],
+        }
+      }
     }
     'ubuntu': {
       if ($hdp_version_major <= 2 and $hdp_version_minor < 3) {

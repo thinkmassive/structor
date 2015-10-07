@@ -64,9 +64,9 @@ class yarn_node_manager {
     before => Service["hadoop-yarn-nodemanager"],
   }
 
-  if ($operatingsystem == "ubuntu" and $hdp_version_major <= 2 and $hdp_version_minor <= 3 and $hdp_version_patch <= 2) {
+  if ($hdp_version_major <= 2 and $hdp_version_minor <= 3 and $hdp_version_patch <= 2) {
     exec { "chgrp yarn /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":
-      # Bug: The Ubuntu packages don't work on secure cluster due to wrong group membership.
+      # Bug: Older packages don't work on secure cluster due to wrong group membership.
       cwd => "/",
       path => "$path",
     }
