@@ -16,12 +16,11 @@
 class odbc_client {
   $path="/bin:/usr/bin"
 
-  $build="hive-odbc-native-2.0.0.1000"
-  $tarbase="$build-centos6"
+  $version="2.0.5.1005"
+  $build="hive-odbc-native-$version"
   $rpmbase="$build-1.el6.x86_64"
   $rpm="$rpmbase.rpm"
-  $driver="$tarbase.tar.gz"
-  $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/2.0.0-1000/centos6/$driver"
+  $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/centos6/$rpm"
 
   $config_path="/usr/local/odbc"
   $odbcini_path="$config_path/odbc.ini"
@@ -45,16 +44,9 @@ class odbc_client {
     unless => "md5sum -c expected_sums_odbc.txt --quiet",
   }
   ->
-  exec { "Extract ODBC":
-    command => "tar -zxf $driver",
-    cwd => "/tmp",
-    path => "$path",
-    creates => "/tmp/$tarbase",
-  }
-  ->
   exec { "Install ODBC":
     command => "rpm -i $rpm",
-    cwd => "/tmp/$tarbase",
+    cwd => "/tmp",
     path => "$path",
     unless => "rpm -qa | grep $build",
     before => File["$config_path"],

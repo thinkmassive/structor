@@ -1,5 +1,5 @@
 {
-  "hdp_short_version": "2.3.0",
+  "hdp_short_version": "2.3.2",
 
   "vm_mem": 4096,
   "vm_cpus": 4,
@@ -15,9 +15,9 @@
   "clients" : [ "hdfs", "hive", "tez", "yarn", "odbc" ],
 
   "nodes": [
-    {"hostname": "n1", "ip": "240.0.0.11",
+    {"hostname": "odbc1", "ip": "240.0.0.11",
      "roles": ["client", "kdc", "hive-db", "hive-meta", "hive-server2", "nn", "slave", "yarn", "zk"]},
-    {"hostname": "n2", "ip": "240.0.0.12",
+    {"hostname": "odbc2", "ip": "240.0.0.12",
      "roles": ["client", "hive-server2", "slave"]}
   ],
 

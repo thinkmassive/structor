@@ -1,1 +1,1 @@
-c00b3e6d204ea51c9b96d5817f03b44e  hive-odbc-native-2.0.0.1000-centos6.tar.gz
+9a25457d6d80d0cd2a895915a32a449c  hive-odbc-native-2.0.5.1005-1.el6.x86_64.rpm
