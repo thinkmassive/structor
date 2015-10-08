@@ -13,28 +13,19 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class ambari_server {
-  require repos_setup
-  $path="/bin:/sbin:/usr/bin"
+class ambari_views {
+  require ambari_server
 
-  package { "ambari-server":
-    ensure => installed
+  $path="/bin:/usr/bin:/usr/sbin"
+
+  file { "/tmp/create_views.sh":
+    ensure => "file",
+    mode => 755,
+    content => template('ambari_views/create_views.sh.erb'),
   }
   ->
-  exec { "ambari-server-setup":
-    command => "/usr/sbin/ambari-server setup -j /usr/lib/jvm/java --silent"
-  }
-  ->
-  exec { "Fix startup script":
-    command => "/vagrant/modules/ambari_server/files/fix_broken_start_script.sh"
-  }
-  ->
-  exec { "ambari-server-start":
-    command => "/usr/sbin/ambari-server start --silent"
-  }
-  ->
-  exec { "Fix Ambari's embedded Postgres to survive reboot":
-    command => "chkconfig postgresql --levels 2345 on",
-    path => $path,
+  exec { "/tmp/create_views.sh":
+    cwd => "/tmp",
+    path => "$path",
   }
 }

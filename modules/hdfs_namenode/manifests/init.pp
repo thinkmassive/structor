@@ -18,7 +18,7 @@ class hdfs_namenode {
   require hadoop_server
 
   $PATH="/bin:/usr/bin"
-  $dirs="/user/yarn /user/yarn/history /user/yarn/app-logs /user/vagrant /user/hive /user/oozie /apps/hive/warehouse /apps/hbase /tmp /hdp/apps/${hdp_version}/mapreduce /hdp/apps/${hdp_version}/tez /hdp/apps/${hdp_version}/pig /hdp/apps/${hdp_version}/hive"
+  $dirs="/user/yarn /user/yarn/history /user/yarn/app-logs /user/vagrant /user/hive /user/oozie /user/admin /apps/hive/warehouse /apps/hbase /tmp /hdp/apps/${hdp_version}/mapreduce /hdp/apps/${hdp_version}/tez /hdp/apps/${hdp_version}/pig /hdp/apps/${hdp_version}/hive"
   $mode177_dirs="/user/yarn/app-logs /apps/hive/warehouse /apps/hbase /tmp"
 
   $component = "hadoop-hdfs-namenode"
@@ -119,6 +119,12 @@ class hdfs_namenode {
   ->
   exec {"hive-chown":
     command => "hadoop fs -chown hive:hive /user/hive /apps/hive/warehouse",
+    path => "$PATH",
+    user => "hdfs",
+  }
+  ->
+  exec {"admin-home-chown":
+    command => "hadoop fs -chown admin:admin /user/admin",
     path => "$PATH",
     user => "hdfs",
   }

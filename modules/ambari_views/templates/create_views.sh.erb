@@ -1,0 +1,96 @@
+<%
+  @ambari = eval(@nodes).select {|node| node[:roles].include? 'ambari-server'
+                  }[0][:hostname] + "." + @domain;
+  @hive_server2 = eval(@nodes).select {|node| node[:roles].include? 'hive-server2'
+                  }[0][:hostname] + "." + @domain;
+  @metastore = eval(@nodes).select {|node| node[:roles].include? 'hive-meta'
+                  }[0][:hostname] + "." + @domain;
+  @namenode = eval(@nodes).select {|node| node[:roles].include? 'nn'
+                  }[0][:hostname] + "." + @domain;
+  @yarn = eval(@nodes).select {|node| node[:roles].include? 'yarn'
+                  }[0][:hostname] + "." + @domain;
+-%>
+#!/bin/sh
+
+CURL="curl -ksSu admin:admin -H x-requested-by:ambari http://<%= @ambari %>:8080/api/v1"
+
+########################################################################
+## hdfs view
+read -r -d '' body <<EOF
+{
+  "ViewInstanceInfo": {
+    "instance_name": "Files", "label": "Files", "description": "Files",
+    "visible": true,
+    "properties": {
+      "webhdfs.username": "\${username}",
+      "webhdfs.auth": "null",
+      "webhdfs.url": "webhdfs://<%= @namenode %>:50070"
+    }
+  }
+}
+EOF
+${CURL}/views/FILES/versions/1.0.0/instances/Files -X DELETE
+echo "${body}" | ${CURL}/views/FILES/versions/1.0.0/instances/Files -X POST -d @-
+
+########################################################################
+## hive view
+read -r -d '' body <<EOF
+{
+  "ViewInstanceInfo": {
+    "instance_name": "Hive", "label": "Hive", "description": "Hive",
+    "visible": true,
+    "properties": {
+      "hive.auth": "auth=None",
+      "hive.host": "<%= @hive_server2 %>",
+      "hive.port": "10000",
+      "jobs.dir": "/user/\${username}/hive/jobs",
+      "scripts.dir": "/user/\${username}/hive/scripts",
+      "scripts.settings.defaults-file": "/user/\${username}/.\${instanceName}.defaultSettings",
+      "views.tez.instance": "TEZ_CLUSTER_INSTANCE",
+      "webhdfs.username": "\${username}",
+      "webhdfs.auth": "auth=SIMPLE",
+      "webhdfs.url": "webhdfs://<%= @namenode %>:50070",
+      "yarn.ats.url": "http://<%= @yarn %>:8188",
+      "yarn.resourcemanager.url": "http://<%= @yarn %>:8088"
+    }
+  }
+}
+EOF
+${CURL}/views/HIVE/versions/1.0.0/instances/Hive -X DELETE
+echo "${body}" | ${CURL}/views/HIVE/versions/1.0.0/instances/Hive -X POST -d @-
+
+########################################################################
+## pig view
+read -r -d '' body <<EOF
+{
+  "ViewInstanceInfo": {
+    "instance_name": "Pig", "label": "Pig", "description": "Pig",
+    "visible": true,
+    "properties": {
+      "webhdfs.username": "\${username}",
+      "webhdfs.auth": "null",
+      "webhdfs.url": "webhdfs://<%= @namenode %>:50070",
+      "scripts.dir": "/user/\${username}/pig/scripts",
+      "jobs.dir": "/user/\${username}/pig/jobs",
+      "webhcat.username": "\${username}",
+      "webhcat.hostname": "<%= @metastore %>",
+      "webhcat.port": "12345"
+    }
+  }
+}
+EOF
+url="${CURL}/views/PIG/versions/1.0.0/instances/Pig"
+${url} -X DELETE
+echo "${body}" | ${url} -X POST -d @-
+
+# Add a vagrant user.
+read -r -d '' body <<EOF
+{
+    "Users/user_name": "vagrant",
+    "Users/password":  "vagrant",
+    "Users/active": true,
+    "Users/admin": true
+}
+EOF
+url="${CURL}/users"
+echo "${body}" | ${url} -X POST -d @-
