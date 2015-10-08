@@ -20,6 +20,8 @@
    # The list of roles and hive servers that need to proxy for others
    @hcat_roles = ['hcat', 'hue'];
    @hive_roles = ['hive-meta', 'hive-server2'];
+   @ambari_servers = eval(@nodes).select {|node| node[:roles].include? 'ambari-server'
+       }.map{|node| node[:hostname] + "." + @domain}.join(",");
    @hcat_servers = eval(@nodes).
       select {|node| (node[:roles] & @hcat_roles).length > 0}.
       map{|node| node[:hostname] + "." + @domain}.join(",");
@@ -93,6 +95,30 @@
     <value>30000</value>
   </property>
 
+<% if @hive_servers.length > 0 -%>
+  <property>
+    <name>hadoop.proxyuser.hive.groups</name>
+    <value>users</value>
+  </property>
+
+  <property>
+    <name>hadoop.proxyuser.hive.hosts</name>
+    <value><%= @hive_servers %></value>
+  </property>
+<% end -%>
+
+<% if @hcat_servers.length > 0 -%>
+  <property>
+    <name>hadoop.proxyuser.hcat.groups</name>
+    <value>users</value>
+  </property>
+    
+  <property>
+    <name>hadoop.proxyuser.hcat.hosts</name>
+    <value><%= @hcat_servers %></value>
+  </property>
+<% end -%>
+
 <% if @oozie_servers.length > 0 -%>
   <property>
     <name>hadoop.proxyuser.oozie.groups</name>
@@ -102,6 +128,18 @@
   <property>
     <name>hadoop.proxyuser.oozie.hosts</name>
     <value><%= @oozie_servers %></value>
+  </property>
+<% end -%>
+
+<% if @ambari_servers.length > 0 -%>
+  <property>
+    <name>hadoop.proxyuser.root.hosts</name>
+    <value><%= @ambari_servers %></value>
+  </property>
+
+  <property>
+    <name>hadoop.proxyuser.root.groups</name>
+    <value>root,users</value>
   </property>
 <% end -%>
 
@@ -137,26 +175,6 @@ DEFAULT</value>
   </property>
     
   <property>
-    <name>hadoop.proxyuser.hive.groups</name>
-    <value>users</value>
-  </property>
-
-  <property>
-    <name>hadoop.proxyuser.hive.hosts</name>
-    <value><%= @hive_servers %></value>
-  </property>
-
-  <property>
-    <name>hadoop.proxyuser.hcat.groups</name>
-    <value>users</value>
-  </property>
-    
-  <property>
-    <name>hadoop.proxyuser.hcat.hosts</name>
-    <value><%= @hcat_servers %></value>
-  </property>
-
-  <property>
     <name>hadoop.http.filter.initializers</name>
     <value>org.apache.hadoop.security.AuthenticationFilterInitializer</value>
   </property>
@@ -186,4 +204,5 @@ DEFAULT</value>
     <value><%= @keytab_dir %>/http-secret</value>
   </property>
 <% end -%>
+
 </configuration>

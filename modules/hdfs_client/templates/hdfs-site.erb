@@ -226,7 +226,7 @@
 
   <property>
     <name>dfs.replication.max</name>
-    <value><%= [50, @numslaves].min %></value>
+    <value><%= [ [50, @numslaves].min, 3 ].max %></value>
   </property>
 
   <property>
