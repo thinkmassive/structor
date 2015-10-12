@@ -13,33 +13,48 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class hue_server {
-  require repos_setup
+class yarn_timelineserver {
+  require yarn_client
+
+  $path="/bin:/usr/bin"
 
   if $security == "true" {
+    require kerberos_http
     require hdfs_client
 
-    file { "${hdfs_client::keytab_dir}/hue.keytab":
+    file { "${hdfs_client::keytab_dir}/ats.keytab":
       ensure => file,
-      source => "/vagrant/generated/keytabs/${hostname}/hue.keytab",
-      owner => 'hue',
-      group => 'hadoop',
+      source => "/vagrant/generated/keytabs/${hostname}/ats.keytab",
+      owner => yarn,
+      group => hadoop,
       mode => '400',
     }
-    ->
-    Package["hue"]
   }
 
-  package { "hue":
-    ensure => installed
+  $component = "hadoop-yarn-timelineserver"
+  if ($hdp_version_minor >= 3) {
+    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+  }
+
+  package { "hadoop${package_version}-yarn-timelineserver" :
+    ensure => installed,
   }
   ->
-  file { "/etc/hue/conf/hue.ini":
-    ensure => file,
-    content => template('hue_server/hue.ini.erb'),
+  exec { "hdp-select set hadoop-yarn-timelineserver ${hdp_version}":
+    cwd => "/",
+    path => "$path",
   }
   ->
-  service { 'hue':
+  file { "/etc/init.d/hadoop-yarn-timelineserver":
+    ensure => 'link',
+    target => "$start_script",
+    before => Service["hadoop-yarn-timelineserver"],
+  }
+
+  service {"hadoop-yarn-timelineserver":
     ensure => running,
     enable => true,
   }

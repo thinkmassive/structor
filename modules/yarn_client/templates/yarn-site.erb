@@ -18,6 +18,9 @@
     eval(@nodes).select {|node| node[:roles].include? 'yarn'}.
                  map{|node| node[:hostname] + "." + @domain};
     @yarn = @yarnlist.size > 0 ? @yarnlist[0] : "unknown";
+    @ats_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'yarn-timelineserver'}.
+      map{|node| node[:hostname] + "." + @domain};
  -%>
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
@@ -80,11 +83,6 @@
   </property>
     
   <property>
-    <name>yarn.timeline-service.ttl-ms</name>
-    <value>2678400000</value>
-  </property>
-    
-  <property>
     <name>yarn.scheduler.maximum-allocation-mb</name>
     <value>2048</value>
   </property>
@@ -100,33 +98,110 @@
   </property>
     
   <property>
-    <name>yarn.timeline-service.leveldb-timeline-store.ttl-interval-ms</name>
-    <value>300000</value>
-  </property>
-    
-  <property>
     <name>yarn.nodemanager.container-monitor.interval-ms</name>
     <value>3000</value>
+  </property>
+
+<% if @ats_servers.length > 0 -%>
+  <property>
+    <name>yarn.timeline-service.enabled</name>
+    <value>true</value>
   </property>
     
   <property>
     <name>yarn.timeline-service.webapp.address</name>
-    <value><%= @yarn %>:8188</value>
+    <value><%= @ats_servers[0] %>:8188</value>
   </property>
     
   <property>
-    <name>yarn.timeline-service.enabled</name>
-    <value>false</value>
-  </property>
-    
-  <property>
-    <name>yarn.nodemanager.local-dirs</name>
-    <value><%= scope.lookupvar('hdfs_client::data_dir') %>/yarn/node</value>
+    <name>yarn.timeline-service.webapp.https.address</name>
+    <value><%= @ats_servers[0] %>:8190</value>
   </property>
     
   <property>
     <name>yarn.timeline-service.address</name>
     <value>0.0.0.0:10200</value>
+  </property>
+    
+  <property>
+    <name>yarn.timeline-service.ttl-enable</name>
+    <value>true</value>
+  </property>
+    
+  <property>
+    <name>yarn.timeline-service.leveldb-timeline-store.ttl-interval-ms</name>
+    <value>300000</value>
+  </property>
+    
+  <property>
+    <name>yarn.timeline-service.ttl-ms</name>
+    <value>2678400000</value>
+  </property>
+    
+  <property>
+    <name>yarn.timeline-service.store-class</name>
+    <value>org.apache.hadoop.yarn.server.timeline.LeveldbTimelineStore</value>
+  </property>
+    
+  <property>
+    <name>yarn.timeline-service.leveldb-timeline-store.path</name>
+    <value>/var/log/hadoop/yarn</value>
+  </property>
+    
+  <property>
+    <name>yarn.timeline-service.generic-application-history.store-class</name>
+    <value>org.apache.hadoop.yarn.server.applicationhistoryservice.NullApplicationHistoryStore</value>
+  </property>
+
+<% if @security == "true" -%>
+  <property>
+    <name>yarn.timeline-service.keytab</name>
+    <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/ats.keytab</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.principal</name>
+    <value>ats/_HOST@<%= @realm %></value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.http-authentication.type</name>
+    <value>kerberos</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.http-authentication.cookie.domain</name>
+    <value>example.com</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.http-authentication.kerberos.principal</name>
+    <value>HTTP/_HOST@EXAMPLE.COM</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.http-authentication.kerberos.keytab</name>
+    <value>/etc/security/hadoop/http.keytab</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.http-authentication.signature.secret.file</name>
+    <value>/etc/security/hadoop/http-secret</value>
+  </property>
+<% end -%>
+
+<% else -%>
+
+  <property>
+    <name>yarn.timeline-service.enabled</name>
+    <value>false</value>
+  </property>
+
+<% end -%>
+    
+  <property>
+    <name>yarn.nodemanager.local-dirs</name>
+    <value><%= scope.lookupvar('hdfs_client::data_dir') %>/yarn/node</value>
   </property>
     
   <property>
@@ -147,11 +222,6 @@
   <property>
     <name>yarn.nodemanager.log-dirs</name>
     <value><%= scope.lookupvar('hdfs_client::log_dir') %>/yarn/node</value>
-  </property>
-    
-  <property>
-    <name>yarn.timeline-service.ttl-enable</name>
-    <value>true</value>
   </property>
     
   <property>
@@ -185,11 +255,6 @@
   </property>
     
   <property>
-    <name>yarn.timeline-service.store-class</name>
-    <value>org.apache.hadoop.yarn.server.applicationhistoryservice.timeline.LeveldbTimelineStore</value>
-  </property>
-    
-  <property>
     <name>yarn.admin.acl</name>
     <value></value>
   </property>
@@ -210,11 +275,6 @@
   </property>
     
   <property>
-    <name>yarn.timeline-service.leveldb-timeline-store.path</name>
-    <value><%= @user_logs %>/timeline</value>
-  </property>
-    
-  <property>
     <name>yarn.nodemanager.remote-app-log-dir</name>
     <value><%= @user_logs %>/app-logs</value>
   </property>
@@ -232,16 +292,6 @@
   <property>
     <name>yarn.resourcemanager.admin.address</name>
     <value><%= @yarn %>:8141</value>
-  </property>
-    
-  <property>
-    <name>yarn.timeline-service.generic-application-history.store-class</name>
-    <value>org.apache.hadoop.yarn.server.applicationhistoryservice.NullApplicationHistoryStore</value>
-  </property>
-    
-  <property>
-    <name>yarn.timeline-service.webapp.https.address</name>
-    <value><%= @yarn %>:8190</value>
   </property>
     
   <property>
@@ -296,11 +346,6 @@
   </property>
 
   <property>
-    <name>yarn.http.policy</name>
-    <value>https_only</value>
-  </property>
-
-  <property>
     <name>yarn.log.server.url</name>
     <value>https://<%= @yarn %>:19890/jobhistory/logs</value>
   </property>
@@ -308,6 +353,13 @@
   <property>
     <name>yarn.log.server.url</name>
     <value>http://<%= @yarn %>:19888/jobhistory/logs</value>
+  </property>
+<% end -%>
+
+<% if @security == "true" and @ats_servers.length == 0 -%>
+  <property>
+    <name>yarn.http.policy</name>
+    <value>https_only</value>
   </property>
 <% end -%>
 

@@ -55,4 +55,11 @@ class hive_server2 {
     ensure => running,
     enable => true,
   }
+
+  file { "/home/vagrant/extractHiveServer2Queries.py":
+    ensure => "file",
+    source => 'puppet:///modules/hive_server2/extractHiveServer2Queries.py',
+    owner => vagrant,
+    group => vagrant,
+  }
 }

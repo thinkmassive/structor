@@ -1,5 +1,5 @@
 {
-  "vm_mem": 4096,
+  "vm_mem": 6144,
   "vm_cpus": 4,
 
   "am_mem": 512,

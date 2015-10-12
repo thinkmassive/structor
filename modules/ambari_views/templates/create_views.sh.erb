@@ -23,7 +23,11 @@ read -r -d '' body <<EOF
     "visible": true,
     "properties": {
       "webhdfs.username": "\${username}",
+<% if @security == "true" -%>
+      "webhdfs.auth": "auth=KERBEROS;proxyuser=ambari",
+<% else -%>
       "webhdfs.auth": "null",
+<% end -%>
       "webhdfs.url": "webhdfs://<%= @namenode %>:50070"
     }
   }
@@ -40,15 +44,23 @@ read -r -d '' body <<EOF
     "instance_name": "Hive", "label": "Hive", "description": "Hive",
     "visible": true,
     "properties": {
+<% if @security == "true" -%>
+      "hive.auth": "auth=KERBEROS;principal=hive/<%= @metastore %>@<%= @realm %>",
+<% else -%>
       "hive.auth": "auth=None",
+<% end -%>
       "hive.host": "<%= @hive_server2 %>",
       "hive.port": "10000",
       "jobs.dir": "/user/\${username}/hive/jobs",
       "scripts.dir": "/user/\${username}/hive/scripts",
       "scripts.settings.defaults-file": "/user/\${username}/.\${instanceName}.defaultSettings",
-      "views.tez.instance": "TEZ_CLUSTER_INSTANCE",
+      "views.tez.instance": "Tez",
       "webhdfs.username": "\${username}",
+<% if @security == "true" -%>
+      "webhdfs.auth": "auth=KERBEROS;proxyuser=ambari",
+<% else -%>
       "webhdfs.auth": "auth=SIMPLE",
+<% end -%>
       "webhdfs.url": "webhdfs://<%= @namenode %>:50070",
       "yarn.ats.url": "http://<%= @yarn %>:8188",
       "yarn.resourcemanager.url": "http://<%= @yarn %>:8088"
@@ -58,6 +70,24 @@ read -r -d '' body <<EOF
 EOF
 ${CURL}/views/HIVE/versions/1.0.0/instances/Hive -X DELETE
 echo "${body}" | ${CURL}/views/HIVE/versions/1.0.0/instances/Hive -X POST -d @-
+
+########################################################################
+## tez view
+read -r -d '' body <<EOF
+{
+  "ViewInstanceInfo": {
+    "instance_name": "Tez", "label": "Tez", "description": "Tez",
+    "visible": true,
+    "properties": {
+      "yarn.timeline-server.url": "http://<%= @yarn %>:8188",
+      "yarn.resourcemanager.url": "http://<%= @yarn %>:8088"
+    }
+  }
+}
+EOF
+url="${CURL}/views/TEZ/versions/0.7.0.2.3.2.0-377/instances/Tez"
+${url} -X DELETE
+echo "${body}" | ${url} -X POST -d @-
 
 ########################################################################
 ## pig view

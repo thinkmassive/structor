@@ -20,17 +20,19 @@ KEYDIR=/vagrant/generated/keytabs
    password = scope.lookupvar('kerberos_kdc::password');
    nodelist = eval(nodes); 
    # a map from roles to required users
-   users = {'nn' => ['nn', 'HTTP'],
-            'yarn' => ['rm', 'jhs', 'HTTP'],
-            'slave' => ['nm', 'dn', 'HTTP'],
+   users = {'ambari-server' => ['ambari'],
+            'flume' => ['flume', 'HTTP'],
+            'hbase-master' => ['hbase', 'HTTP'],
+            'hbase-regionserver' => ['hbase', 'HTTP'],
             'hive-meta' => ['hive'],
             'hive-server2' => ['hive'],
             'hue' => ['hue'],
             'llap-server' => ['hive'],
+            'nn' => ['nn', 'HTTP'],
             'oozie' => ['oozie', 'HTTP'],
-            'hbase-master' => ['hbase', 'HTTP'],
-            'hbase-regionserver' => ['hbase', 'HTTP'],
-            'flume' => ['flume', 'HTTP'],
+            'slave' => ['nm', 'dn', 'HTTP'],
+            'yarn' => ['rm', 'jhs', 'HTTP'],
+            'yarn-timelineserver' => ['ats'],
             'zk' => ['zookeeper']}; -%>
 
 # ensure we don't have old keytabs

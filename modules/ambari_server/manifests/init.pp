@@ -15,7 +15,39 @@
 
 class ambari_server {
   require repos_setup
-  $path="/bin:/sbin:/usr/bin"
+  $path="/bin:/usr/bin:/sbin:/usr/sbin"
+
+  if $security == "true" {
+    require hdfs_client
+
+    file { "${hdfs_client::keytab_dir}/ambari.keytab":
+      ensure => file,
+      source => "/vagrant/generated/keytabs/${hostname}/ambari.keytab",
+      owner => 'root',
+      group => 'root',
+      mode => '400',
+    }
+    ->
+    Package["ambari-server"]
+
+    file { "/tmp/setup-ambari-security.sh":
+      ensure => "file",
+      mode => 755,
+      content => template('ambari_server/setup-ambari-security.sh.erb'),
+    }
+    ->
+    exec { "/tmp/setup-ambari-security.sh":
+      cwd => "/tmp",
+      path => "$path",
+      require => Exec["ambari-server-setup"],
+    }
+  }
+
+  # For when Ambari supports secure installation.
+  user { "ambari" : 
+    ensure => present,
+    before => Package["ambari-server"],
+  }
 
   package { "ambari-server":
     ensure => installed

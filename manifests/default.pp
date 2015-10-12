@@ -152,6 +152,10 @@ if hasrole($roles, 'yarn') {
   include yarn_resource_manager
 }
 
+if hasrole($roles, 'yarn-timelineserver') {
+  include yarn_timelineserver
+}
+
 if hasrole($roles, 'zk') {
   include zookeeper_server
 }
@@ -172,20 +176,24 @@ if islastslave($nodes, $hostname) {
 
 # Ensure the kdc is brought up before major services.
 if $security == "true" and hasrole($roles, 'kdc') {
-  if hasrole($roles, 'nn') {
-    Class['kerberos_kdc'] -> Class['hdfs_namenode']
-  }
-
-  if hasrole($roles, 'hive-meta') {
-    Class['kerberos_kdc'] -> Class['hive_meta']
+  if hasrole($roles, 'ambari-server') {
+    Class['kerberos_kdc'] -> Class['ambari_server']
   }
 
   if hasrole($roles, 'hbase-master') {
     Class['kerberos_kdc'] -> Class['hbase_master']
   }
 
+  if hasrole($roles, 'hive-meta') {
+    Class['kerberos_kdc'] -> Class['hive_meta']
+  }
+
   if hasrole($roles, 'hbase-regionserver') {
     Class['kerberos_kdc'] -> Class['hbase_regionserver']
+  }
+
+  if hasrole($roles, 'nn') {
+    Class['kerberos_kdc'] -> Class['hdfs_namenode']
   }
 }
 
