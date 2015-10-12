@@ -43,10 +43,14 @@ class ambari_server {
     }
   }
 
-  # For when Ambari supports secure installation.
+  # Ambari doesn't facilitate secure installations but we ease the pain a bit
+  # by adding an account and putting it in the users group. This will allow
+  # impersonation if we use views to run jobs. Ambari should not be run as root
+  # in a real setting but this can't be automated today.
   user { "ambari" : 
     ensure => present,
     before => Package["ambari-server"],
+    groups => "users",
   }
 
   package { "ambari-server":
