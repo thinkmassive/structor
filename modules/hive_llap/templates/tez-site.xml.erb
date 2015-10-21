@@ -1,7 +1,8 @@
+<?xml version="1.0"?>
 <configuration>
   <property>
     <name>tez.lib.uris</name>
-    <value>${fs.default.name}/apps</value>
+    <value>${fs.default.name}/user/vagrant/apps/llap/tez/tez.tar.gz</value>
   </property>
   <property>
     <name>tez.am.log.level</name>
@@ -33,7 +34,7 @@
   </property>
   <property>
     <name>tez.am.resource.memory.mb</name>
-    <value>${mapreduce.map.memory.mb}</value>
+    <value><%= am_mem %></value>
   </property>
   <property>
     <name>tez.am.launch.cmd-opts</name>
@@ -114,7 +115,7 @@
   </property>
   <property>
     <name>tez.simple.history.logging.dir</name>
-    <value>${fs.default.name}/tez-history/</value>
+    <value>${fs.default.name}/user/vagrant/tez-history/</value>
   </property>
   <property>
     <name>tez.history.logging.service.class</name>

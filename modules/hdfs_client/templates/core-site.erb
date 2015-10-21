@@ -30,6 +30,8 @@
       map{|node| node[:hostname] + "." + @domain}.join(",");
    @hue_servers = eval(@nodes).select {|node| node[:roles].include? 'hue'
        }.map{|node| node[:hostname] + "." + @domain}.join(",");
+   @llap_servers = eval(@nodes).select {|node| node[:roles].include? 'hive-llap'
+       }.map{|node| node[:hostname] + "." + @domain}.join(",");
    @oozie_servers = eval(@nodes).
       select {|node| node[:roles].include? 'oozie'}.
       map{|node| node[:hostname] + "." + @domain}.join(",");
@@ -70,10 +72,13 @@
     <value>com.hadoop.compression.lzo.LzoCodec</value>
   </property>
 
+<%# LLAP can't deal with authorization right now. -%>
+<% if @llap_servers.length == 0 -%>
   <property>
     <name>hadoop.security.authorization</name>
     <value>true</value>
   </property>
+<% end -%>
     
   <property>
     <name>ipc.client.connect.max.retries</name>

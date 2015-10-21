@@ -26,6 +26,9 @@
    @zookeeper_servers = eval(@nodes).
       select {|node| node[:roles].include? 'zk'}.
       map{|node| node[:hostname] + "." + @domain + ":2181"}.join(",");
+   @ats_servers = eval(@nodes).
+     select {|node| node[:roles].include? 'yarn-timelineserver'}.
+     map{|node| node[:hostname] + "." + @domain};
  -%>
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
@@ -298,8 +301,21 @@
     <value>10000</value>
   </property>
 
+<% if @ats_servers.length > 0 -%>
   <property>
-    <name>tez.am.container.session.delay-allocation-millis</name>
-    <value>30000</value>
+    <name>hive.exec.failure.hooks</name>
+    <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
   </property>
+
+  <property>
+    <name>hive.exec.post.hooks</name>
+    <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+  </property>
+
+  <property>
+    <name>hive.exec.pre.hooks</name>
+    <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+  </property>
+<% end -%>
+
 </configuration>

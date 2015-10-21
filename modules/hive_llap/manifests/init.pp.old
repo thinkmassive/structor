@@ -20,8 +20,7 @@ class hive_llap {
   require tez_client
   require slider
 
-  $APP_PATH="/user/vagrant/apps/llap"
-  $INSTALL_ROOT="/home/vagrant/llap"
+  $INSTALL_ROOT="/usr/hdp/autobuild"
   $TEZ_BRANCH="master"
   $TEZ_VERSION="0.8.2-SNAPSHOT"
   $LLAP_BRANCH="llap"
@@ -35,8 +34,8 @@ class hive_llap {
   $start_script="/usr/hdp/autobuild/etc/rc.d/init.d/hive-llap"
 
   $hive_package="apache-hive-$HIVE_VERSION-bin"
-  $target_hive="/home/vagrant/hivesrc/packaging/target/$hive_package.tar.gz"
-  $target_tez="/home/vagrant/tezsrc/tez-dist/target/tez-$TEZ_VERSION.tar.gz"
+  $target_hive="/home/vagrant/hive/packaging/target/$hive_package.tar.gz"
+  $target_tez="/home/vagrant/tez/tez-dist/target/tez-$TEZ_VERSION.tar.gz"
 
   # Build tools I need.
   package { [ "curl", "gcc", "gcc-c++", "cmake", "git" ]:
@@ -66,17 +65,10 @@ class hive_llap {
     unless => 'grep HDPReleases settings.xml',
   }
 
-  # Reset the install.
-  exec {"rm -rf $INSTALL_ROOT":
-    cwd => "/",
-    path => $path,
-  }
-
   # Build protobuf.
   exec {"curl -O $PROTOBUF_DIST":
     cwd => "/tmp",
     path => $path,
-    creates => "/tmp/$PROTOBUF_VER.tar.bz2",
   }
   ->
   exec {"tar -xvf $PROTOBUF_VER.tar.bz2":
@@ -105,30 +97,20 @@ class hive_llap {
     creates => "$INSTALL_ROOT/protoc",
   }
 
-  file {"Allow access to dist":
-    path => '/home/vagrant',
-    ensure => directory,
-    owner => 'vagrant',
-    group => 'vagrant',
-    mode => '755',
-    before => Exec['Build Tez'],
-  }
-
   # Build Tez.
   exec {"git clone --branch $TEZ_BRANCH https://github.com/apache/tez tezsrc":
     cwd => "/home/vagrant",
     path => $path,
     require => Exec["Install Protobuf"],
-    creates => "/home/vagrant/tezsrc",
+    creates => "/home/vagrant/tez",
     user => "vagrant",
   }
   ->
   exec {"Update Tez":
     command => "git pull",
-    cwd => "/home/vagrant/tezsrc",
+    cwd => "/home/vagrant/tez",
     path => $path,
     user => "vagrant",
-    creates => "/tmp/skip",
   }
   ->
   file {"Bower is stupid":
@@ -141,41 +123,38 @@ class hive_llap {
   ->
   exec {'Build Tez':
     command => 'mvn clean package install -DskipTests -Dhadoop.version=$(hadoop version | head -1 | cut -d" " -f2) -Paws -Phadoop24 -P\\!hadoop26',
-    cwd => "/home/vagrant/tezsrc",
+    cwd => "/home/vagrant/tez",
     path => $path,
     creates => $target_tez,
     user => "vagrant",
-    timeout => 1200,
+    timeout => 900,
     require => Exec['Add Vendor Repos'],
   }
-
-  # Deploy Tez
+  ->
   file { "$INSTALL_ROOT/tez":
     ensure => directory,
     owner => root,
     group => root,
     mode => '755',
-    require => Exec['Build Tez'],
   }
   ->
   exec {"Deploy Tez Locally":
-    cwd => "/",
+    cwd => "/home/vagrant/tez/tez-dist/target",
     path => $path,
     command => "tar -C $INSTALL_ROOT/tez -xzvf $target_tez",
   }
   ->
-  exec {"Make Tez Directory":
-    cwd => "/",
+  exec {"Deploy Tez to HDFS":
+    cwd => "/home/vagrant/tez",
     path => $path,
-    command => "hdfs dfs -mkdir -p $APP_PATH/tez",
-    user => "vagrant",
+    command => "hdfs dfs -copyFromLocal -f $target_tez /hdp/apps/${hdp_version}/tez/tez.tar.gz",
+    user => "hdfs",
   }
   ->
-  exec {"Deploy Tez to HDFS":
-    cwd => "/",
-    path => $path,
-    command => "hdfs dfs -copyFromLocal -f $target_tez $APP_PATH/tez/tez.tar.gz",
-    user => "vagrant",
+  file {"/usr/hdp/current/tez-client":
+    ensure => link,
+    target => "/usr/hdp/autobuild/tez",
+    before => Service['hive-llap'],
   }
 
   # Build Hive / LLAP.
@@ -183,40 +162,43 @@ class hive_llap {
     cwd => "/home/vagrant",
     path => $path,
     require => Exec["Install Protobuf"],
-    creates => "/home/vagrant/hivesrc",
+    creates => "/home/vagrant/hive",
     user => "vagrant",
   }
   ->
   exec {"Update Hive":
     command => "git pull",
-    cwd => "/home/vagrant/hivesrc",
+    cwd => "/home/vagrant",
     path => $path,
     user => "vagrant",
-    creates => "/tmp/skip",
   }
   ->
   exec {"Put the right Tez version in Hive's POM":
     command => "sed -i~ 's@<tez.version>.*</tez.version>@<tez.version>${TEZ_VERSION}</tez.version>@' pom.xml",
-    cwd => "/home/vagrant/hivesrc",
+    cwd => "/home/vagrant/hive",
     path => $path,
     user => "vagrant",
   }
   ->
   exec { "Build Hive":
-    cwd => "/home/vagrant/hivesrc",
+    cwd => "/home/vagrant/hive",
     path => $path,
     command => 'mvn clean package -Denforcer.skip=true -DskipTests=true -Pdir -Pdist -Phadoop-2 -Dhadoop-0.23.version=$(hadoop version | head -1 | cut -d" " -f2) -Dbuild.profile=nohcat',
     creates => $target_hive,
     user => "vagrant",
-    timeout => 1200,
+    timeout => 900,
     require => Exec['Add Vendor Repos'],
   }
-
-  exec {"Deploy Hive":
+  ->
+  exec {"rm -rf /usr/hdp/autobuild/hive/conf.dist":
     cwd => "/",
     path => $path,
+  }
+  ->
+  exec {"Deploy Hive":
+    cwd => "/home/vagrant/hive",
+    path => $path,
     command => "tar -C $INSTALL_ROOT -xzvf $target_hive",
-    require => Exec['Build Hive'],
   }
   ->
   file {"$INSTALL_ROOT/hive":
@@ -224,92 +206,135 @@ class hive_llap {
     target => "$INSTALL_ROOT/$hive_package",
   }
   ->
-  exec {"Make Hive directory":
+  exec {"mv /usr/hdp/autobuild/hive/conf /usr/hdp/autobuild/hive/conf.dist":
     cwd => "/",
     path => $path,
-    command => "hdfs dfs -mkdir -p $APP_PATH/hive",
-    user => "vagrant",
   }
   ->
-  exec {"Deploy Hive Exec to HDFS":
-    cwd => "/",
-    path => $path,
-    command => "hdfs dfs -copyFromLocal -f $INSTALL_ROOT/hive/lib/hive-exec-${HIVE_VERSION}.jar $APP_PATH/hive",
-    user => "vagrant",
+  file {"/usr/hdp/autobuild/hive/conf":
+    ensure => link,
+    target => "/etc/hive/conf",
+    replace => "true",
   }
   ->
-  exec {"Deploy Hive LLAP to HDFS":
+  exec {"hdp-select set hive-server2 autobuild":
     cwd => "/",
     path => $path,
-    command => "hdfs dfs -copyFromLocal -f $INSTALL_ROOT/hive/lib/hive-llap-server-${HIVE_VERSION}.jar $APP_PATH/hive",
-    user => "vagrant",
   }
-
-  # Handy scripts.
-  file { "/home/vagrant/llapGenerateSlider.sh":
-    ensure => file,
-    source => 'puppet:///modules/hive_llap/llapGenerateSlider.sh',
+  ->
+  exec {"hdp-select set hive-metastore autobuild":
+    cwd => "/",
+    path => $path,
   }
-  file { "/home/vagrant/llapRunClient.sh":
-    ensure => file,
-    source => 'puppet:///modules/hive_llap/llapRunClient.sh',
+  ->
+  file {"/usr/hdp/current/hive-client":
+    ensure => link,
+    target => "/usr/hdp/autobuild/hive",
+  }
+  ->
+  file {"/usr/hdp/current/hive-llap":
+    ensure => link,
+    target => "/usr/hdp/autobuild/hive",
+    before => Service['hive-llap'],
   }
 
   # Configuration files.
-  exec {"mv $INSTALL_ROOT/hive/conf $INSTALL_ROOT/hive/conf.dist":
-    cwd => "/",
-    path => $path,
-    require => Exec['Deploy Hive'],
-  }
-  ->
-  file {"$INSTALL_ROOT/hive/conf":
-    ensure => directory,
-    owner => 'vagrant',
-    group => 'vagrant',
-    mode => '755',
-  }
-  ->
-  exec {"cp /etc/hive/conf/* $INSTALL_ROOT/hive/conf":
-    cwd => "/",
-    path => $path,
-  }
-  ->
-  file { "$INSTALL_ROOT/hive/conf/llap-daemon-site.xml":
+  file { "/etc/hive/conf/llap-daemon-site.xml":
     ensure => file,
     content => template('hive_llap/llap-daemon-site.erb'),
   }
   ->
-  file { "$INSTALL_ROOT/hive/conf/llap-daemon-log4j.properties":
+  file { "/etc/hive/conf/llap-daemon-log4j.properties":
     ensure => file,
     source => 'puppet:///modules/hive_llap/llap-daemon-log4j.properties',
+    before => Service['hive-llap'],
+  }
+
+  # Startup script.
+  file { [ '/usr/hdp/autobuild/etc', '/usr/hdp/autobuild/etc/rc.d', '/usr/hdp/autobuild/etc/rc.d/init.d' ]:
+    ensure => directory,
+    owner => root,
+    group => root,
+    mode => '755',
   }
   ->
-  file { "$INSTALL_ROOT/hive/bin/hive-env.sh":
+  file { "$start_script":
     ensure => file,
-    source => 'puppet:///modules/hive_llap/hive-env.sh',
+    source => 'puppet:///modules/hive_llap/hive-llap',
+    mode => '755',
+    replace => true,
   }
   ->
-  file { "$INSTALL_ROOT/hive/bin/hive-config.sh":
-    ensure => file,
-    source => 'puppet:///modules/hive_llap/hive-config.sh',
+  file { '/etc/init.d/hive-llap':
+    ensure => link,
+    target => $start_script,
+    before => Service['hive-llap'],
   }
-  ->
-  exec {"Merge LLAP Fragment":
-    command => "python /vagrant/files/xmlcombine.py $INSTALL_ROOT/hive/conf/hive-site.xml hive_llap hive-site-llap-extras",
+
+  # Deal with some improperly tight couplings in scripts.
+  exec {"mv /usr/hdp/${hdp_version}/tez /usr/hdp/${hdp_version}/tez.orig":
     cwd => "/",
     path => $path,
+    creates => "/usr/hdp/${hdp_version}/tez.orig",
   }
   ->
-  file {"$INSTALL_ROOT/tez/conf":
-    ensure => directory,
-    owner => 'vagrant',
-    group => 'vagrant',
-    mode => '755',
-    require => Exec['Deploy Tez Locally'],
+  file { "/usr/hdp/${hdp_version}/tez":
+    ensure => link,
+    target => "/usr/hdp/autobuild/tez",
   }
   ->
-  file { "$INSTALL_ROOT/tez/conf/tez-site.xml":
+  file { '/usr/hdp/autobuild/hadoop':
+    ensure => link,
+    target => "/usr/hdp/${hdp_version}/hadoop",
+    before => Service['hive-llap'],
+  }
+
+  # User scripts
+  exec {"mv /usr/hdp/autobuild/hive/bin/hive /usr/hdp/autobuild/hive/bin/hive.distro":
+    cwd => "/",
+    path => $path,
+    creates => "/usr/hdp/autobuild/hive/bin/hive.distro",
+  }
+  ->
+  exec {"mv /usr/hdp/autobuild/hive/bin/hiveserver2 /usr/hdp/autobuild/hive/bin/hiveserver2.distro":
+    cwd => "/",
+    path => $path,
+    creates => "/usr/hdp/autobuild/hive/bin/hiveserver2.distro",
+  }
+  ->
+  exec {"mv /usr/hdp/autobuild/hive/bin/beeline /usr/hdp/autobuild/hive/bin/beeline.distro":
+    cwd => "/",
+    path => $path,
+    creates => "/usr/hdp/autobuild/hive/bin/beeline.distro",
+  }
+  ->
+  file { '/usr/hdp/autobuild/hive/bin/hive':
+    source => 'puppet:///modules/hive_llap/hive',
     ensure => file,
-    content => template('hive_llap/tez-site.xml.erb'),
+    owner => root,
+    group => root,
+    mode => '755',
+  }
+  ->
+  file { '/usr/hdp/autobuild/hive/bin/hiveserver2':
+    source => 'puppet:///modules/hive_llap/hiveserver2',
+    ensure => file,
+    owner => root,
+    group => root,
+    mode => '755',
+  }
+  ->
+  file { '/usr/hdp/autobuild/hive/bin/beeline':
+    source => 'puppet:///modules/hive_llap/beeline',
+    ensure => file,
+    owner => root,
+    group => root,
+    mode => '755',
+  }
+
+  # Start the service.
+  service { 'hive-llap':
+    ensure => running,
+    enable => true,
   }
 }

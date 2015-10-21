@@ -16,7 +16,7 @@
 -%>
 <% @llap_servers =
      eval(@nodes).
-       select {|node| node[:roles].include? 'llap'}.
+       select {|node| node[:roles].include? 'hive-llap'}.
        map {|node| node[:hostname] + "." + @domain}.join(",");
 -%>
 <configuration>
@@ -45,13 +45,8 @@
   </property>
 
   <property>
-    <name>hive.llap.io.threadpool.size</name>
-    <value><%= @vm_cpus.to_i / 2 %></value>
-  </property>
-
-  <property>
     <name>llap.daemon.memory.per.instance.mb</name>
-    <value><%= @vm_mem.to_i / 2 %></value>
+    <value><%= @client_mem.to_i * 2 %></value>
   </property>
 
   <property>
@@ -68,6 +63,6 @@
 
   <property>
     <name>hive.llap.io.cache.orc.size</name>
-    <value><%= @vm_mem.to_i / 4 %></value>
+    <value><%= @client_mem.to_i * 1024 * 1024 %></value>
   </property>
 </configuration>
