@@ -1,0 +1,34 @@
+<configuration>
+    <property>
+      <name>hive.server2.tez.initialize.default.sessions</name>
+      <value>true</value>
+    </property>
+    <property>
+      <name>hive.server2.tez.default.queues</name>
+      <value>default</value>
+    </property>
+    <property>
+      <name>hive.server2.tez.sessions.per.default.queue</name>
+      <value>1</value>
+    </property>
+    <property>
+      <name>hive.server2.enable.doAs</name>
+      <value>false</value>
+    </property>
+    <property>
+      <name>hive.prewarm.enabled</name>
+      <value>true</value>
+    </property>
+    <property>
+      <name>hive.prewarm.numcontainers</name>
+      <value>1</value>
+    </property>
+    <property>
+      <name>tez.am.session.min.held-containers</name>
+      <value>1</value>
+    </property>
+    <property>
+      <name>tez.session.am.dag.submit.timeout.secs</name>
+      <value>14400</value>
+    </property>
+</configuration>

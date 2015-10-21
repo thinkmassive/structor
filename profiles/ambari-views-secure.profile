@@ -17,5 +17,7 @@
                "hive-server2", "kdc", "nn", "slave", "yarn", "yarn-timelineserver"]}
   ],
 
+  "hive_options" : "interactive",
+
   "extras": [ "sample-hive-data" ]
 }

@@ -13,8 +13,11 @@
   "clients" : [ "hdfs", "hive", "pig", "tez", "yarn" ],
   "nodes": [
     {"hostname": "ambari", "ip": "240.0.0.11",
-     "roles": ["ambari-server", "ambari-views", "client", "hive-db", "hive-meta", "hive-server2", "nn", "slave", "yarn"]}
+     "roles": ["ambari-server", "ambari-views", "client", "hive-db", "hive-meta",
+               "hive-server2", "nn", "slave", "yarn", "yarn-timelineserver"]}
   ],
+
+  "hive_options" : "interactive",
 
   "extras": [ "sample-hive-data" ]
 }
