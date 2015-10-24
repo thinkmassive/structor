@@ -115,6 +115,10 @@ if hasrole($roles, 'hue') {
   include hue_server
 }
 
+if hasrole($roles, 'kafka') {
+  include kafka_server
+}
+
 if hasrole($roles, 'knox') {
   include knox_gateway
 }
@@ -133,10 +137,6 @@ if hasrole($roles, 'oozie') {
 
 if hasrole($roles, 'postgres') {
   include postgres_server
-}
-
-if hasrole($roles, 'sample-data') {
-  include sample_data
 }
 
 if hasrole($roles, 'slave') {
@@ -166,6 +166,11 @@ if islastslave($nodes, $hostname) {
   if ($extras and hasrole($extras, 'sample-hive-data')) {
     include sample_hive_data
     Class['install_hdfs_tarballs'] -> Class['sample_hive_data']
+  }
+
+  if ($extras and hasrole($extras, 'sample-airline-data')) {
+    include sample_airline_data
+    Class['install_hdfs_tarballs'] -> Class['sample_airline_data']
   }
 
   if ($extras and hasrole($extras, 'sample-phoenix-data')) {
