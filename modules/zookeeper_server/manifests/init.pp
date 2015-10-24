@@ -18,11 +18,11 @@ class zookeeper_server {
 
   $path="/bin:/sbin:/usr/bin"
   $component = "zookeeper-server"
-  if ($hdp_version_minor >= 3) {
-    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+    $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
-    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+    $start_script="/usr/hdp/$hdp_version/zookeeper/etc/rc.d/init.d/$component"
   }
 
   if $security == "true" {

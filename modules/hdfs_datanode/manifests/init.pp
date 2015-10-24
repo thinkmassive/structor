@@ -20,11 +20,11 @@ class hdfs_datanode {
   $path="/usr/bin"
 
   $component = "hadoop-hdfs-datanode"
-  if ($hdp_version_minor >= 3) {
-    $start_script="/usr/hdp/current/$component/etc/$platform_start_script_path/$component"
+  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+    $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
-    $start_script="/usr/hdp/current/$component/../etc/$platform_start_script_path/$component"
+    $start_script="/usr/hdp/$hdp_version/hadoop/etc/rc.d/init.d/$component"
   }
 
   if $security == "true" {
