@@ -1,4 +1,13 @@
 <configuration>
+  <property>
+    <name>hive.support.concurrency</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>hive.txn.manager</name>
+    <value>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager</value>
+  </property>
+
     <property>
       <name>hive.compactor.abortedtxn.threshold</name>
       <value>1000</value>
