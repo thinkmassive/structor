@@ -56,7 +56,7 @@ if hasrole($roles, 'client') {
   if hasrole($clients, 'hive') {
     include hive_client
   }
-  if hasrole($roles, 'jvmtop') {
+  if hasrole($clients, 'jvmtop') {
     include jvmtop_client
   }
   if hasrole($clients, 'odbc') {
@@ -76,6 +76,9 @@ if hasrole($roles, 'client') {
   }
   if hasrole($clients, 'yarn') {
     include yarn_client
+  }
+  if hasrole($clients, 'yarnlocaltop') {
+    include yarnlocaltop_client
   }
   if hasrole($clients, 'zk') {
     include zookeeper_client

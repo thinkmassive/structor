@@ -1,0 +1,20 @@
+Installation
+------------
+
+mvn package
+
+copy yarnlocaltop.sh and yarnlocaltop.jar to somewhere in your path.
+
+Start yarnlocaltop with the execution of yarnlocaltop.sh
+For all options of yarnlocaltop, pass the --help argument.
+
+Example:
+-----------
+
+Find the methods your Tez jobs are spending the most time in.
+
+yarnlocaltop.sh > megalog.txt
+
+Wait a minute or 2.
+
+grep -A 1 ,TezChild megalog.txt  | grep -v -e '--' | grep -v 0 | sort | uniq -c | sort -n
