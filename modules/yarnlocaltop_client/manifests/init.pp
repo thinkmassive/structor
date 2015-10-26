@@ -24,9 +24,9 @@ class yarnlocaltop_client {
     mode => '644',
   }
 
-  file { '/usr/bin/yarnlocaltop.sh':
+  file { '/usr/bin/yarnlocaltop':
     ensure => file,
-    source => 'puppet:///modules/yarnlocaltop_client/yarnlocaltop.sh',
+    source => 'puppet:///modules/yarnlocaltop_client/yarnlocaltop',
     owner => root,
     group => root,
     mode => '755',
