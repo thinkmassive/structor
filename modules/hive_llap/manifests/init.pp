@@ -284,6 +284,11 @@ class hive_llap {
     source => 'puppet:///modules/hive_llap/llap-daemon-log4j.properties',
   }
   ->
+  file { "$INSTALL_ROOT/hive/conf/hive-env.sh":
+    ensure => file,
+    source => 'puppet:///modules/hive_llap/hive-env.sh',
+  }
+  ->
   file { "$INSTALL_ROOT/hive/bin/hive-env.sh":
     ensure => file,
     source => 'puppet:///modules/hive_llap/hive-env.sh',
