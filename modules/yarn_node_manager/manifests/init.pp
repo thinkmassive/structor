@@ -24,7 +24,7 @@ class yarn_node_manager {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
-    $start_script="/usr/hdp/$hdp_version/hadoop/etc/rc.d/init.d/$component"
+    $start_script="/usr/hdp/$hdp_version/hadoop-yarn/etc/$platform_start_script_path/$component"
   }
 
   if $security == "true" {

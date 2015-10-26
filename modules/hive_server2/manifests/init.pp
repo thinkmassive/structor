@@ -22,7 +22,7 @@ class hive_server2 {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
-    $start_script="/usr/hdp/$hdp_version/hive/etc/rc.d/init.d/$component"
+    $start_script="/usr/hdp/$hdp_version/hive/etc/$platform_start_script_path/$component"
   }
 
   if $security == "true" {

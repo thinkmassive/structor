@@ -22,7 +22,7 @@ class zookeeper_server {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
-    $start_script="/usr/hdp/$hdp_version/zookeeper/etc/rc.d/init.d/$component"
+    $start_script="/usr/hdp/$hdp_version/zookeeper/etc/$platform_start_script_path/$component"
   }
 
   if $security == "true" {

@@ -26,8 +26,8 @@ class yarn_resource_manager {
     $mapreduce_start_script="/usr/hdp/current/$mapreduce_component/../etc/$platform_start_script_path/$mapreduce_component"
   }
   else {
-    $yarn_start_script="/usr/hdp/current/$yarn_component/etc/$platform_start_script_path/$yarn_component"
-    $mapreduce_start_script="/usr/hdp/current/$mapreduce_component/etc/$platform_start_script_path/$mapreduce_component"
+    $yarn_start_script="/usr/hdp/$hdp_version/hadoop-yarn/etc/$platform_start_script_path/$yarn_component"
+    $mapreduce_start_script="/usr/hdp/$hdp_version/hadoop-mapreduce/etc/$platform_start_script_path/$mapreduce_component"
   }
 
   if $security == "true" {
