@@ -9,7 +9,7 @@
   "am_mem": 512,
   "server_mem": 768,
   "client_mem": 1024,
-  "clients" : [ "hdfs", "hive", "tez", "yarn", "odbc", "zk" ],
+  "clients" : [ "hdfs", "hive", "odbc", "tez", "yarn", "yarnlocaltop", "zk" ],
   "nodes": [
     {"hostname": "llap", "ip": "240.0.0.11",
      "roles": ["client", "hive-db", "hive-meta", "hive-server2", "hive-llap",
