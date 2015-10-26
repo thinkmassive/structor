@@ -1,0 +1,26 @@
+Note:
+You will need to "vagrant up" followed by "vagrant provision" to get a successful build.
+This is because Java 8 is installed during the first provision so the first compile
+attempt will fail.
+
+After you provision successfully,
+
+1.
+As vagrant user run: ./llapGenerateSlider.sh
+This will generate a Slider package which you must subsequently start.
+The package will be placed in a directory of the form: llap-slider-26Oct2015
+
+2.
+Run llap-slider-<date>/run.sh
+The cluster will take a while to initialize. Check your ResourceManager UI, you should
+have an app named llap0 with 2 running containers when things are up.
+
+3.
+Run the correct Hive client. You need to use the Hive client you built. Best way is
+run ./llapRunClient.sh.
+
+This profile includes some sample databases and data to play with.
+
+Extra:
+If you want to use HiveServer2 you will need to stop the system HiveServer2 and bring
+up HS2 included by this compiled package.

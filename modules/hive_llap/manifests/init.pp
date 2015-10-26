@@ -254,6 +254,10 @@ class hive_llap {
     ensure => file,
     source => 'puppet:///modules/hive_llap/llapRunClient.sh',
   }
+  file { "/home/vagrant/README.LLAP":
+    ensure => file,
+    source => 'puppet:///modules/hive_llap/README.LLAP',
+  }
 
   # Configuration files.
   exec {"mv $INSTALL_ROOT/hive/conf $INSTALL_ROOT/hive/conf.dist":
