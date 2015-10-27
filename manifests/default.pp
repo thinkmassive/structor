@@ -166,6 +166,10 @@ if hasrole($roles, 'zk') {
 if islastslave($nodes, $hostname) {
   include install_hdfs_tarballs
 
+  if ($extras and hasrole($extras, 'hive-brickhouse-udf')) {
+    include hive_brickhouse_udf
+  }
+
   if ($extras and hasrole($extras, 'sample-hive-data')) {
     include sample_hive_data
     Class['install_hdfs_tarballs'] -> Class['sample_hive_data']
