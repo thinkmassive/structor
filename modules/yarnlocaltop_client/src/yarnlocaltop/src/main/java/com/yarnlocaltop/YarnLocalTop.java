@@ -126,7 +126,7 @@ public class YarnLocalTop
     YarnLocalTop top = new YarnLocalTop();
     top.setDelay(delay);
     top.setMaxIterations(iterations);
-    top.run();
+    top.run(pid);
   }
 
   private void updateInfoList(List<VMInfo> vmInfoList, Map<Integer, LocalVirtualMachine> oldMachines, Map<Integer, LocalVirtualMachine> newMachines)
@@ -159,7 +159,6 @@ public class YarnLocalTop
     }
   }
 
-  // XXX: Retire this
   public ArrayList<Integer> getYarnPids()
   {
     ArrayList<Integer> pids = new ArrayList<Integer>();
@@ -258,7 +257,7 @@ public class YarnLocalTop
     consoleHandler.setLevel(java.util.logging.Level.FINEST);
   }
 
-  protected void run() throws Exception
+  protected void run(Integer pid) throws Exception
   {
     try
     {
@@ -272,14 +271,7 @@ public class YarnLocalTop
 
       while (iterations < maxIterations_ || maxIterations_ < 0) {
         // Refresh the view list every pidCheckStep intervals.
-        if (iterations % pidCheckStep == 0) {
-/*
-          newVmMap = scanForNewVMs(oldVmMap);
-          vmInfoList = updateInfoList(oldVmMap, newVmMap);
-          updateVMs(vmInfoList);
-          oldVmMap = newVmMap;
-*/
-
+        if (iterations % pidCheckStep == 0 && pid == null) {
           // Delete anything that should exit.
           for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry pair = (Map.Entry)iterator.next();
@@ -299,6 +291,12 @@ public class YarnLocalTop
 
           if (map.size() == 0) {
             System.out.println("No YARN containers detected (are you running as yarn?)");
+          }
+        }
+        if (pid != null) {
+          if (map.get(pid) == null) {
+            VMOfflineView view = new VMOfflineView(pid);
+            map.put(pid, view);
           }
         }
 

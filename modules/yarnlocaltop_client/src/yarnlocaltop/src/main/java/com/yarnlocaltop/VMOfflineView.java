@@ -157,18 +157,18 @@ public class VMOfflineView extends AbstractConsoleView
       int displayedThreads = 0;
       for (Long tid : cpuTimeMap.keySet())
       {
-        ThreadInfo info = vmInfo_.getThreadMXBean().getThreadInfo(tid, 10);
+        ThreadInfo info = vmInfo_.getThreadMXBean().getThreadInfo(tid, 50);
         displayedThreads++;
         if (displayedThreads > numberOfDisplayedThreads_)
         {
           break;
         }
-        if (info != null)
+        if (info != null && !info.getThreadName().startsWith("RMI TCP Connection"))
         {
-          System.out.printf("%s,%d,%s,%5.2f%%,%d,%s\n",
+          System.out.printf("%s,%s,%d,%5.2f%%,%d,%s\n",
               timeStamp,
-              pid_,
               info.getThreadName(),
+              pid_,
               getThreadCPUUtilization(cpuTimeMap.get(tid), vmInfo_.getDeltaUptime()),
               info.getBlockedCount(),
               info.isInNative()
