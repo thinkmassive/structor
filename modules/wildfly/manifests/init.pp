@@ -23,44 +23,44 @@ class wildfly {
   $java="/usr/lib/jvm/java"
   $path="${java}/bin:/bin:/usr/bin:/usr/sbin"
 
-  $WILDFLY_VERSION="9.0.1.Final"
-  $WILDFLY_FILENAME="wildfly-$WILDFLY_VERSION"
-  $WILDFLY_ARCHIVE_NAME="$WILDFLY_FILENAME.tar.gz"
-  $WILDFLY_DOWNLOAD_ADDRESS="http://download.jboss.org/wildfly/$WILDFLY_VERSION/$WILDFLY_ARCHIVE_NAME"
-  $INSTALL_DIR="/usr/share"
-  $WILDFLY_HOME="$INSTALL_DIR/$WILDFLY_FILENAME"
-  $WILDFLY_CONF="/etc/default/wildfly.conf"
-  $WILDFLY_USER="wildfly"
-  $WILDFLY_PASS="password"
+  $wildfly_version="9.0.1.final"
+  $wildfly_filename="wildfly-$wildfly_version"
+  $wildfly_archive_name="$wildfly_filename.tar.gz"
+  $wildfly_download_address="http://download.jboss.org/wildfly/$wildfly_version/$wildfly_archive_name"
+  $install_dir="/usr/share"
+  $wildfly_home="$install_dir/$wildfly_filename"
+  $wildfly_conf="/etc/default/wildfly.conf"
+  $wildfly_user="wildfly"
+  $wildfly_pass="password"
 
-  $jboss_cli = "$WILDFLY_HOME/bin/jboss-cli.sh"
-  $modules_base = "$WILDFLY_HOME/modules/system/layers/base"
+  $jboss_cli = "$wildfly_home/bin/jboss-cli.sh"
+  $modules_base = "$wildfly_home/modules/system/layers/base"
   $driver_dir = "$modules_base/org/apache/phoenix/jdbc/PhoenixDriver"
 
   package { "curl":
     ensure => installed,
-    before => Exec["curl -O $WILDFLY_DOWNLOAD_ADDRESS"],
+    before => exec["curl -o $wildfly_download_address"],
   }
 
   # Install Wildfly.
-  exec { "curl -O $WILDFLY_DOWNLOAD_ADDRESS":
+  exec { "curl -o $wildfly_download_address":
     cwd => "/tmp",
     path => "$path",
   }
   ->
-  exec { "tar -xzf $WILDFLY_ARCHIVE_NAME -C $INSTALL_DIR":
+  exec { "tar -xzf $wildfly_archive_name -c $install_dir":
     cwd => "/tmp",
     path => "$path",
-    creates => "$WILDFLY_HOME",
+    creates => "$wildfly_home",
   }
   ->
-  exec { "adduser $WILDFLY_USER":
+  exec { "adduser $wildfly_user":
     cwd => "/",
     path => "$path",
-    unless => "id -u $WILDFLY_USER",
+    unless => "id -u $wildfly_user",
   }
   ->
-  exec { "chown -fR $WILDFLY_USER:$WILDFLY_USER $WILDFLY_HOME/":
+  exec { "chown -fr $wildfly_user:$wildfly_user $wildfly_home/":
     cwd => "/",
     path => "$path",
     before => File["$modules_base/org"],
@@ -73,8 +73,8 @@ class wildfly {
   file { [ "$modules_base/org", "$modules_base/org/apache", "$modules_base/org/apache/phoenix",
 	   "$modules_base/org/apache/phoenix/jdbc", "$modules_base/org/apache/phoenix/jdbc/PhoenixDriver" ]:
     ensure => 'directory',
-    owner => $WILDFLY_USER,
-    group => $WILDFLY_USER,
+    owner => $wildfly_user,
+    group => $wildfly_user,
     mode => '755',
   }
   ->
@@ -85,29 +85,29 @@ class wildfly {
   ->
   file { "$driver_dir/module.xml":
     ensure => "file",
-    owner => $WILDFLY_USER,
-    group => $WILDFLY_USER,
+    owner => $wildfly_user,
+    group => $wildfly_user,
     content => template('wildfly/module.xml'),
   }
   ->
-  exec { "$jboss_cli --connect --user=$WILDFLY_USER --password=$WILDFLY_PASS --command=$module_add":
+  exec { "$jboss_cli --connect --user=$wildfly_user --password=$wildfly_pass --command=$module_add":
     cwd => "/",
     environment => "JAVA_HOME=${java}",
     path => "$path",
-    creates => "$WILDFLY_HOME/modules/org/apache/phoenix/jdbc/PhoenixDriver",
+    creates => "$wildfly_home/modules/org/apache/phoenix/jdbc/PhoenixDriver",
     require => Service["wildfly"],
   }
   ->
-  exec { "$jboss_cli --connect --user=$WILDFLY_USER --password=$WILDFLY_PASS --command=$jdbc_add":
+  exec { "$jboss_cli --connect --user=$wildfly_user --password=$wildfly_pass --command=$jdbc_add":
     cwd => "/",
     environment => "JAVA_HOME=${java}",
     path => "$path",
-    unless => "grep PhoenixDriver $WILDFLY_HOME/standalone/configuration/standalone.xml",
+    unless => "grep PhoenixDriver $wildfly_home/standalone/configuration/standalone.xml",
     require => Service["wildfly"],
   }
 
   # Create an admin user.
-  exec { "$WILDFLY_HOME/bin/add-user.sh $WILDFLY_USER $WILDFLY_PASS":
+  exec { "$wildfly_home/bin/add-user.sh $wildfly_user $wildfly_pass":
     cwd => "/",
     path => "$path",
     environment => "JAVA_HOME=${java}",
@@ -120,14 +120,14 @@ class wildfly {
     'centos': {
       file { "/etc/init.d/wildfly":
         ensure => 'link',
-        target => "$WILDFLY_HOME/bin/init.d/wildfly-init-redhat.sh",
+        target => "$wildfly_home/bin/init.d/wildfly-init-redhat.sh",
         require => File["/etc/default/wildfly.conf"],
       }
     }
     'ubuntu': {
       file { "/etc/init.d/wildfly":
         ensure => 'link',
-        target => "$WILDFLY_HOME/bin/init.d/wildfly-init-debian.sh",
+        target => "$wildfly_home/bin/init.d/wildfly-init-debian.sh",
         require => File["/etc/default/wildfly.conf"],
       }
     }

@@ -19,7 +19,7 @@ class hbase_master {
   $path="/bin:/sbin:/usr/bin"
 
   $component = "hbase-master"
-  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
@@ -34,7 +34,7 @@ class hbase_master {
       }
     }
     'ubuntu': {
-      if ($hdp_version_major <= 2 and $hdp_version_minor < 3) {
+      if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 < 3) {
         # XXX: Work around BUG-39010.
         exec { "apt-get download hbase${package_version}-master":
           cwd => "/tmp",
@@ -69,12 +69,13 @@ class hbase_master {
   }
 
   # Replace broken start scripts if needed.
-  if ($hdp_version_major == 2 and $hdp_version_minor <= 3) {
+  if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
     file { "/etc/init.d/hbase-master":
       ensure => file,
       source => "puppet:///files/init.d/hbase-master",
       owner => root,
       group => root,
+      mode => '755',
       before => Service["hbase-master"],
     }
   } else {

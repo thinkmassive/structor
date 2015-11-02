@@ -15,6 +15,7 @@
 
 class ambari_server {
   require repos_setup
+  require jdk
   $path="/bin:/usr/bin:/sbin:/usr/sbin"
 
   if $security == "true" {
@@ -32,7 +33,7 @@ class ambari_server {
 
     file { "/tmp/setup-ambari-security.sh":
       ensure => "file",
-      mode => 755,
+      mode => '755',
       content => template('ambari_server/setup-ambari-security.sh.erb'),
     }
     ->

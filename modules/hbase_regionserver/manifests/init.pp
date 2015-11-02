@@ -19,7 +19,7 @@ class hbase_regionserver {
   $path="/bin:/sbin:/usr/bin"
 
   $component = "hbase-regionserver"
-  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
@@ -34,7 +34,7 @@ class hbase_regionserver {
       }
     }
     'ubuntu': {
-      if ($hdp_version_major <= 2 and $hdp_version_minor < 3) {
+      if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 < 3) {
         # XXX: Work around BUG-39010.
         exec { "apt-get download hbase${package_version}-regionserver":
           cwd => "/tmp",
@@ -75,12 +75,13 @@ class hbase_regionserver {
   }
 
   # Replace broken start scripts if needed.
-  if ($hdp_version_major == 2 and $hdp_version_minor <= 3) {
+  if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
     file { "/etc/init.d/hbase-regionserver":
       ensure => file,
       source => "puppet:///files/init.d/hbase-regionserver",
       owner => root,
       group => root,
+      mode => '755',
       before => Service["hbase-regionserver"],
     }
   } else {

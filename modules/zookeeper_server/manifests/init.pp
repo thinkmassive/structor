@@ -18,7 +18,7 @@ class zookeeper_server {
 
   $path="/bin:/sbin:/usr/bin"
   $component = "zookeeper-server"
-  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
@@ -48,7 +48,7 @@ class zookeeper_server {
         ensure => installed,
         before => Exec["hdp-select set zookeeper-server ${hdp_version}"],
       }
-      if ($hdp_version_major == 2 and $hdp_version_minor == 3 and $hdp_version_patch == 2) {
+      if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 == 3 and $hdp_version_patch+0 == 2) {
         file { "$start_script":
           ensure => 'file',
           source => 'puppet:///modules/zookeeper_server/zookeeper-server',
@@ -59,7 +59,7 @@ class zookeeper_server {
       }
     }
     'ubuntu': {
-      if ($hdp_version_major <= 2 and $hdp_version_minor < 3) {
+      if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 < 3) {
         # XXX: Work around BUG-39010.
         exec { "apt-get download zookeeper${package_version}-server":
           cwd => "/tmp",

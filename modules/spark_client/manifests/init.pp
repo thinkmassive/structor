@@ -18,7 +18,7 @@ class spark_client {
   require hdp_select
   require jdk
 
-  $path="${jdk::HOME}/bin:/bin:/usr/bin"
+  $path="${jdk::home}/bin:/bin:/usr/bin"
 
   package { "spark${package_version}":
     ensure => installed,

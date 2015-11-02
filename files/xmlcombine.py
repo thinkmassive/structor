@@ -32,6 +32,8 @@ def run(base, module, options):
 			fd.write(ElementTree.tostring(first))
 
 if __name__ == "__main__":
+	if len(sys.argv) != 4:
+		sys.exit(0)
 	base = sys.argv[1]
 	module = sys.argv[2]
 	options = sys.argv[3].split(",")

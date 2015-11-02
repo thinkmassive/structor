@@ -62,8 +62,8 @@ class oozie_server {
   package { "oozie${package_version}":
     ensure => installed,
   }
-  ->
-  case $operatingsystem {
+
+  case "$operatingsystem" {
     # XXX: More packaging bugs.
     'ubuntu': {
       file { "/var/run/oozie":
@@ -71,12 +71,14 @@ class oozie_server {
         owner => oozie,
         group => oozie,
         mode => '755',
+        before => Service["oozie"],
       }
       file { "/var/tmp/oozie":
         ensure => directory,
         owner => oozie,
         group => oozie,
         mode => '755',
+        before => Service["oozie"],
       }
     }
     default: {}
@@ -139,7 +141,7 @@ class oozie_server {
   file { "/tmp/create-oozie-db-user.sh":
     ensure => file,
     owner => root,
-    mode => 0700,
+    mode => '0700',
     content => template('oozie_server/create-oozie-db-user.erb'),
   }
   ->

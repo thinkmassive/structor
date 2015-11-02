@@ -17,7 +17,7 @@ class sample_hive_data {
   require hdfs_client
   require hive_client
 
-  $PATH = "/sbin:/usr/sbin:/bin:/usr/bin"
+  $path = "/sbin:/usr/sbin:/bin:/usr/bin"
 
   if $security == "true" {
     require kerberos_client

@@ -14,7 +14,7 @@
 #   limitations under the License.
 
 class repos_setup {
-  $PATH="/bin:/usr/bin"
+  $path="/bin:/usr/bin"
 
   if ($operatingsystem == "centos") {
     file { '/etc/yum.repos.d/hdp.repo':
@@ -37,17 +37,17 @@ class repos_setup {
     ->
     exec { "gpg-updates-import":
       command => "gpg --keyserver pgp.mit.edu --recv-keys B9733A7A07513CAD",
-      path => "$PATH",
+      path => "$path",
     }
     ->
     exec { "gpg-updates-aptkey":
       command => "gpg -a --export 07513CAD | apt-key add -",
-      path => "$PATH",
+      path => "$path",
     }
     ->
     exec { "refresh-apt-cache":
       command => "apt-get update",
-      path => "$PATH",
+      path => "$path",
     }
   }
 }

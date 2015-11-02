@@ -16,7 +16,7 @@
 class postgres_server {
   require repos_setup
 
-  $PATH = "/sbin:/usr/sbin:/bin:/usr/bin"
+  $path = "/sbin:/usr/sbin:/bin:/usr/bin"
 
   # Client.
   package { "postgresql":
@@ -30,7 +30,7 @@ class postgres_server {
   ->
   exec { 'service postgresql initdb':
     cwd => "/",
-    path => "${PATH}",
+    path => "${path}",
     creates => '/var/lib/pgsql/data/pg_log',
   }
   ->
@@ -58,14 +58,14 @@ class postgres_server {
 
   exec { 'createuser -sw vagrant':
     cwd => "/",
-    path => "${PATH}",
+    path => "${path}",
     user => "postgres",
     unless => 'grep vagrant /var/lib/pgsql/data/global/pg_auth',
   }
   ->
   exec { 'createdb vagrant':
     cwd => "/",
-    path => "${PATH}",
+    path => "${path}",
     user => "postgres",
     unless => 'grep vagrant /var/lib/pgsql/data/global/pg_database',
   }

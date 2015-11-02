@@ -20,7 +20,7 @@ class ambari_views {
 
   file { "/tmp/create_views.sh":
     ensure => "file",
-    mode => 755,
+    mode => '755',
     content => template('ambari_views/create_views.sh.erb'),
   }
   ->

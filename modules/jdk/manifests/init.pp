@@ -14,7 +14,7 @@
 #   limitations under the License.
 
 class jdk {
-  $HOME = "/usr/lib/jvm/java"
+  $home = "/usr/lib/jvm/java"
 
   if ($operatingsystem == "centos") {
     package { "$java_version":
@@ -30,7 +30,7 @@ class jdk {
       ensure => installed,
     }
     ->
-    file { $HOME:
+    file { $home:
       ensure => 'link',
       target => '/usr/lib/jvm/java-7-openjdk-amd64',
       force => true

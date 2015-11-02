@@ -19,18 +19,12 @@ class hdfs_client {
   require jdk
 
   $conf_dir="/etc/hadoop/hdp"
-  $path="${jdk::HOME}/bin:/bin:/usr/bin"
+  $path="${jdk::home}/bin:/bin:/usr/bin"
   $log_dir="/var/log/hadoop"
   $data_dir="/var/lib/hadoop"
   $pid_dir="/var/run/pid"
   $keytab_dir="/etc/security/hadoop"
-
-  if ($operatingsystem == "ubuntu") {
-    $cacerts_path="/etc/ssl/certs/java/cacerts"
-  }
-  else {
-    $cacerts_path="/etc/pki/java/cacerts"
-  }
+  $cacerts_path="${jdk::home}/jre/lib/security/cacerts"
 
   package { "hadoop${package_version}":
     ensure => installed,
@@ -152,7 +146,7 @@ class hdfs_client {
     require ssl_ca
 
     # bless the generated ca cert for java clients
-    exec {"keytool -importcert -noprompt -alias horton-ca -keystore ${jdk::HOME}/jre/lib/security/cacerts -storepass changeit -file ca.crt":
+    exec {"keytool -importcert -noprompt -alias horton-ca -keystore ${jdk::home}/jre/lib/security/cacerts -storepass changeit -file ca.crt":
       cwd => "/vagrant/generated/ssl-ca",
       path => "$path",
       unless => "keytool -list -alias horton-ca -keystore ${cacerts_path} -storepass changeit",

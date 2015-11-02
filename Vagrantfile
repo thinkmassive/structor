@@ -70,7 +70,7 @@ profile[:hdp_short_version] ||= default_hdp_short_version
 profile[:ambari_version] ||= default_ambari_version
 profile[:java_version] ||= default_java_version
 profile[:os] ||= default_os
-profile[:vm_cpus] ||= 1
+profile[:vm_cpus] ||= 2
 profile[:am_mem] ||= 512
 profile[:server_mem] ||= 768
 profile[:client_mem] ||= 1024
@@ -85,7 +85,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # All Vagrant configuration is done here. The most common configuration
   # Every Vagrant virtual environment requires a box to build off of.
   if (profile[:os] == "centos")
-    config.vm.box = "omalley/centos6_x64"
+    config.vm.box = "puppetlabs/centos-6.6-64-puppet"
     package_version = "_" + (hdp_version.gsub /[.-]/, '_')
     platform_start_script_path = "rc.d/init.d"
   elsif (profile[:os] == "ubuntu")
@@ -97,6 +97,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", profile[:vm_mem] ]
     vb.customize ["modifyvm", :id, "--cpus", profile[:vm_cpus] ]
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
   end
 
   config.vm.provider :vmware_fusion do |vm|
@@ -110,6 +111,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       node_config.ssh.forward_agent = true
       node_config.vm.provision "puppet" do |puppet|
         puppet.module_path = "modules"
+        puppet.environment_path = "environments"
+        puppet.environment = "structor"
         puppet.options = ["--libdir", "/vagrant", 
 	    "--verbose", "--debug",
             "--fileserverconfig=/vagrant/fileserver.conf"]

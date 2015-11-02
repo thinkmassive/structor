@@ -16,13 +16,13 @@
 class sample_phoenix_data {
   require hbase_client
 
-  $PATH = "/sbin:/usr/sbin:/bin:/usr/bin"
+  $path = "/sbin:/usr/sbin:/bin:/usr/bin"
 
   if $security == "true" {
     require kerberos_client
 
     exec { "kinit -k -t ${hdfs_client::keytab_dir}/hbase.keytab hbase/${hostname}.${domain}":
-      path => $PATH,
+      path => $path,
       user => hbase,
     }
   }
@@ -36,13 +36,13 @@ class sample_phoenix_data {
   ->
   file { "/tmp/create_tables.sh":
     ensure => file,
-    mode => 755,
+    mode => '755',
     content => template('sample_phoenix_data/create_tables.sh.erb'),
   }
   ->
   file { "/tmp/count_rows.sh":
     ensure => file,
-    mode => 755,
+    mode => '755',
     content => template('sample_phoenix_data/count_rows.sh.erb'),
   }
   ->

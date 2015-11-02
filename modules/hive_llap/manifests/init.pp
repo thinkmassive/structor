@@ -20,42 +20,63 @@ class hive_llap {
   require tez_client
   require slider
 
-  $APP_PATH="/user/vagrant/apps/llap"
-  $INSTALL_ROOT="/home/vagrant/llap"
-  $TEZ_BRANCH="master"
-  $TEZ_VERSION="0.8.2-SNAPSHOT"
-  $LLAP_BRANCH="llap"
-  $HIVE_VERSION="2.0.0-SNAPSHOT"
-  $PROTOBUF_VER="protobuf-2.5.0"
-  $PROTOBUF_DIST="http://protobuf.googlecode.com/files/$PROTOBUF_VER.tar.bz2"
+  $app_path="/user/vagrant/apps/llap"
+  $install_root="/home/vagrant/llap"
+  $tez_branch="master"
+  $tez_version="0.8.2-SNAPSHOT"
+  $llap_branch="llap"
+  $hive_version="2.0.0-SNAPSHOT"
+  $protobuf_ver="protobuf-2.5.0"
+  $protobuf_dist="http://protobuf.googlecode.com/files/$protobuf_ver.tar.bz2"
 
-  # XXX: This path only works on Owen's base box!
-  $m2_home="/usr/local/share/apache-maven-3.2.1"
-  $path="/bin:/usr/bin:$INSTALL_ROOT/protoc/bin:$m2_home/bin"
+  # Maven stuff.
+  $maven_version="3.3.3"
+  $maven_base="apache-maven-$maven_version"
+  $maven_bin="$maven_base-bin.tar.gz"
+  $maven_dist="http://mirrors.ibiblio.org/apache/maven/maven-3/$maven_version/binaries/$maven_bin"
+  $m2_home="/home/vagrant/$maven_base"
+  $path="/bin:/usr/bin:$install_root/protoc/bin:$m2_home/bin"
+
   $start_script="/usr/hdp/autobuild/etc/rc.d/init.d/hive-llap"
-
-  $hive_package="apache-hive-$HIVE_VERSION-bin"
+  $hive_package="apache-hive-$hive_version-bin"
   $target_hive="/home/vagrant/hivesrc/packaging/target/$hive_package.tar.gz"
-  $target_tez="/home/vagrant/tezsrc/tez-dist/target/tez-$TEZ_VERSION.tar.gz"
+  $target_tez="/home/vagrant/tezsrc/tez-dist/target/tez-$tez_version.tar.gz"
 
   # Build tools I need.
   package { [ "curl", "gcc", "gcc-c++", "cmake", "git" ]:
     ensure => installed,
-    before => Exec["curl -O $PROTOBUF_DIST"],
+    before => Exec["Download Protobuf"],
   }
   case $operatingsystem {
     'centos': {
       package { [ "zlib-devel", "openssl-devel" ]:
         ensure => installed,
-        before => Exec["curl -O $PROTOBUF_DIST"],
+        before => Exec["Download Protobuf"],
       }
     }
     'ubuntu': {
       package { [ "zlib1g-dev", "libssl-dev" ]:
         ensure => installed,
-        before => Exec["curl -O $PROTOBUF_DIST"],
+        before => Exec["Download Protobuf"],
       }
     }
+  }
+
+  # Get Maven.
+  exec {"Install Maven":
+    command => "curl -C - -O $maven_dist",
+    cwd => "/home/vagrant",
+    path => $path,
+    creates => "/home/vagrant/$maven_bin",
+    user => "vagrant",
+  }
+  ->
+  exec {"tar -xvf $maven_bin":
+    cwd => "/home/vagrant",
+    path => $path,
+    creates => "$m2_home",
+    user => "vagrant",
+    before => Exec["Add Vendor Repos"],
   }
 
   # Add vendor repos to Maven.
@@ -67,42 +88,43 @@ class hive_llap {
   }
 
   # Reset the install.
-  exec {"rm -rf $INSTALL_ROOT":
+  exec {"rm -rf $install_root":
     cwd => "/",
     path => $path,
   }
 
   # Build protobuf.
-  exec {"curl -O $PROTOBUF_DIST":
+  exec {"Download Protobuf":
+    command => "curl -C - -O $protobuf_dist",
     cwd => "/tmp",
     path => $path,
-    creates => "/tmp/$PROTOBUF_VER.tar.bz2",
+    creates => "/tmp/$protobuf_ver.tar.bz2",
   }
   ->
-  exec {"tar -xvf $PROTOBUF_VER.tar.bz2":
+  exec {"tar -xvf $protobuf_ver.tar.bz2":
     cwd => "/tmp",
     path => $path,
-    creates => "/tmp/$PROTOBUF_VER",
+    creates => "/tmp/$protobuf_ver",
   }
   ->
-  exec {"/tmp/$PROTOBUF_VER/configure --prefix=$INSTALL_ROOT/protoc/":
-    cwd => "/tmp/$PROTOBUF_VER",
+  exec {"/tmp/$protobuf_ver/configure --prefix=$install_root/protoc/":
+    cwd => "/tmp/$protobuf_ver",
     path => $path,
-    creates => "/tmp/$PROTOBUF_VER/Makefile",
+    creates => "/tmp/$protobuf_ver/Makefile",
   }
   ->
   exec {"Build Protobuf":
-    cwd => "/tmp/$PROTOBUF_VER",
+    cwd => "/tmp/$protobuf_ver",
     path => $path,
     command => "make",
-    creates => "/tmp/$PROTOBUF_VER/src/protoc",
+    creates => "/tmp/$protobuf_ver/src/protoc",
   }
   ->
   exec {"Install Protobuf":
-    cwd => "/tmp/$PROTOBUF_VER",
+    cwd => "/tmp/$protobuf_ver",
     path => $path,
     command => "make install -k",
-    creates => "$INSTALL_ROOT/protoc",
+    creates => "$install_root/protoc",
   }
 
   file {"Allow access to dist":
@@ -115,7 +137,7 @@ class hive_llap {
   }
 
   # Build Tez.
-  exec {"git clone --branch $TEZ_BRANCH https://github.com/apache/tez tezsrc":
+  exec {"git clone --branch $tez_branch https://github.com/apache/tez tezsrc":
     cwd => "/home/vagrant",
     path => $path,
     require => Exec["Install Protobuf"],
@@ -150,7 +172,7 @@ class hive_llap {
   }
 
   # Deploy Tez
-  file { "$INSTALL_ROOT/tez":
+  file { "$install_root/tez":
     ensure => directory,
     owner => root,
     group => root,
@@ -161,25 +183,25 @@ class hive_llap {
   exec {"Deploy Tez Locally":
     cwd => "/",
     path => $path,
-    command => "tar -C $INSTALL_ROOT/tez -xzvf $target_tez",
+    command => "tar -C $install_root/tez -xzvf $target_tez",
   }
   ->
   exec {"Make Tez Directory":
     cwd => "/",
     path => $path,
-    command => "hdfs dfs -mkdir -p $APP_PATH/tez",
+    command => "hdfs dfs -mkdir -p $app_path/tez",
     user => "vagrant",
   }
   ->
   exec {"Deploy Tez to HDFS":
     cwd => "/",
     path => $path,
-    command => "hdfs dfs -copyFromLocal -f $target_tez $APP_PATH/tez/tez.tar.gz",
+    command => "hdfs dfs -copyFromLocal -f $target_tez $app_path/tez/tez.tar.gz",
     user => "vagrant",
   }
 
   # Build Hive / LLAP.
-  exec {"git clone --branch $LLAP_BRANCH https://github.com/apache/hive hivesrc":
+  exec {"git clone --branch $llap_branch https://github.com/apache/hive hivesrc":
     cwd => "/home/vagrant",
     path => $path,
     require => Exec["Install Protobuf"],
@@ -196,7 +218,7 @@ class hive_llap {
   }
   ->
   exec {"Put the right Tez version in Hive's POM":
-    command => "sed -i~ 's@<tez.version>.*</tez.version>@<tez.version>${TEZ_VERSION}</tez.version>@' pom.xml",
+    command => "sed -i~ 's@<tez.version>.*</tez.version>@<tez.version>${tez_version}</tez.version>@' pom.xml",
     cwd => "/home/vagrant/hivesrc",
     path => $path,
     user => "vagrant",
@@ -215,33 +237,33 @@ class hive_llap {
   exec {"Deploy Hive":
     cwd => "/",
     path => $path,
-    command => "tar -C $INSTALL_ROOT -xzvf $target_hive",
+    command => "tar -C $install_root -xzvf $target_hive",
     require => Exec['Build Hive'],
   }
   ->
-  file {"$INSTALL_ROOT/hive":
+  file {"$install_root/hive":
     ensure => link,
-    target => "$INSTALL_ROOT/$hive_package",
+    target => "$install_root/$hive_package",
   }
   ->
   exec {"Make Hive directory":
     cwd => "/",
     path => $path,
-    command => "hdfs dfs -mkdir -p $APP_PATH/hive",
+    command => "hdfs dfs -mkdir -p $app_path/hive",
     user => "vagrant",
   }
   ->
   exec {"Deploy Hive Exec to HDFS":
     cwd => "/",
     path => $path,
-    command => "hdfs dfs -copyFromLocal -f $INSTALL_ROOT/hive/lib/hive-exec-${HIVE_VERSION}.jar $APP_PATH/hive",
+    command => "hdfs dfs -copyFromLocal -f $install_root/hive/lib/hive-exec-${hive_version}.jar $app_path/hive",
     user => "vagrant",
   }
   ->
   exec {"Deploy Hive LLAP to HDFS":
     cwd => "/",
     path => $path,
-    command => "hdfs dfs -copyFromLocal -f $INSTALL_ROOT/hive/lib/hive-llap-server-${HIVE_VERSION}.jar $APP_PATH/hive",
+    command => "hdfs dfs -copyFromLocal -f $install_root/hive/lib/hive-llap-server-${hive_version}.jar $app_path/hive",
     user => "vagrant",
   }
 
@@ -260,56 +282,56 @@ class hive_llap {
   }
 
   # Configuration files.
-  exec {"mv $INSTALL_ROOT/hive/conf $INSTALL_ROOT/hive/conf.dist":
+  exec {"mv $install_root/hive/conf $install_root/hive/conf.dist":
     cwd => "/",
     path => $path,
     require => Exec['Deploy Hive'],
   }
   ->
-  file {"$INSTALL_ROOT/hive/conf":
+  file {"$install_root/hive/conf":
     ensure => directory,
     owner => 'vagrant',
     group => 'vagrant',
     mode => '755',
   }
   ->
-  exec {"cp /etc/hive/conf/* $INSTALL_ROOT/hive/conf":
+  exec {"cp /etc/hive/conf/* $install_root/hive/conf":
     cwd => "/",
     path => $path,
   }
   ->
-  file { "$INSTALL_ROOT/hive/conf/llap-daemon-site.xml":
+  file { "$install_root/hive/conf/llap-daemon-site.xml":
     ensure => file,
     content => template('hive_llap/llap-daemon-site.erb'),
   }
   ->
-  file { "$INSTALL_ROOT/hive/conf/llap-daemon-log4j.properties":
+  file { "$install_root/hive/conf/llap-daemon-log4j.properties":
     ensure => file,
     source => 'puppet:///modules/hive_llap/llap-daemon-log4j.properties',
   }
   ->
-  file { "$INSTALL_ROOT/hive/conf/hive-env.sh":
+  file { "$install_root/hive/conf/hive-env.sh":
     ensure => file,
     source => 'puppet:///modules/hive_llap/hive-env.sh',
   }
   ->
-  file { "$INSTALL_ROOT/hive/bin/hive-env.sh":
+  file { "$install_root/hive/bin/hive-env.sh":
     ensure => file,
     source => 'puppet:///modules/hive_llap/hive-env.sh',
   }
   ->
-  file { "$INSTALL_ROOT/hive/bin/hive-config.sh":
+  file { "$install_root/hive/bin/hive-config.sh":
     ensure => file,
     source => 'puppet:///modules/hive_llap/hive-config.sh',
   }
   ->
   exec {"Merge LLAP Fragment":
-    command => "python /vagrant/files/xmlcombine.py $INSTALL_ROOT/hive/conf/hive-site.xml hive_llap hive-site-llap-extras",
+    command => "python /vagrant/files/xmlcombine.py $install_root/hive/conf/hive-site.xml hive_llap hive-site-llap-extras",
     cwd => "/",
     path => $path,
   }
   ->
-  file {"$INSTALL_ROOT/tez/conf":
+  file {"$install_root/tez/conf":
     ensure => directory,
     owner => 'vagrant',
     group => 'vagrant',
@@ -317,7 +339,7 @@ class hive_llap {
     require => Exec['Deploy Tez Locally'],
   }
   ->
-  file { "$INSTALL_ROOT/tez/conf/tez-site.xml":
+  file { "$install_root/tez/conf/tez-site.xml":
     ensure => file,
     content => template('hive_llap/tez-site.xml.erb'),
   }

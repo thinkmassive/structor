@@ -20,7 +20,7 @@ class yarn_node_manager {
   $path="/bin:/usr/bin"
 
   $component = "hadoop-yarn-nodemanager"
-  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
@@ -43,7 +43,7 @@ class yarn_node_manager {
       content => template('yarn_node_manager/container-executor.erb'),
       owner => root,
       group => mapred,
-      mode => 400,
+      mode => '400',
     }
     ->
     Package["hadoop${package_version}-yarn-nodemanager"]
@@ -64,7 +64,7 @@ class yarn_node_manager {
     before => Service["hadoop-yarn-nodemanager"],
   }
 
-  if ($hdp_version_major <= 2 and $hdp_version_minor <= 3 and $hdp_version_patch <= 2) {
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 3 and $hdp_version_patch+0 <= 2) {
     exec { "chgrp yarn /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":
       # Bug: Older packages don't work on secure cluster due to wrong group membership.
       cwd => "/",

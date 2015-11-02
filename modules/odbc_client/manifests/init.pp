@@ -90,6 +90,10 @@ class odbc_client {
     ensure => installed,
   }
   ->
+  package { "python-devel":
+    ensure => installed,
+  }
+  ->
   exec { "Install pyodbc":
     command => "pip install pyodbc",
     cwd => "/tmp",

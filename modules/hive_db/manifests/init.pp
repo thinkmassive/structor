@@ -14,7 +14,7 @@
 #   limitations under the License.
 
 class hive_db {
-  $PATH = "/bin:/usr/bin"
+  $path = "/bin:/usr/bin"
 
   case $operatingsystem {
     'centos': {
@@ -50,19 +50,19 @@ class hive_db {
   ->
   exec { "secure-mysqld":
     command => "mysql_secure_installation < files/secure-mysql.txt",
-    path => "${PATH}",
+    path => "${path}",
     cwd => "/vagrant/modules/hive_db",
     unless => "test ! -d /var/lib/mysql/test",
   }
   ->
   exec { "add-remote-root":
     command => "/vagrant/modules/hive_db/files/add-remote-root.sh",
-    path => $PATH,
+    path => $path,
   }
   ->
   exec { "create-hivedb":
     command => "mysql -u root --password=vagrant < files/setup-hive.txt",
-    path => "${PATH}",
+    path => "${path}",
     cwd => "/vagrant/modules/hive_db",
     creates => "/var/lib/mysql/hive",
   }

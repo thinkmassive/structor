@@ -47,7 +47,7 @@ class kafka_server {
   }
 
   # HDP 2.x doesn't have a usable Kafka startup script, insert our own.
-  if ($hdp_version_major <= 2) {
+  if ($hdp_version_major+0 <= 2) {
     file { "/etc/init.d/kafka":
       ensure => file,
       source => 'puppet:///modules/kafka_server/kafka',
@@ -59,7 +59,7 @@ class kafka_server {
   # Create a topic called test.
   file { "/tmp/create_test_topic.sh":
     ensure => "file",
-    mode => 755,
+    mode => '755',
     content => template('kafka_server/create_test_topic.sh.erb'),
   }
   ->

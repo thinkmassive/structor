@@ -21,7 +21,7 @@ class yarn_resource_manager {
   $yarn_component = "hadoop-yarn-resourcemanager"
   $mapreduce_component = "hadoop-mapreduce-historyserver"
 
-  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
     $yarn_start_script="/usr/hdp/current/$yarn_component/../etc/$platform_start_script_path/$yarn_component"
     $mapreduce_start_script="/usr/hdp/current/$mapreduce_component/../etc/$platform_start_script_path/$mapreduce_component"
   }

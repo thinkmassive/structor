@@ -17,12 +17,12 @@ class hdfs_namenode {
   require hdfs_client
   require hadoop_server
 
-  $PATH="/bin:/usr/bin"
+  $path="/bin:/usr/bin"
   $dirs="/user/yarn /user/yarn/history /user/yarn/app-logs /user/vagrant /user/hive /user/oozie /user/admin /user/ambari /apps/hive/warehouse /apps/hbase /tmp /hdp/apps/${hdp_version}/mapreduce /hdp/apps/${hdp_version}/tez /hdp/apps/${hdp_version}/pig /hdp/apps/${hdp_version}/hive"
   $mode177_dirs="/user/yarn/app-logs /apps/hive/warehouse /apps/hbase /tmp"
 
   $component = "hadoop-hdfs-namenode"
-  if ($hdp_version_major <= 2 and $hdp_version_minor <= 2) {
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
   }
   else {
@@ -40,7 +40,7 @@ class hdfs_namenode {
     }
     ->
     exec { "kinit -k -t ${hdfs_client::keytab_dir}/nn.keytab nn/${hostname}.${domain}":
-      path => $PATH,
+      path => $path,
       user => hdfs,
     }
     ->
@@ -64,7 +64,7 @@ class hdfs_namenode {
   ->
   exec {"namenode-format":
     command => "hadoop namenode -format",
-    path => "$PATH",
+    path => "$path",
     creates => "${hdfs_client::data_dir}/hdfs/namenode",
     user => "hdfs",
     require => Package["hadoop${package_version}-hdfs-namenode"],
@@ -77,85 +77,85 @@ class hdfs_namenode {
   ->
   exec {"make-all-dirs":
     command => "hadoop fs -mkdir -p $dirs",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"yarn-home-chown":
     command => "hadoop fs -chown yarn:yarn /user/yarn",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"yarn-history-chown":
     command => "hadoop fs -chown -R mapred:mapred /user/yarn/history",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"yarn-app-logs-chown":
     command => "hadoop fs -chown yarn:mapred /user/yarn/app-logs",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"vagrant-home-chown":
     command => "hadoop fs -chown vagrant:vagrant /user/vagrant",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"oozie-home-chown":
     command => "hadoop fs -chown oozie:oozie /user/oozie",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"hbase-warehouse-chown":
     command => "hadoop fs -chown hbase:hbase /apps/hbase",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"hive-chown":
     command => "hadoop fs -chown hive:hive /user/hive /apps/hive/warehouse",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"ambari-chown":
     command => "hadoop fs -chown ambari:ambari /user/ambari",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"admin-home-chown":
     command => "hadoop fs -chown admin:admin /user/admin",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"chmod-177":
     command => "hadoop fs -chmod 1777 $mode177_dirs",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"yarn-home-chmod":
     command => "hadoop fs -chmod 755 /user/yarn",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"yarn-history-chmod":
     command => "hadoop fs -chmod 775 /user/yarn/history",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
   ->
   exec {"tarball-chmod":
     command => "hadoop fs -chmod -R +rX /hdp",
-    path => "$PATH",
+    path => "$path",
     user => "hdfs",
   }
 }
