@@ -9,7 +9,7 @@ The currently supported OSes and the providers:
 * CentOS 7
 * Ubuntu 14.04
 
-We'd like to get CentOS 7 and SUSE support as well.
+We would like to get SUSE support as well.
 
 The currently supported projects:
 * Ambari
