@@ -1,6 +1,6 @@
 {
   "hdp_short_version": "2.3.2",
-  "os": "ubuntu",
+  "os": "ubuntu14",
   "domain": "example.com",
   "realm": "EXAMPLE.COM",
   "security": true,

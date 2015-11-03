@@ -16,7 +16,7 @@
 class zookeeper_server {
   require zookeeper_client
 
-  $path="/bin:/sbin:/usr/bin"
+  $path="/bin:/sbin:/usr/bin:/usr/sbin"
   $component = "zookeeper-server"
   if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
     $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
@@ -127,6 +127,11 @@ class zookeeper_server {
     owner => zookeeper,
     group => hadoop,
     mode => '755',
+  }
+  ->
+  exec { "usermod -a -G hadoop zookeeper":
+    # This hack allows zookeeper to read its keytab in secure. Need to move to per-directory.
+    path => "$path",
   }
   ->
   service { "zookeeper-server":

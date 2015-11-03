@@ -36,7 +36,7 @@ class repos_setup {
       source => "puppet:///files/repos/centos7.ambari.repo.${ambari_version}",
     }
   }
-  elsif ($operatingsystem == "ubuntu" and $operatingsystemmajrelease == "14") {
+  elsif ($operatingsystem == "ubuntu" and $operatingsystemmajrelease == "14.04") {
     file { '/etc/apt/sources.list.d/hdp.list':
       ensure => file,
       source => "puppet:///files/repos/ubuntu14.hdp.list.${hdp_short_version}",
