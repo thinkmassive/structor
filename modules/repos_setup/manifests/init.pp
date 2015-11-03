@@ -16,23 +16,30 @@
 class repos_setup {
   $path="/bin:/usr/bin"
 
-  if ($operatingsystem == "centos") {
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "6") {
     file { '/etc/yum.repos.d/hdp.repo':
       ensure => file,
-      source => "puppet:///files/repos/hdp.repo.${hdp_short_version}",
+      source => "puppet:///files/repos/centos6.hdp.repo.${hdp_short_version}",
     }
     file { '/etc/yum.repos.d/ambari.repo':
       ensure => file,
-      source => "puppet:///files/repos/ambari.repo.${ambari_version}",
-    }
-    package { 'epel-release-6-8':
-      ensure => absent,
+      source => "puppet:///files/repos/centos6.ambari.repo.${ambari_version}",
     }
   }
-  elsif ($operatingsystem == "ubuntu") {
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { '/etc/yum.repos.d/hdp.repo':
+      ensure => file,
+      source => "puppet:///files/repos/centos7.hdp.repo.${hdp_short_version}",
+    }
+    file { '/etc/yum.repos.d/ambari.repo':
+      ensure => file,
+      source => "puppet:///files/repos/centos7.ambari.repo.${ambari_version}",
+    }
+  }
+  elsif ($operatingsystem == "ubuntu" and $operatingsystemmajrelease == "14") {
     file { '/etc/apt/sources.list.d/hdp.list':
       ensure => file,
-      source => "puppet:///files/repos/hdp.list.${hdp_short_version}",
+      source => "puppet:///files/repos/ubuntu14.hdp.list.${hdp_short_version}",
     }
     ->
     exec { "gpg-updates-import":

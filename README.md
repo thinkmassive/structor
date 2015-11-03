@@ -1,27 +1,39 @@
-# Structor
+# "Structor 2" -- Structor + lots of extensions
 =======
 
 Vagrant files for creating virtual multi-node Hadoop clusters on various OSes,
 both with and without security.
 
 The currently supported OSes and the providers:
-* centos 6 (virtualbox and vmware_fusion)
+* CentOS 6
+* CentOS 7
+* Ubuntu 14.04
 
-We'd like to get Ubuntu and SUSE support as well.
+We'd like to get CentOS 7 and SUSE support as well.
 
 The currently supported projects:
 * Ambari
-* Hbase
+* Ambari Views
+* Flume
+* HBase
 * HDFS
 * Hive
+* Hive LLAP (Experimental)
+* Hive ODBC Client
+* HiveServer 2
+* Kafka
 * MapReduce
 * Oozie
 * Pig
+* Postgres
+* Slider
+* Spark
 * Tez
+* Wildfly (known better as JBoss)
 * Yarn
 * Zookeeper
 
-We'd love to support Spark, Storm, etc. as well.
+We'd love to support other Hadoopish things like Storm, etc. as well.
 
 ## Modify the cluster
 

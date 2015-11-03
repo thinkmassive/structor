@@ -14,13 +14,18 @@
 #   limitations under the License.
 
 class ip_setup {
-  if ($operatingsystem == "centos") {
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "6") {
     service {"iptables":
       ensure => stopped,
       enable => false,
     }
-
     service {"ip6tables":
+      ensure => stopped,
+      enable => false,
+    }
+  }
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    service {"firewalld":
       ensure => stopped,
       enable => false,
     }

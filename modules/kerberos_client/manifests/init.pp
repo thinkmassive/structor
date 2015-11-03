@@ -16,12 +16,14 @@
 class kerberos_client {
   require ntp
 
-  case $operatingsystem {
-    'centos': {
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "6") {
       package { 'krb5-auth-dialog':
         ensure => installed,
         before => File['/etc/krb5.conf'],
       }
+  }
+  case $operatingsystem {
+    'centos': {
       package { 'krb5-workstation':
         ensure => installed,
         before => File['/etc/krb5.conf'],

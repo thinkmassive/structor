@@ -16,13 +16,22 @@
 class hive_db {
   $path = "/bin:/usr/bin"
 
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    $mysql_server = "mariadb-server"
+    $mysql_service = "mariadb"
+  }
+  else {
+    $mysql_server = "mysql-server"
+    $mysql_service = "mysql"
+  }
+
   case $operatingsystem {
     'centos': {
-      package { 'mysql-server':
+      package { "$mysql_server":
         ensure => installed,
       }
       ->
-      service { 'mysqld':
+      service { "$mysql_service":
         ensure => running,
         enable => true,
       }

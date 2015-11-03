@@ -37,10 +37,12 @@ end
 
 # Pull the HDP version out of the repository file.
 def findVersion(profile)
-  if (profile[:os] == "centos")
-    path = 'files/repos/hdp.repo.%s' % profile[:hdp_short_version]
-  elsif (profile[:os] == "ubuntu")
-    path = 'files/repos/hdp.list.%s' % profile[:hdp_short_version]
+  if (profile[:os] == "centos6")
+    path = 'files/repos/centos6.hdp.repo.%s' % profile[:hdp_short_version]
+  elsif (profile[:os] == "centos7")
+    path = 'files/repos/centos7.hdp.repo.%s' % profile[:hdp_short_version]
+  elsif (profile[:os] == "ubuntu14")
+    path = 'files/repos/ubuntu14.hdp.list.%s' % profile[:hdp_short_version]
   end
   
   fileObj = File.new(path, 'r')
@@ -61,7 +63,7 @@ end
 profile = loadProfile()
 
 # Set defaults.
-default_os = "centos"
+default_os = "centos6"
 default_hdp_short_version = "2.3.2"
 default_ambari_version = "2.1.2"
 default_java_version = "java-1.7.0-openjdk"
@@ -84,8 +86,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # All Vagrant configuration is done here. The most common configuration
   # Every Vagrant virtual environment requires a box to build off of.
-  if (profile[:os] == "centos")
+  if (profile[:os] == "centos6")
     config.vm.box = "puppetlabs/centos-6.6-64-puppet"
+    package_version = "_" + (hdp_version.gsub /[.-]/, '_')
+    platform_start_script_path = "rc.d/init.d"
+  elsif (profile[:os] == "centos7")
+    config.vm.box = "puppetlabs/centos-7.0-64-puppet"
     package_version = "_" + (hdp_version.gsub /[.-]/, '_')
     platform_start_script_path = "rc.d/init.d"
   elsif (profile[:os] == "ubuntu")
@@ -150,5 +156,4 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
     end
   end
-
 end
