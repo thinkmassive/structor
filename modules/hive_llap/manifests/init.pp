@@ -13,12 +13,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# Note: This manifest builds everything manually and replaces the existing Hive.
-
 class hive_llap {
   require hive_client
   require tez_client
   require slider
+  require maven
 
   $app_path="/user/vagrant/apps/llap"
   $install_root="/home/vagrant/llap"
@@ -28,14 +27,7 @@ class hive_llap {
   $hive_version="2.0.0-SNAPSHOT"
   $protobuf_ver="protobuf-2.5.0"
   $protobuf_dist="http://protobuf.googlecode.com/files/$protobuf_ver.tar.bz2"
-
-  # Maven stuff.
-  $maven_version="3.3.3"
-  $maven_base="apache-maven-$maven_version"
-  $maven_bin="$maven_base-bin.tar.gz"
-  $maven_dist="http://mirrors.ibiblio.org/apache/maven/maven-3/$maven_version/binaries/$maven_bin"
-  $m2_home="/home/vagrant/$maven_base"
-  $path="/bin:/usr/bin:$install_root/protoc/bin:$m2_home/bin"
+  $path="/bin:/usr/bin:$install_root/protoc/bin"
 
   $start_script="/usr/hdp/autobuild/etc/rc.d/init.d/hive-llap"
   $hive_package="apache-hive-$hive_version-bin"
@@ -60,31 +52,6 @@ class hive_llap {
         before => Exec["Download Protobuf"],
       }
     }
-  }
-
-  # Get Maven.
-  exec {"Install Maven":
-    command => "curl -C - -O $maven_dist",
-    cwd => "/home/vagrant",
-    path => $path,
-    creates => "/home/vagrant/$maven_bin",
-    user => "vagrant",
-  }
-  ->
-  exec {"tar -xvf $maven_bin":
-    cwd => "/home/vagrant",
-    path => $path,
-    creates => "$m2_home",
-    user => "vagrant",
-    before => Exec["Add Vendor Repos"],
-  }
-
-  # Add vendor repos to Maven.
-  exec {"Add Vendor Repos":
-    command => "sed -i~ -e '/<profiles>/r /vagrant/modules/hive_llap/files/vendor-repos.xml' settings.xml",
-    cwd => "$m2_home/conf",
-    path => $path,
-    unless => 'grep HDPReleases settings.xml',
   }
 
   # Reset the install.
