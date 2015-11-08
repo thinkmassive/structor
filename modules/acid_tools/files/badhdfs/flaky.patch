@@ -1,0 +1,42 @@
+diff --git a/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/blockmanagement/BlockManager.java b/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/blockmanagement/BlockManager.java
+index 3e738cd..84e1fa9 100644
+--- a/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/blockmanagement/BlockManager.java
++++ b/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/blockmanagement/BlockManager.java
+@@ -162,7 +162,7 @@ public int getPendingDataNodeMessageCount() {
+ 
+   /**replicationRecheckInterval is how often namenode checks for new replication work*/
+   private final long replicationRecheckInterval;
+-  
++
+   /**
+    * Mapping: Block -> { BlockCollection, datanodes, self ref }
+    * Updated only in response to client-sent information.
+@@ -177,6 +177,9 @@ public int getPendingDataNodeMessageCount() {
+ 
+   /** Blocks to be invalidated. */
+   private final InvalidateBlocks invalidateBlocks;
++
++  /** Failure rate for operations. */
++  private final float failureRate;
+   
+   /**
+    * After a failover, over-replicated blocks may not be handled
+@@ -334,6 +337,8 @@ public BlockManager(final Namesystem namesystem, final FSClusterStats stats,
+     this.replicationRecheckInterval = 
+       conf.getInt(DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_KEY, 
+                   DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_DEFAULT) * 1000L;
++
++    this.failureRate = conf.getFloat("dfs.client.failure.rate", 0.1f);
+     
+     this.encryptDataTransfer =
+         conf.getBoolean(DFSConfigKeys.DFS_ENCRYPT_DATA_TRANSFER_KEY,
+@@ -1545,6 +1550,9 @@ int computeReplicationWorkForBlocks(List<List<Block>> blocksToReplicate) {
+     final DatanodeStorageInfo[] targets = blockplacement.chooseTarget(src,
+         numOfReplicas, client, excludedNodes, blocksize, 
+         favoredDatanodeDescriptors, storagePolicy);
++    if (DFSUtil.getRandom().nextFloat() < 0.1) {
++      throw new IOException("Simulated chooseTarget4NewBlock failure");
++    }
+     if (targets.length < minReplication) {
+       throw new IOException("File " + src + " could only be replicated to "
+           + targets.length + " nodes instead of minReplication (="

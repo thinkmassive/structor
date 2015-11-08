@@ -170,7 +170,7 @@ def find_zookeeper():
     tree = ET.parse(hbase_site)
     attributes = {}
     for property in tree.findall("property"):
-        (name, value) = property.getchildren()
+        (name, value) = property.getchildren()[0:2]
         attributes[name.text] = value.text
 
     # The zookeeper quorum

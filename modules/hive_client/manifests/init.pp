@@ -22,6 +22,10 @@ class hive_client {
     ensure => installed,
   }
 
+  package { "hive-hcatalog${package_version}":
+    ensure => installed,
+  }
+
   file { '/etc/hive':
     ensure => 'directory',
   }

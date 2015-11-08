@@ -41,6 +41,12 @@ class hdfs_datanode {
     Package["hadoop${package_version}-hdfs-datanode"]
   }
 
+  # Enable short-circuit read.
+  file { "/var/lib/hadoop/hdfs":
+      mode => '750',
+      require => Package["hadoop${package_version}-hdfs-datanode"],
+  }
+
   package { "hadoop${package_version}-hdfs-datanode" :
     ensure => installed,
   }
