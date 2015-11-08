@@ -21,6 +21,15 @@ def runSql(details, sql, type="mysql"):
 	else:
 		raise Exception("Unknown database type " + type)
 
+def getConnectCommand(details, type="mysql"):
+	if type == "mysql":
+		command = "mysql -h %s -P %s -u %s -p%s -D %s" % (
+		    details["host"], details["port"], details["username"],
+		    details["password"], details["database"])
+		return command
+	else:
+		raise Exception("Unknown database type " + type)
+
 def getDumpCommand(details, type="mysql"):
 	if type == "mysql":
 		command = "mysqldump -h %s -P %s -u %s -p%s %s" % (
@@ -49,6 +58,7 @@ def getConnectionDetails(type="mysql"):
 		("javax.jdo.option.ConnectionPassword", "password"),
 	]
 	if type == "mysql":
+		parameters["type"] = "mysql"
 		if "javax.jdo.option.ConnectionURL" not in attributes:
 			raise Exception("Could not determine connection URL")
 		else:

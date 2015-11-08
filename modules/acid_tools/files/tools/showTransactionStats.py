@@ -20,5 +20,8 @@ def main():
 	print "Compaction details:"
 	HiveParser.runSql(details, "select * from COMPACTION_QUEUE")
 
+	print "Current locks:"
+	HiveParser.runSql(details, "select * from HIVE_LOCKS")
+
 if __name__ == "__main__":
 	main()

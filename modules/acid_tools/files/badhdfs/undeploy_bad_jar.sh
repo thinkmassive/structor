@@ -7,10 +7,10 @@ sudo rm -f /usr/hdp/2.2.6.11-6/hadoop/hadoop-common-defective-2.6.0.jar
 sudo rm -f /usr/hdp/2.2.6.11-6/hadoop/client/hadoop-common-defective-2.6.0.jar
 
 echo "Replacing old JARs"
-sudo mv /root/oldjars/hadoop-hdfs-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop-hdfs/ 2>/dev/null
-sudo mv /root/oldjars/hadoop-hdfs-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop/client/ 2>/dev/null
-sudo mv /root/oldjars/hadoop-common-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop/ 2>/dev/null
-sudo mv /root/oldjars/hadoop-common-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop/client/ 2>/dev/null
+sudo cp /root/oldjars/hadoop-hdfs-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop-hdfs/ 2>/dev/null
+sudo cp /root/oldjars/hadoop-hdfs-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop/client/ 2>/dev/null
+sudo cp /root/oldjars/hadoop-common-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop/ 2>/dev/null
+sudo cp /root/oldjars/hadoop-common-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop/client/ 2>/dev/null
 
 sudo ln -sf /usr/hdp/2.2.6.11-6/hadoop-hdfs/hadoop-hdfs-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop-hdfs/hadoop-hdfs.jar
 sudo ln -sf /usr/hdp/2.2.6.11-6/hadoop/client/hadoop-hdfs-2.6.0.2.2.6.11-6.jar /usr/hdp/2.2.6.11-6/hadoop/clienthadoop-hdfs.jar
