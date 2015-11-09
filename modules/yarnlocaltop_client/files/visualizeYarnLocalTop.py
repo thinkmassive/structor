@@ -7,8 +7,10 @@ except:
 	assert False, "Requires GraphViz and pygraphviz to be installed"
 
 def main():
-	parser = OptionParser()
+	example = "visualizeYarnLocalTop.py -n TezChild -t 0.03 -k FutureTask:run -f output.txt"
+	parser = OptionParser(epilog=example)
 	parser.add_option("-f", "--file")
+	parser.add_option("-k", "--killlist")
 	parser.add_option("-n", "--threadname")
 	parser.add_option("-o", "--output", default="output.png")
 	parser.add_option("-t", "--threshold", default=0.01)
@@ -35,16 +37,22 @@ def main():
 		"org.apache.log4j.",
 		"org.apache.hadoop.hive.metastore.",
 	]
+	killList = {
+	}
 
 	threadname = options.threadname
 	traceTree = Node()
 	trace = []
 	oldPackage = None
 
+	# Build a kill list if specified.
+	if options.killlist:
+		killList = dict([(x, 1) for x in options.killlist.split(",")])
+
 	with open(options.file) as fd:
 		for line in fd:
 			if not line.startswith(threadname):
-				addTrace(traceTree, trace)
+				addTrace(traceTree, trace, killList)
 				trace = []
 				oldPackage = None
 				continue
@@ -108,10 +116,9 @@ def setColor(percent):
 	return "#ff%s%s" % (level, level)
 	#return "#%s0000" % level
 
-def addTrace(traceTree, trace):
+def addTrace(traceTree, trace, killList):
 	if len(trace) > 0:
 		# Build the trace path.
-		array = [ "%s:%s:%s" % (t[0], t[1], t[2]) for t in trace ]
 		array = [ "%s:%s" % (t[1], t[2]) for t in trace ]
 		array.reverse()
 
@@ -119,6 +126,8 @@ def addTrace(traceTree, trace):
 		thisNode = traceTree
 		increment(thisNode)
 		for step in array:
+			if step in killList:
+				return
 			try:
 				thisNode = thisNode.get_child(step)
 			except:
