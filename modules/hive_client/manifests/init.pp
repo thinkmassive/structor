@@ -22,7 +22,7 @@ class hive_client {
     ensure => installed,
   }
 
-  package { "hive-hcatalog${package_version}":
+  package { "hive${package_version}-hcatalog":
     ensure => installed,
   }
 
