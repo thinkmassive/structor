@@ -22,7 +22,7 @@ class hive_db {
   }
   else {
     $mysql_server = "mysql-server"
-    $mysql_service = "mysql"
+    $mysql_service = "mysqld"
   }
 
   case $operatingsystem {
