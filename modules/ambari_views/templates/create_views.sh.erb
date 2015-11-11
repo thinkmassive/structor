@@ -85,7 +85,7 @@ read -r -d '' body <<EOF
   }
 }
 EOF
-url="${CURL}/views/TEZ/versions/0.7.0.2.3.2.0-377/instances/Tez"
+url="${CURL}/views/TEZ/versions/0.7.0.2.3.2.0-418/instances/Tez"
 ${url} -X DELETE
 echo "${body}" | ${url} -X POST -d @-
 
