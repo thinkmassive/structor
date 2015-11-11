@@ -81,7 +81,7 @@ class hadoop_server {
     ensure => directory,
     owner => 'hdfs',
     group => 'hadoop',
-    mode => '700',
+    mode => '750',
   }
 
   file { "${hdfs_client::data_dir}/yarn":
