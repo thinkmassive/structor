@@ -70,6 +70,7 @@ default_java_version = "java-1.7.0-openjdk"
 
 profile[:hdp_short_version] ||= default_hdp_short_version
 profile[:ambari_version] ||= default_ambari_version
+profile[:ambari_unstable] ||= 0
 profile[:java_version] ||= default_java_version
 profile[:os] ||= default_os
 profile[:vm_cpus] ||= 2
@@ -123,11 +124,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	    "--verbose", "--debug",
             "--fileserverconfig=/vagrant/fileserver.conf"]
         puppet.facter = {
+          "platform_start_script_path" => platform_start_script_path,
+          "java_version" => profile[:java_version],
+          "os_version" => profile[:os],
+
           "hdp_short_version" => profile[:hdp_short_version],
           "ambari_version" => profile[:ambari_version],
+          "ambari_unstable" => profile[:ambari_unstable],
 	  "package_version" => package_version,
-          "java_version" => profile[:java_version],
-          "platform_start_script_path" => platform_start_script_path,
 
           "am_mem" => profile[:am_mem],
           "client_mem" => profile[:client_mem],
