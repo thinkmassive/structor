@@ -54,7 +54,7 @@ def setDatabaseFoodmart():
 	pyautogui.click()
 	time.sleep(shortSleep)
 
-def runQuery(driver, text):
+def runQuery(driver, text, explainOnly=False):
 	offset = adjustXOffset()
 	pyautogui.moveTo(600+offset, 400)
 	pyautogui.click()
@@ -70,7 +70,8 @@ def runQuery(driver, text):
 	clipboard.copy(text)
 	pyautogui.hotkey('command', 'v')
 	time.sleep(shortSleep)
-	#pyautogui.typewrite(text)
+	if explainOnly:
+		return 0
 	try:
 		execute = driver.find_element_by_class_name("execute-query")
 	except:
@@ -96,10 +97,21 @@ def runQuery(driver, text):
 			return 0
 
 def screenshotExplain(driver, file):
+	html = driver.find_elements_by_tag_name('html')[0]
+
 	button = driver.find_element_by_id("visual-explain-icon")
+	# Hack: Zoom out 4x
+	for i in range(0, 4):
+		html.send_keys(Keys.COMMAND, '-')
 	button.click()
 	time.sleep(renderSleep)
+	button.click()
+	time.sleep(briefSleep)
+	button.click()
+	time.sleep(1)
 	driver.save_screenshot(file)
+	html.send_keys(Keys.COMMAND, '0')
+
 	button = driver.find_element_by_id("query-icon")
 	button.click()
 	time.sleep(briefSleep)
@@ -136,16 +148,24 @@ def screenshotVisualization(driver, file):
 def main():
 	# TODO: Options.
 	parser = OptionParser()
+
 	thinkTime = 0
 	skipTrivial = False
+	explainOnly = False
 	clicks = { "visualization" : False, "explain" : False, "tez" : False }
 
 	strategy = "gottaGoFast"
+	strategy = "explainOnly"
 	if strategy == "clickEverything":
 		skipTrivial = True
 		thinkTime = 0
 		for k in clicks.keys():
 			clicks[k] = True
+	elif strategy == "explainOnly":
+		skipTrivial = True
+		explainOnly = True
+		clicks["explain"] = True
+		thinkTime = 0
 	elif strategy == "gottaGoFast":
 		thinkTime = 0
 	elif strategy == "justThink":
@@ -158,26 +178,23 @@ def main():
 	i = 1
 	with open("queries.txt") as fd:
 		for query in fd:
-			# Skip if we've already done this query.
-			vizFile = "viz-" + file
-			explainFile = "explain-" + file
-			if os.path.exists(vizFile):
-				continue
-
 			if skipTrivial and query.find("as c1") == -1:
 				continue
 
 			query = "\n".join(textwrap.wrap(query))
 			print query
-			result = runQuery(driver, query)
+			result = runQuery(driver, query, explainOnly)
 			if result == 0:
 				# Screenshots of visualizations, explain and tez.	
 				file = "%05d" % i + ".png"
 				if clicks["visualization"]:
+					print "Visualization Screenshot"
 					screenshotVisualization(driver, "viz-" + file)
 				if clicks["explain"]:
+					print "Explain Screenshot"
 					screenshotExplain(driver, "explain-" + file)
 				if clicks["tez"]:
+					print "Tez Screenshot"
 					screenshotTez(driver, "tez-" + file)
 				if thinkTime > 0:
 					print "Waiting for %d seconds" % thinkTime
