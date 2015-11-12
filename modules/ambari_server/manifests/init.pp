@@ -40,7 +40,7 @@ class ambari_server {
     exec { "/tmp/setup-ambari-security.sh":
       cwd => "/tmp",
       path => "$path",
-      require => Exec["ambari-server-setup"],
+      require => Exec["Fix startup script"],
     }
   }
 
