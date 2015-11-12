@@ -71,6 +71,9 @@ if hasrole($roles, 'client') {
   if hasrole($clients, 'spark') {
     include spark_client
   }
+  if hasrole($clients, 'sqoop') {
+    include sqoop_client
+  }
   if hasrole($clients, 'tez') {
     include tez_client
   }
