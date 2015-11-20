@@ -36,6 +36,11 @@ class maven {
     before => Exec["Add Vendor Repos"],
   }
 
+  file { "/usr/local/share/maven":
+    ensure => "link",
+    target => "/usr/local/share/$maven_base",
+  }
+
   # Add to profile.d.
   file { "/etc/profile.d/maven.sh":
     ensure => "file",

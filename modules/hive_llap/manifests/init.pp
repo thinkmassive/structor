@@ -27,7 +27,7 @@ class hive_llap {
   $hive_version="2.0.0-SNAPSHOT"
   $protobuf_ver="protobuf-2.5.0"
   $protobuf_dist="http://protobuf.googlecode.com/files/$protobuf_ver.tar.bz2"
-  $path="/bin:/usr/bin:$install_root/protoc/bin"
+  $path="/bin:/usr/bin:$install_root/protoc/bin:/usr/local/share/maven/bin"
 
   $start_script="/usr/hdp/autobuild/etc/rc.d/init.d/hive-llap"
   $hive_package="apache-hive-$hive_version-bin"
