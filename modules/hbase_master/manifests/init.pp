@@ -15,6 +15,7 @@
 
 class hbase_master {
   require hbase_server
+  require zookeeper_server
 
   $path="/bin:/sbin:/usr/bin"
 

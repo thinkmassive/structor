@@ -7,8 +7,7 @@
   "client_mem": 200,
   "clients" : [ "hbase", "hdfs", "zk"],
   "nodes": [
-    {"hostname": "nn", "ip": "240.0.0.11",
-     "roles": ["client", "hbase-master", "hbase-regionserver", "nn",
-               "slave", "zk"]}
+    {"hostname": "hbase", "ip": "240.0.0.11",
+     "roles": ["client", "hbase-master", "hbase-regionserver", "nn", "phoenix-query-server", "slave", "zk"]}
   ]
 }

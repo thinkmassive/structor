@@ -141,6 +141,10 @@ if hasrole($roles, 'oozie') {
   include oozie_server
 }
 
+if hasrole($roles, 'phoenix-query-server') {
+  include phoenix_query_server
+}
+
 if hasrole($roles, 'postgres') {
   include postgres_server
 }
@@ -266,6 +270,12 @@ if hasrole($roles, 'hive-server2') {
 # Ensure oozie runs after the datanode on the same node
 if hasrole($roles, 'slave') and hasrole($roles, 'oozie') {
   Class['hdfs_datanode'] -> Class['oozie_server']
+}
+
+if hasrole($roles, 'phoenix-query-server') {
+  if hasrole($roles, 'hbase-regionserver') {
+    Class['hbase_regionserver'] -> Class['phoenix_query_server']
+  }
 }
 
 if hasrole($roles, 'hbase-master') {

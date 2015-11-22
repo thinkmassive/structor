@@ -1,0 +1,3 @@
+grant 'vagrant', 'RWXCA'
+grant 'phoenix', 'RWXCA'
+exit

@@ -19,6 +19,9 @@
    @zookeeper_servers = eval(@nodes).
       select {|node| node[:roles].include? 'zk'}.
       map{|node| node[:hostname] + "." + @domain + ":2181"}.join(",");
+   @phoenix_query_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'phoenix-query-server'}.
+      map{|node| node[:hostname]};
  -%>
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
@@ -114,6 +117,21 @@
     <name>hbase.coprocessor.region.classes</name>
     <value>org.apache.hadoop.hbase.security.token.TokenProvider,org.apache.hadoop.hbase.security.access.AccessController</value>
   </property>
+
+<% if @phoenix_query_servers.length > 0 -%>
+
+  <property>
+    <name>phoenix.queryserver.keytab.file</name>
+    <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/phoenix.keytab</value>
+  </property>
+
+  <property>
+    <name>phoenix.queryserver.kerberos.principal</name>
+    <value>phoenix/_HOST@<%= @realm %></value>
+  </property>
+
+<% end %>
+
 <% end -%>
 
 </configuration>

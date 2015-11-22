@@ -58,4 +58,29 @@ is the node map and the second is the hostname.
       map{|node| node[:hostname]}
     return slaves.last == host
   end
+
+  newfunction(:islastregionserver, :type => :rvalue, :doc => <<-EOS
+This function determines if a node is the last RegionServer. The first parameter
+is the node map and the second is the hostname.
+    EOS
+  ) do |arguments|
+
+    raise(Puppet::ParseError, "islastregionserver(): Wrong number of arguments " +
+      "given (#{arguments.size} for 2)") if arguments.size < 2
+
+    nodes = eval(arguments[0])
+
+    unless nodes.is_a?(Array)
+      raise(Puppet::ParseError, 'islastregionserver(): Requires array to work with')
+    end
+
+    host = arguments[1]
+
+    raise(Puppet::ParseError, 'islastregionserver(): You must provide item ' +
+      'to search for within array given') if host.empty?
+
+    regionservers = nodes.select {|node| node[:roles].include? 'hbase-regionserver'}.
+      map{|node| node[:hostname]}
+    return regionservers.last == host
+  end
 end
