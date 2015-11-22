@@ -21,6 +21,6 @@ run ./llapRunClient.sh.
 
 This profile includes some sample databases and data to play with.
 
-Extra:
-If you want to use HiveServer2 you will need to stop the system HiveServer2 and bring
-up HS2 included by this compiled package.
+Run HiveServer2:
+sudo service hive-server2 stop
+sudo ./controlHiveServer2 start

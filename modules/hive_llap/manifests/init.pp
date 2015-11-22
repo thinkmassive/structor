@@ -237,11 +237,18 @@ class hive_llap {
   # Handy scripts.
   file { "/home/vagrant/llapGenerateSlider.sh":
     ensure => file,
+    mode => "0755",
     source => 'puppet:///modules/hive_llap/llapGenerateSlider.sh',
   }
   file { "/home/vagrant/llapRunClient.sh":
     ensure => file,
+    mode => "0755",
     source => 'puppet:///modules/hive_llap/llapRunClient.sh',
+  }
+  file { "/home/vagrant/controlHiveServer2":
+    ensure => file,
+    mode => "0755",
+    source => 'puppet:///modules/hive_llap/controlHiveServer2',
   }
   file { "/home/vagrant/README.LLAP":
     ensure => file,
