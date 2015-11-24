@@ -1,0 +1,247 @@
+#!/bin/bash
+#
+#  Licensed to the Apache Software Foundation (ASF) under one or more
+#  contributor license agreements.  See the NOTICE file distributed with
+#  this work for additional information regarding copyright ownership.
+#  The ASF licenses this file to You under the Apache License, Version 2.0
+#  (the "License"); you may not use this file except in compliance with
+#  the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+# Starts Phoenix Query Server
+#
+# chkconfig: 345 85 15
+# description: Phoenix Query Server
+# pidfile: /var/run/pid/hbase/phoenix-hbase-server.pid
+### BEGIN INIT INFO
+# Provides:          phoenix-query-server
+# Short-Description: Phoenix Query Server
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 2 6
+# Required-Start:    $syslog $remote_fs
+# Required-Stop:     $syslog $remote_fs
+# Should-Start:
+# Should-Stop:
+### END INIT INFO
+
+# Home dir
+PQS_HOME=/usr/hdp/current/phoenix-client
+
+# Phoenix Query Server PID
+PID=0
+
+# Start, stop, status, clean or setup
+PQS_LAUNCH_COMMAND=$1
+
+# User Name for setup parameter
+PQS_USER=hbase
+
+# App name
+APP_NAME=phoenix_query_server
+
+# The Phoenix Query Server command
+PQS_CMD="$PQS_HOME/bin/queryserver.py"
+
+# Set a default HBase configuration path.
+[ -z $HBASE_CONF_PATH ] && HBASE_CONF_PATH="/etc/hbase/conf"
+
+# PID & LOG DIRs
+[ -z $PID_DIR ] && PID_DIR="/var/run/pid/hbase"
+[ -z $LOG_DIR ] && LOG_DIR="/var/log/hadoop/hbase"
+
+# Name of PID file
+PID_FILE="$PID_DIR/phoenix-$PQS_USER-server.pid"
+
+# Name of LOG/OUT/ERR file
+OUT_FILE="$LOG_DIR/$APP_NAME.out"
+ERR_FILE="$LOG_DIR/$APP_NAME.err"
+
+if [ -z "$MAX_WAIT_TIME" ]; then
+    #The max time to wait
+    MAX_WAIT_TIME=120
+fi
+
+function main {
+   case "$1" in
+      setup)
+         createDirectories
+         ;;
+      start)
+         pqsStart
+         ;;
+      stop)
+         pqsStop
+         ;;
+      status)
+         pqsStatus
+         ;;
+      clean)
+         pqsClean
+         ;;
+      *)
+         printf "Usage: $0 {setup|start|stop|status|clean}\n"
+         ;;
+   esac
+}
+
+function pqsStart {
+   if [ ! -d "$PID_DIR" -o ! -d "$LOG_DIR" ]; then
+      echo "Missing directories, run sudo $0 setup"
+      exit 1
+   fi
+
+   getPID
+   pqsIsRunning $PID
+   if [ $? -eq 1 ]; then
+     printf "Phoenix Query Server is already running with PID=$PID.\n"
+     exit 0
+   fi
+
+   printf "Starting Phoenix Query Server "
+   rm -f $PID_FILE
+   su -s /bin/bash $PQS_USER -c "HBASE_CONF_PATH=$HBASE_CONF_PATH nohup $PQS_CMD start 2>/dev/null"
+   sleep 2
+
+   getPID
+   pqsIsRunning $PID
+   if [ $? -ne 1 ]; then
+      printf "failed.\n"
+      exit 1
+   fi
+
+   printf "succeeded with PID=$PID.\n"
+   return 0
+}
+
+function pqsStop {
+   getPID
+   pqsIsRunning $PID
+   if [ $? -eq 0 ]; then
+     printf "Phoenix Query Server is not running.\n"
+     rm -f $PID_FILE
+     return 0
+   fi
+
+   printf "Stopping Phoenix Query Server [$PID] "
+   pqsKill $PID >>$OUT_FILE 2>>$ERR_FILE
+
+   if [ $? -ne 0 ]; then
+     printf "failed. \n"
+     exit 1
+   else
+     rm -f $PID_FILE
+     printf "succeeded.\n"
+     return 0
+   fi
+}
+
+function pqsStatus {
+   printf "Phoenix Query Server "
+   getPID
+   if [ $? -eq 1 ]; then
+     printf "is not running. No pid file found.\n"
+     return 3
+   fi
+
+   pqsIsRunning $PID
+   if [ $? -eq 1 ]; then
+     printf "is running with PID=$PID.\n"
+     return 0
+   else
+     printf "is not running.\n"
+     return 1
+   fi
+}
+
+# Removed the Phoenix Query Server PID file if Phoenix Query Server is not run
+function pqsClean {
+   getPID
+   pqsIsRunning $PID
+   if [ $? -eq 0 ]; then
+     deleteLogFiles
+     return 0
+   else
+     printf "Can't clean files.  Phoenix Query Server is running with PID=$PID.\n"
+     exit 1
+   fi
+}
+
+# Returns 0 if running and sets the $PID variable.
+function getPID {
+   if [ ! -d $PID_DIR ]; then
+      printf "Can't find pid dir.\n"
+      exit 1
+   fi
+   if [ ! -f $PID_FILE ]; then
+     PID=0
+     return 1
+   fi
+
+   PID="$(<$PID_FILE)"
+   return 0
+}
+
+function pqsIsRunning {
+   if [ $1 -eq 0 ]; then return 0; fi
+
+   ps -p $1 > /dev/null
+
+   if [ $? -eq 1 ]; then
+     return 0
+   else
+     return 1
+   fi
+}
+
+function pqsKill {
+   local localPID=$1
+   kill $localPID || return 1
+   for ((i=0; i<MAX_WAIT_TIME; i++)); do
+      pqsIsRunning $localPID
+      if [ $? -eq 0 ]; then return 0; fi
+      sleep 0.1
+   done
+
+   kill -s KILL $localPID || return 1
+   for ((i=0; i<MAX_WAIT_TIME; i++)); do
+      pqsIsRunning $localPID
+      if [ $? -eq 0 ]; then return 0; fi
+      sleep 0.1
+   done
+
+   return 1
+}
+
+function createDirectories {
+   if [ ! -d "$PID_DIR" ]; then
+      mkdir -p $PID_DIR
+      chown $PQS_USER $PID_DIR
+      chgrp $PQS_USER $PID_DIR
+   fi
+   if [ ! -d "$LOG_DIR" ]; then
+      mkdir -p $LOG_DIR
+      chown $PQS_USER $LOG_DIR
+      chgrp $PQS_USER $LOG_DIR
+   fi
+}
+
+function deleteLogFiles {
+     rm -f $PID_FILE
+     printf "Removed the Phoenix Query Server PID file: $PID_FILE.\n"
+
+     rm -f $OUT_FILE
+     printf "Removed the Phoenix Query Server OUT file: $OUT_FILE.\n"
+
+     rm -f $ERR_FILE
+     printf "Removed the Phoenix Query Server ERR file: $ERR_FILE.\n"
+}
+
+# Starting main
+main $PQS_LAUNCH_COMMAND
