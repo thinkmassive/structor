@@ -10,6 +10,7 @@ allQueries = []
 parseStartRe = "Parsing command: (.+)"
 lineStartRe = "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}"
 files = glob.glob("/var/log/hive/hive-server2*")
+files.sort(reverse=True)
 for f in files:
 	with open(f) as fd:
 		inQuery = False
