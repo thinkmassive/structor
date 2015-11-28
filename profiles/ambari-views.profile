@@ -12,7 +12,7 @@
 
   "clients" : [ "hdfs", "hive", "pig", "tez", "yarn", "yarnlocaltop" ],
   "nodes": [
-    {"hostname": "ambari", "ip": "240.0.0.11",
+    {"hostname": "ambari", "ip": "192.168.59.11",
      "roles": ["ambari-server", "ambari-views", "client", "hive-db", "hive-meta",
                "hive-server2", "nn", "slave", "yarn", "yarn-timelineserver"]}
   ],
