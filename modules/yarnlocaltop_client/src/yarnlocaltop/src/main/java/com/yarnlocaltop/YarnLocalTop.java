@@ -54,6 +54,9 @@ public class YarnLocalTop
     parser.acceptsAll(Arrays.asList(new String[] { "help", "?", "h" }),
         "shows this help").forHelp();
     parser
+        .acceptsAll(Arrays.asList(new String[] { "D", "debug" }),
+            "turn on debugging");
+    parser
         .acceptsAll(Arrays.asList(new String[] { "n", "iteration" }),
             "yarnlocaltop will exit after n output iterations").withRequiredArg()
         .ofType(Integer.class);
@@ -87,7 +90,12 @@ public class YarnLocalTop
       parser.printHelpOn(System.out);
       System.exit(0);
     }
-    boolean sysInfoOption = a.has("sysinfo");
+
+    // Turn on debugging if requested.
+    if (a.has("debug")) {
+      fineLogging();
+      logger.setLevel(Level.ALL);
+    }
 
     Integer pid = null;
     double delay = 1.0;
@@ -162,6 +170,7 @@ public class YarnLocalTop
   public ArrayList<Integer> getYarnPids()
   {
     ArrayList<Integer> pids = new ArrayList<Integer>();
+    logger.entering(getClass().getName(), "getYarnPids");
 
     try {
       HostIdentifier hostId = new HostIdentifier((String)null);
@@ -198,6 +207,7 @@ public class YarnLocalTop
         // We should have a list of YARN process types worth attaching to.
         String className = MonitoredVmUtil.mainClass(vm, false);
         if (className.equals("TezChild") || className.equals("YarnChild")) {
+          logger.fine(String.format("Detected YARN container PID %d", lvmid));
           pids.add(lvmid);
         }
 
@@ -216,6 +226,7 @@ public class YarnLocalTop
       }
     }
 
+    logger.exiting(getClass().getName(), "getYarnPids");
     return pids;
   }
 
@@ -272,6 +283,8 @@ public class YarnLocalTop
       while (iterations < maxIterations_ || maxIterations_ < 0) {
         // Refresh the view list every pidCheckStep intervals.
         if (iterations % pidCheckStep == 0 && pid == null) {
+          logger.fine("Refreshing PID list");
+
           // Delete anything that should exit.
           for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry pair = (Map.Entry)iterator.next();
@@ -284,6 +297,7 @@ public class YarnLocalTop
           ArrayList<Integer> pids = getYarnPids();
           for (Integer i : pids) {
             if (map.get(i) == null) {
+              logger.fine(String.format("Tracking new PID %d", i));
               VMOfflineView view = new VMOfflineView(i);
               map.put(i, view);
             }
@@ -295,6 +309,7 @@ public class YarnLocalTop
         }
         if (pid != null) {
           if (map.get(pid) == null) {
+            logger.fine(String.format("Adding static PID %d", pid));
             VMOfflineView view = new VMOfflineView(pid);
             map.put(pid, view);
           }
@@ -303,7 +318,10 @@ public class YarnLocalTop
         // Update each active view
         for (VMOfflineView view : map.values()) {
           if (!view.shouldExit()) {
+            logger.fine(String.format("Refreshing PID %d", view.getPid()));
             view.printView();
+          } else {
+            logger.fine(String.format("PID %d is exited", view.getPid()));
           }
         }
 

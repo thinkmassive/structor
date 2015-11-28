@@ -55,7 +55,6 @@ import com.sun.tools.attach.AttachNotSupportedException;
  */
 public class VMInfo
 {
-
   /**
    * Comparator providing ordering of VMInfo objects by the current heap usage of their monitored jvms
    *
@@ -89,65 +88,35 @@ public class VMInfo
   }
 
   private ProxyClient                                             proxyClient          = null;
-
   //private VirtualMachine                                          vm                   = null;
-
   private OperatingSystemMXBean                                   osBean;
-
   private RuntimeMXBean                                           runtimeMXBean;
-
   private Collection<java.lang.management.GarbageCollectorMXBean> gcMXBeans;
-
   private long                                                    lastGcTime;
-
   private long                                                    lastUpTime           = -1;
-
   private long                                                    lastCPUTime          = -1;
-
   private long                                                    gcCount              = 0;
-
   private double                                                  cpuLoad              = 0.0;
-
   private double                                                  gcLoad               = 0.0;
-
   private MemoryMXBean                                            memoryMXBean;
-
   private MemoryUsage                                             heapMemoryUsage;
-
   private MemoryUsage                                             nonHeapMemoryUsage;
-
   private ThreadMXBean                                            threadMXBean;
-
   private VMInfoState                                             state_               = VMInfoState.INIT;
-
   private String                                                  rawId_               = null;
-
   private LocalVirtualMachine                                     localVm_;
-
   public static final Comparator<VMInfo>                          USED_HEAP_COMPARATOR = new UsedHeapComparator();
-
   public static final Comparator<VMInfo>                          CPU_LOAD_COMPARATOR  = new CPULoadComparator();
-
   private long                                                    deltaUptime_;
-
   private long                                                    deltaCpuTime_;
-
   private long                                                    deltaGcTime_;
-
   private int                                                     updateErrorCount_    = 0;
-
   private long                                                    totalLoadedClassCount_;
-
   private ClassLoadingMXBean                                      classLoadingMXBean_;
-
   private boolean                                                 deadlocksDetected_   = false;
-
   private String                                                  vmVersion_           = null;
-
   private String                                                  osUser_;
-
   private long                                                    threadCount_;
-
   private Map<String, String>                                     systemProperties_;
 
   /**
@@ -345,7 +314,7 @@ public class VMInfo
     }
     catch (Throwable e)
     {
-      Logger.getLogger("yarnlocaltop").log(Level.FINE, "error during update", e);
+      Logger.getLogger("yarnlocaltop").log(Level.FINE, "error updating PID " + localVm_.vmid(), e);
       updateErrorCount_++;
       if (updateErrorCount_ > 10)
       {

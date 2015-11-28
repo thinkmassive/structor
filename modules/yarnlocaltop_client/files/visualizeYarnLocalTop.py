@@ -1,5 +1,9 @@
+#!/usr/bin/python
+
 from Node import Node
 from optparse import OptionParser
+
+import sys
 
 try:
 	import pygraphviz as pgv
@@ -16,21 +20,24 @@ def main():
 	parser.add_option("-t", "--threshold", default=0.01)
 	(options, args) = parser.parse_args()
 	if options.file == None:
-		assert False, "Input file (-f) option is required"
+		print "Error: Input file (-f) option is required"
+		parser.print_help()
+		sys.exit(1)
 	if options.threadname== None:
-		assert False, "Thread name (-n) option is required"
+		print "Error: Thread name (-n) option is required"
+		parser.print_help()
+		sys.exit(1)
 	threshold = float(options.threshold)
 
 	ignorePackage = {
-		"java.lang.reflect" : 1,
 		"com.sun.proxy" : 1,
-		"sun.reflect" : 1,
-		"sun.nio.cs" : 1,
+		"java.lang.reflect" : 1,
 		"java.net" : 1,
 		"java.io" : 1,
-		"java.lang" : 1,
 		"org.apache.hadoop.hive.cli" : 1,
 		"org.apache.hadoop.util" : 1,
+		"sun.reflect" : 1,
+		"sun.nio.cs" : 1,
 	}
 	ignorePrefix = [
 		"org.apache.thrift.",
@@ -44,6 +51,7 @@ def main():
 	traceTree = Node()
 	trace = []
 	oldPackage = None
+	globalCounts = {}
 
 	# Build a kill list if specified.
 	if options.killlist:
@@ -52,7 +60,7 @@ def main():
 	with open(options.file) as fd:
 		for line in fd:
 			if not line.startswith(threadname):
-				addTrace(traceTree, trace, killList)
+				addTrace(traceTree, trace, killList, globalCounts)
 				trace = []
 				oldPackage = None
 				continue
@@ -77,30 +85,42 @@ def main():
 				trace.append((package, clazz, method))
 
 	addPercentages(traceTree)
-	dumpTree(traceTree, threshold)
+	dumpTree(traceTree, globalCounts, threshold)
 
-def buildGraph(graph, parent, child, threshold=0.01):
+def buildGraph(graph, parent, child, totalCount, globalCounts, threshold=0.01):
 	parentNodeName = parent
-	childNodeName = child.get_name()
+
 	myPercent = child.get_attribute("percent")
 	if myPercent < threshold:
 		return
+
+	childNodeName = child.get_name()
+	childNodeCount = child.get_attribute("count")
 	strPercent = "%0.2f%%" % (myPercent * 100)
 	effectiveNodeName = "%s (%s)" % (childNodeName, strPercent)
-	graph.add_node(effectiveNodeName, fillcolor=setColor(myPercent))
+
+	ratio = childNodeCount * 1.0 / globalCounts[childNodeName]
+	offsetPercent = 0
+	if ratio < 0.75:
+		#print "Counts for %s:" % childNodeName, globalCounts[childNodeName], totalCount
+		offsetPercent = globalCounts[childNodeName] * 1.0 / totalCount
+
+	graph.add_node(effectiveNodeName, fillcolor=setColor(myPercent, offsetPercent))
 	graph.add_edge(parentNodeName, effectiveNodeName)
 	for subchild in child.get_children():
-		buildGraph(graph, effectiveNodeName, subchild, threshold)
+		buildGraph(graph, effectiveNodeName, subchild, totalCount, globalCounts, threshold)
 
-def dumpTree(tree, threshold=0.01, outputFile="output.png"):
+def dumpTree(tree, globalCounts, threshold=0.01, outputFile="output.png"):
 	A=pgv.AGraph()
 	A.node_attr['style']='filled'
 	A.node_attr['fillcolor']='white'
 
 	myPercent = tree.get_attribute("percent")
-	A.add_node("HEAD", fillcolor=setColor(myPercent))
+	A.add_node("HEAD", fillcolor=setColor(myPercent, 0))
+
+	totalCount = tree.get_attribute("count")
 	for child in tree.get_children():
-		buildGraph(A, "HEAD", child, threshold)
+		buildGraph(A, "HEAD", child, totalCount, globalCounts, threshold)
 
 	# Create the image.
 	A.write('.graph.dot')
@@ -108,31 +128,51 @@ def dumpTree(tree, threshold=0.01, outputFile="output.png"):
 	B.layout(prog="dot")
 	B.draw(outputFile)
 
-def setColor(percent):
-	# 100% -> Red, 0% -> White
+def getLevel(percent):
 	level = hex(255 - int(255 * percent))[2:]
 	if len(level) == 1:
 		level = "0" + level
-	return "#ff%s%s" % (level, level)
-	#return "#%s0000" % level
+	return level
 
-def addTrace(traceTree, trace, killList):
+def setColor(percent, offsetPercent):
+	if offsetPercent > 1:
+		offsetPercent = 1
+	green = getLevel(percent)
+	if offsetPercent > 0:
+		blue = getLevel(offsetPercent)
+	else:
+		blue = green
+	result = "#ff%s%s" % (green, blue)
+	return result
+
+def addTrace(traceTree, trace, killList, globalCounts):
 	if len(trace) > 0:
 		# Build the trace path.
 		array = [ "%s:%s" % (t[1], t[2]) for t in trace ]
 		array.reverse()
 
-		# Increment this path's count.
-		thisNode = traceTree
-		increment(thisNode)
+		# Check for a path we are suppressing.
 		for step in array:
 			if step in killList:
 				return
+
+		# Increment this path's count.
+		thisNode = traceTree
+		increment(thisNode)
+		addGlobalCount(globalCounts, thisNode.get_name())
+		for step in array:
 			try:
 				thisNode = thisNode.get_child(step)
 			except:
 				thisNode = thisNode.add_child(step)
 			increment(thisNode)
+			addGlobalCount(globalCounts, thisNode.get_name())
+
+def addGlobalCount(globalCounts, name):
+	if name in globalCounts:
+		globalCounts[name] += 1
+	else:
+		globalCounts[name] = 1
 
 def addPercentToTree(node, totalCount):
 	myCount = node.get_attribute("count")

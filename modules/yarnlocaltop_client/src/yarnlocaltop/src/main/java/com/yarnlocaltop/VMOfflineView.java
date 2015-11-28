@@ -106,6 +106,19 @@ public class VMOfflineView extends AbstractConsoleView
     }
 
     System.out.printf(
+        "PID:%d CPU:%.2f%% GC:%.2f%% HEAP:%s/%s NONHEAP:%s/%s UP:%s " +
+        "#THR:%d #THRPEAK:%d #THRCREATED:%d GCTIME:%s GCRUNS:%d CLASSES:%d%n",
+        pid_, vmInfo_.getCpuLoad() * 100, vmInfo_.getGcLoad()*100,
+        toMB(vmInfo_.getHeapUsed()), toMB(vmInfo_.getHeapMax()),
+        toMB(vmInfo_.getNonHeapUsed()), toMB(vmInfo_.getNonHeapMax()),
+        toHHMM(vmInfo_.getRuntimeMXBean().getUptime()), vmInfo_.getThreadCount(),
+        vmInfo_.getThreadMXBean().getPeakThreadCount(),
+        vmInfo_.getThreadMXBean().getTotalStartedThreadCount(),
+        toHHMM(vmInfo_.getGcTime()), vmInfo_.getGcCount(),
+        vmInfo_.getTotalLoadedClassCount());
+
+/*
+    System.out.printf(
         " %d UP: %-7s #THR: %-4d #THRPEAK: %-4d #THRCREATED: %-4d USER: %-12s%n", pid_,
         toHHMM(vmInfo_.getRuntimeMXBean().getUptime()), vmInfo_
             .getThreadCount(), vmInfo_.getThreadMXBean().getPeakThreadCount(),
@@ -120,6 +133,7 @@ public class VMOfflineView extends AbstractConsoleView
         vmInfo_.getCpuLoad() * 100, vmInfo_.getGcLoad() * 100,
         toMB(vmInfo_.getHeapUsed()), toMB(vmInfo_.getHeapMax()),
         toMB(vmInfo_.getNonHeapUsed()), toMB(vmInfo_.getNonHeapMax()));
+*/
 
     try {
       printTopThreads();
@@ -218,5 +232,10 @@ public class VMOfflineView extends AbstractConsoleView
       return 0;
     }
     return deltaThreadCpuTime / factor / totalTime * 100d;
+  }
+
+  public int getPid()
+  {
+    return pid_;
   }
 }

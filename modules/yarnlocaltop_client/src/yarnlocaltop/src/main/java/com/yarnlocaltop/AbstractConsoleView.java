@@ -77,8 +77,7 @@ public abstract class AbstractConsoleView implements ConsoleView
   {
     StringBuilder sb = new StringBuilder();
     Formatter formatter = new Formatter(sb);
-    formatter
-.format("%2d:%2dm", millis / 1000 / 3600,
+    formatter.format("%dh%dm", millis / 1000 / 3600,
         (millis / 1000 / 60) % 60);
     return sb.toString();
   }
