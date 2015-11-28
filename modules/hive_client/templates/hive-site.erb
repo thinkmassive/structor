@@ -301,6 +301,11 @@
     <value>10000</value>
   </property>
 
+  <property>
+    <name>hive.tez.container.size</name>
+    <value><%= @client_mem.to_i %></value>
+  </property>
+
 <% if @ats_servers.length > 0 -%>
   <property>
     <name>hive.exec.failure.hooks</name>
