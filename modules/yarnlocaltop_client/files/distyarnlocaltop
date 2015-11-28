@@ -1,0 +1,32 @@
+#!/bin/sh
+
+YARN_HOSTS_FILE=/tmp/yarn.$USER
+YARNTOP_REMOTE_DIR=/tmp/yarnlocaltop.$USER
+YARNTOP_OUTPUT_FILE=$YARNTOP_REMOTE_DIR/output.txt
+MAX_HOSTS=50
+DEBUG="-D"
+DEBUG=""
+
+# Get the list of all active YARN hosts.
+echo "Getting node list"
+yarn node -list -states RUNNING 2>/dev/null | tail --lines=+3 | sed 's/:/ /' | awk '{print $1}' > $YARN_HOSTS_FILE
+
+# Prepare the remote environments.
+pdsh -w ^$YARN_HOSTS_FILE "mkdir -p $YARNTOP_REMOTE_DIR"
+pdcp -w ^$YARN_HOSTS_FILE yarnlocaltop $YARNTOP_REMOTE_DIR
+pdcp -w ^$YARN_HOSTS_FILE yarnlocaltop.jar $YARNTOP_REMOTE_DIR
+
+# Start capturing output on the remote machine.
+echo "Starting profile capture, Ctrl-C to stop"
+pdsh -bS -f $MAX_HOSTS -w ^$YARN_HOSTS_FILE "sudo -u yarn -E $YARNTOP_REMOTE_DIR/yarnlocaltop $DEBUG > $YARNTOP_OUTPUT_FILE"
+
+# Copy all output data local.
+rpdcp -w ^$YARN_HOSTS_FILE $YARNTOP_OUTPUT_FILE .
+
+# Clean up running processes.
+pdsh -bS -f $MAX_HOSTS -w ^$YARN_HOSTS_FILE "sudo -u yarn -E killall yarnlocaltop"
+pdsh -bS -f $MAX_HOSTS -w ^$YARN_HOSTS_FILE "ps axwl | grep YarnLocalTop | grep -v grep | awk '{print \$3}' | sudo -u yarn -E xargs kill"
+
+# Concatenate gathered output together.
+cat output.txt.* > output.txt
+echo "Output gathered into output.txt"
