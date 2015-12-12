@@ -10,7 +10,7 @@
   "domain": "example.com",
   "realm": "EXAMPLE.COM",
 
-  "clients" : [ "hdfs", "hive", "pig", "tez", "yarn", "yarnlocaltop" ],
+  "clients" : [ "hdfs", "hive", "odbc", "pig", "tez", "yarn", "yarnlocaltop" ],
   "nodes": [
     {"hostname": "ambari", "ip": "192.168.59.11",
      "roles": ["ambari-server", "ambari-views", "client", "hive-db", "hive-meta",
