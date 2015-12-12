@@ -94,6 +94,10 @@ class odbc_client {
     ensure => installed,
   }
   ->
+  package { "gcc-c++":
+    ensure => installed,
+  }
+  ->
   exec { "Install pyodbc":
     command => "pip install pyodbc",
     cwd => "/tmp",
