@@ -2,6 +2,8 @@
 
 SCALE=2
 
+sudo usermod -a -G hadoop vagrant
+
 # Don't do anything if the data is already loaded.
 hdfs dfs -ls /apps/hive/warehouse/tpcds_bin_partitioned_orc_$SCALE.db >/dev/null
 
