@@ -1,3 +1,5 @@
+use ${DB};
+
 drop view q2_min_ps_supplycost;
 create view q2_min_ps_supplycost as
 select

@@ -1,3 +1,5 @@
+use ${DB};
+
 drop view q20_tmp1_cached;
 drop view q20_tmp2_cached;
 drop view q20_tmp3_cached;

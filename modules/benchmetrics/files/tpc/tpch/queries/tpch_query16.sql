@@ -1,3 +1,5 @@
+use ${DB};
+
 select
 	p_brand,
 	p_type,

@@ -1,3 +1,5 @@
+use ${DB};
+
 select
 	supp_nation,
 	cust_nation,

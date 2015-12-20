@@ -1,3 +1,5 @@
+use ${DB};
+
 drop view q17_lineitem_tmp_cached;
 
 create view q17_lineitem_tmp_cached as

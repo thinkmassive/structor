@@ -1,3 +1,5 @@
+use ${DB};
+
 drop view q22_customer_tmp_cached;
 drop view q22_customer_tmp1_cached;
 drop view q22_orders_tmp_cached;

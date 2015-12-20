@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd /vagrant/modules/sa_golden/files/sa
-hive -f /vagrant/modules/sa_golden/files/sa/saexplain.sql > /dev/null 2>&1
+DATABASE=tpch_bin_flat_orc_2
+hive -d DB=${DATABASE} -f /vagrant/modules/benchmetrics/files/tpc/tpch/queries/all-queries-serial.sql

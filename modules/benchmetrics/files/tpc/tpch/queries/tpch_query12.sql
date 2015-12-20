@@ -1,3 +1,5 @@
+use ${DB};
+
 select
 	l_shipmode,
 	sum(case

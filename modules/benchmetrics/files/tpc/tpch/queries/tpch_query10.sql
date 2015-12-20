@@ -1,3 +1,5 @@
+use ${DB};
+
 select
 	c_custkey,
 	c_name,

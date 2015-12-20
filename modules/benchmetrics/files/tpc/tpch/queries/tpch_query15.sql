@@ -1,3 +1,5 @@
+use ${DB};
+
 drop view revenue_cached;
 drop view max_revenue_cached;
 
