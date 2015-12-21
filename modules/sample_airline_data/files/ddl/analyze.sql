@@ -1,6 +1,6 @@
 use airline_ontime;
 
-set hive.tez.container.size=2048;
+set hive.tez.container.size=1024;
 
 ANALYZE TABLE flights COMPUTE STATISTICS FOR COLUMNS;
 ANALYZE TABLE airports COMPUTE STATISTICS FOR COLUMNS;
