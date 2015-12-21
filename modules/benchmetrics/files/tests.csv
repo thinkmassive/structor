@@ -1,13 +1,14 @@
-Component,Package,Test,Description
-hive,etl,airline_convert,Convert Airline on-time performance dataset from CSV to ORC
-hive,etl,airline_stats,Gather stats on Airline on-time performance ORC dataset
-hive,etl,license_csv_avro,Convert a CSV file with complex type to Avro
-hive,etl,license_avro_orc,Convert Avro with complex type to ORC
-hive,etl,all_types,Convert a CSV with all types into ORC
-hive,explain,sa_orig_allopt,"Suite of 910 explain plans against an empty, unpartitioned schema, all optimizations"
-hive,explain,sa_orig_nocbo,"Suite of 910 explain plans against an empty, unpartitioned schema, no cbo"
-hive,explain,sa_orig_noppd,"Suite of 910 explain plans against an empty, unpartitioned schema, no ppd"
-hive,interactive,cancel,Launch a large query and cancel it after 3s
-hive,interactive,select_star,"Select * on a large table, read 1 record and close"
-hive,interactive,simple_aggregation,A simple aggregation query
-hive,interactive,having_1_greater_0,Execute a query that includes HAVING(1 > 0)
+Component,Package,Test,Subtest,Description,Enabled
+hive,etl,airline_convert,,Convert Airline on-time performance dataset from CSV to ORC,true
+hive,etl,airline_stats,,Gather stats on Airline on-time performance ORC dataset,true
+hive,etl,license_csv_avro,,Convert a CSV file with complex type to Avro,true
+hive,etl,license_avro_orc,,Convert Avro with complex type to ORC,true
+hive,etl,all_types,,Convert a CSV with all types into ORC,true
+hive,explain,sa_orig_allopt,,"Suite of 910 explain plans against an empty, unpartitioned schema, all optimizations",true
+hive,explain,sa_orig_nocbo,,"Suite of 910 explain plans against an empty, unpartitioned schema, no cbo",true
+hive,explain,sa_orig_noppd,,"Suite of 910 explain plans against an empty, unpartitioned schema, no ppd",true
+hive,tpc,tpch,,TPC-H Derived Benchmark,true
+hive,interactive,cancel,,Launch a large query and cancel it after 3s,false
+hive,interactive,select_star,,"Select * on a large table, read 1 record and close",true
+hive,interactive,simple_aggregation,,A simple aggregation query,true
+hive,interactive,having_1_greater_0,,Execute a query that includes HAVING(1 > 0),true

@@ -15,7 +15,7 @@ def main():
 	global DRYRUN
 
 	# Parse options.
-	example = "harness.py -e hdp2.2.8.0.profile -c hive"
+	example = "harness.py -e hdp2.2.8.0 -c hive"
 	parser = OptionParser(epilog=example)
 	parser.add_option("-c", "--component")
 	parser.add_option("-d", "--dryrun", action="store_true")
@@ -57,12 +57,15 @@ def prepareEnvironment(options):
 			version = profile['hdp_short_version']
 		print "Using existing environment", version
 	else:
-		print "Preparing environment", environment
 		environmentFile = "profiles/" + environment + ".profile"
+		if not os.path.exists(environmentFile):
+			assert False, "Invalid profile %s" % environment
+
+		print "Preparing environment", environment
 		os.unlink("current.profile")
 		os.symlink(environmentFile, "current.profile")
 		command = "vagrant up"
-		(text, ret) = runCommand(command)
+		(text, ret) = runCommand(command, True)
 		if ret != 0:
 			assert False, "Prepare environment failed, exiting"
 		if text.find("Machine already provisioned") > -1:
@@ -81,20 +84,22 @@ def setDirectory():
 
 def runTests(tests, components, packages, mytests):
 	host = getHostname()
-	for test in tests:
+	for t in tests:
 		# See if we are to run this test.
-		(component, package, test, description) = test
+		(component, package, test, subtest, description, enabled) = t
 		if components and component not in components:
 			continue
 		if packages and package not in packages:
 			continue
+		if enabled != "true":
+			continue
 		if mytests and test not in mytests:
 			continue
 
-		print "Running:", description, "(%s/%s)" % (package, test)
-		runTest(host, package, test)
+		print "Running:", description, "(%s/%s:%s)" % (package, test, subtest)
+		runTest(host, package, test, subtest)
 
-def runTest(host, package, test):
+def runTest(host, package, test, subtest):
 	basePath = "/vagrant/modules/benchmetrics/files"
 	thisTest = "%s/%s/%s/" % (basePath, package, test)
 	preparePath = "%s/00prepare.sh" % thisTest
@@ -102,15 +107,24 @@ def runTest(host, package, test):
 	cleanPath   = "%s/00clean.sh" % thisTest
 
 	# Prepare the test's environment.
+	startTime = time.time()
+	print "\nSTART PREPARE %s %s %s\n" % (package, test, startTime)
+	sys.stdout.flush()
 	runScript(host, preparePath)
+	endTime = time.time()
+	print "\nFINISH PREPARE %s %s %s" % (package, test, endTime)
+	print "PREPARE TIME %s %s %0.3f\n" % (package, test, endTime - startTime)
+	sys.stdout.flush()
 
 	# Run the test.
 	startTime = time.time()
-	print "START EXECUTE %s %s %s" % (package, test, startTime)
+	print "\nSTART EXECUTE %s %s %s\n" % (package, test, startTime)
+	sys.stdout.flush()
 	runScript(host, runPath)
 	endTime = time.time()
-	print "FINISH EXECUTE %s %s %s" % (package, test, endTime)
-	print "EXECUTION TIME %s %s %0.3f" % (package, test, endTime - startTime)
+	print "\nFINISH EXECUTE %s %s %s" % (package, test, endTime)
+	print "EXECUTION TIME %s %s %0.3f\n" % (package, test, endTime - startTime)
+	sys.stdout.flush()
 
 	# Clean up.
 	runScript(host, cleanPath)
@@ -123,7 +137,7 @@ def runScript(host, path):
 	else:
 		print text
 
-def runCommand(command):
+def runCommand(command, capture=False):
 	global DRYRUN
 
 	if DRYRUN:
@@ -131,11 +145,15 @@ def runCommand(command):
 		return 0
 	else:
 		print command
-		p = subprocess.Popen(["bash", "-c", command], stdout=subprocess.PIPE)
-		output = p.communicate()
-		returnText = output[0]
-		exitCode = p.wait()
-		return (returnText, exitCode)
+		if capture:
+			p = subprocess.Popen(["bash", "-c", command], stdout=subprocess.PIPE)
+			output = p.communicate()
+			returnText = output[0]
+			exitCode = p.wait()
+			return (returnText, exitCode)
+		else:
+			exitCode = os.system(command)
+			return ("", exitCode)
 
 def loadTestDefinitions():
 	tests = []
