@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select   
          w_warehouse_name

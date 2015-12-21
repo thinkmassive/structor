@@ -1,3 +1,5 @@
+use ${DB};
+
 select  i_item_id,
         s_state,
         avg(ss_quantity) agg1,

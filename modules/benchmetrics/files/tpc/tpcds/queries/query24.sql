@@ -1,3 +1,5 @@
+use ${DB};
+
 with ssales as
 (select c_last_name
       ,c_first_name

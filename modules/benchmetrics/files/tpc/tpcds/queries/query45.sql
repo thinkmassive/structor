@@ -1,3 +1,5 @@
+use ${DB};
+
 select  ca_zip, ca_county, sum(ws_sales_price)
  from
     web_sales

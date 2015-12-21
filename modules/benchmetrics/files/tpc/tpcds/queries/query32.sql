@@ -1,3 +1,5 @@
+use ${DB};
+
 SELECT sum(cs1.cs_ext_discount_amt) as excess_discount_amount
 FROM (SELECT cs.cs_item_sk as cs_item_sk,
                              cs.cs_ext_discount_amt as cs_ext_discount_amt

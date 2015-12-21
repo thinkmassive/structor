@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select  count(*) as c
 from store_sales

@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select  *
 from (select i_category

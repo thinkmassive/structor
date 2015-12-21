@@ -1,3 +1,5 @@
+use ${DB};
+
 SELECT sum(case when ssci.customer_sk is not null and csci.customer_sk is null then 1
                                  else 0 end) as store_only,
                sum(case when ssci.customer_sk is null and csci.customer_sk is not null then 1

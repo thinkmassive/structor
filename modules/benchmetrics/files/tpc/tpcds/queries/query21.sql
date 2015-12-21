@@ -1,3 +1,5 @@
+use ${DB};
+
 select  *
  from(select w_warehouse_name
             ,i_item_id

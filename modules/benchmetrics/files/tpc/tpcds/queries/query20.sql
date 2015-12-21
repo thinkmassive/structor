@@ -1,3 +1,5 @@
+use ${DB};
+
 select  i_item_desc 
        ,i_category 
        ,i_class 

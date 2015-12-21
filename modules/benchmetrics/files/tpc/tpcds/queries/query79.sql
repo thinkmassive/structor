@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select 
   c_last_name,c_first_name,substr(s_city,1,30) sub,ss_ticket_number,amt,profit

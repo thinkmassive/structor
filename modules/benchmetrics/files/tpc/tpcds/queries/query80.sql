@@ -1,3 +1,5 @@
+use ${DB};
+
 with ssr as
  (select  s_store_id as store_id,
           sum(ss_ext_sales_price) as sales,

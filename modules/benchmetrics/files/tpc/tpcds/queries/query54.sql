@@ -1,3 +1,5 @@
+use ${DB};
+
 with my_customers as (
  select  c_customer_sk
         , c_current_addr_sk

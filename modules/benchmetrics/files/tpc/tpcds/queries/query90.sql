@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select  cast(amc as decimal(15,4))/cast(pmc as decimal(15,4)) am_pm_ratio
  from ( select count(*) amc

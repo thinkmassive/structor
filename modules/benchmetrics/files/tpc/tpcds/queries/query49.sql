@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select  
  'web' as channel

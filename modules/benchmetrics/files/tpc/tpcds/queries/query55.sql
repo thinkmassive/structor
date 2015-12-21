@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select  i_brand_id brand_id, i_brand brand,
  	sum(ss_ext_sales_price) ext_price

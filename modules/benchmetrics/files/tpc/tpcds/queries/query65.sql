@@ -1,3 +1,5 @@
+use ${DB};
+
 select 
     s_store_name,
     i_item_desc,

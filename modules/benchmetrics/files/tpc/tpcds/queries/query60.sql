@@ -1,3 +1,5 @@
+use ${DB};
+
 with ss as (
  select
           i_item_id,sum(ss_ext_sales_price) total_sales

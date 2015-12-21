@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select  c_customer_id as customer_id
        ,concat(c_last_name, ', ', c_first_name) as customername

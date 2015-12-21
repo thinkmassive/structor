@@ -1,3 +1,5 @@
+use ${DB};
+
 select  dt.d_year
  	,item.i_category_id
  	,item.i_category

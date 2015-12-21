@@ -1,3 +1,5 @@
+use ${DB};
+
 
 select  substr(r_reason_desc,1,20) as r
        ,avg(ws_quantity) wq
