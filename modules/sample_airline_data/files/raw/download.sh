@@ -26,10 +26,6 @@ YEARS="\
  2007\
  2008";
 
-mkdir -p data/
-
-pushd data;
-
 for YEAR in $YEARS; do 
 	wget -c http://stat-computing.org/dataexpo/2009/$YEAR.csv.bz2
 done
