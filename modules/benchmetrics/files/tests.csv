@@ -7,6 +7,7 @@ hive,etl,all_types,,Convert a CSV with all types into ORC,true
 hive,explain,sa_orig_allopt,,"Suite of 910 explain plans against an empty, unpartitioned schema, all optimizations",true
 hive,explain,sa_orig_nocbo,,"Suite of 910 explain plans against an empty, unpartitioned schema, no cbo",true
 hive,explain,sa_orig_noppd,,"Suite of 910 explain plans against an empty, unpartitioned schema, no ppd",true
+hive,explain,sa_orig_nofetch,,"Suite of 910 explain plans against an empty, unpartitioned schema, without column stats fetch",true
 hive,tpc,tpch,,TPC-H Derived Benchmark,true
 hive,interactive,cancel,,Launch a large query and cancel it after 3s,false
 hive,interactive,select_star,,"Select * on a large table, read 1 record and close",true
