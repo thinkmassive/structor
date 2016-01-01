@@ -2,7 +2,7 @@
 
 SCALE=2
 
-sudo servie hive-server2 stop
+sudo service hive-server2 stop
 sudo usermod -a -G hadoop vagrant
 
 # Don't do anything if the data is already loaded.
