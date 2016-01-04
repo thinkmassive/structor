@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     # Build the classpath. Having core-site in the classpath lets us connect to secure clusters.
     classpath_components = [ phoenix_utils.hbase_conf_dir,
-                             phoenix_utils.hadoop_conf_dir,
+                             phoenix_utils.hadoop_conf,
                              phoenix_utils.phoenix_client_jar,
                              phoenix_utils.hadoop_common_jar,
                              phoenix_utils.hadoop_hdfs_jar ]

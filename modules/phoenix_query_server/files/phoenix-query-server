@@ -70,6 +70,10 @@ fi
 
 function main {
    case "$1" in
+      restart)
+         pqsStop
+         pqsStart
+         ;;
       setup)
          createDirectories
          ;;
