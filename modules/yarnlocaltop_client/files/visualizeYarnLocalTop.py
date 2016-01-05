@@ -23,7 +23,7 @@ def main():
 		print "Error: Input file (-f) option is required"
 		parser.print_help()
 		sys.exit(1)
-	if options.threadname== None:
+	if options.threadname == None:
 		print "Error: Thread name (-n) option is required"
 		parser.print_help()
 		sys.exit(1)
@@ -59,13 +59,16 @@ def main():
 
 	with open(options.file) as fd:
 		for line in fd:
-			if not line.startswith(threadname):
+			if not line.startswith(" "):
 				addTrace(traceTree, trace, killList, globalCounts)
 				trace = []
 				oldPackage = None
 				continue
 			line = line.rstrip()
 			(thread, traceInfo) = line.split(",")
+			thread = thread.lstrip()
+			if threadname and threadname != thread:
+				continue
 			leftParen = traceInfo.rfind("(")
 			traceInfo = traceInfo[:leftParen]
 			path = traceInfo.split(".")

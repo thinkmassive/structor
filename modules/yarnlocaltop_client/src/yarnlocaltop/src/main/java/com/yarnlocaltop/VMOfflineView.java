@@ -39,7 +39,8 @@ import com.yarnlocaltop.LocalVirtualMachine;
 public class VMOfflineView extends AbstractConsoleView
 {
   private VMInfo          vmInfo_;
-  private int             numberOfDisplayedThreads_ = 3;
+  private int             numberOfDisplayedThreads_ = 16;
+  private double          minUtilization_           = 10d;
   private boolean         displayedThreadLimit_     = true;
   private boolean         headerDisplayed_          = false;
   private int             pid_;
@@ -87,21 +88,21 @@ public class VMOfflineView extends AbstractConsoleView
         List<String> commandList = Arrays.asList(commandArray);
         commandList = commandList.subList(1, commandList.size());
 
-        System.out.printf(" PID %d: %s %n", vmInfo_.getId(), commandArray[0]);
+        System.out.printf("PID %d: %s %n", vmInfo_.getId(), commandArray[0]);
 
         String argJoin = join(commandList, " ");
-        System.out.printf(" ARGS: %s%n", argJoin);
+        System.out.printf("ARGS: %s%n", argJoin);
       }
       else
       {
-        System.out.printf(" PID %d: %n", vmInfo_.getId());
-        System.out.printf(" ARGS: [UNKNOWN] %n");
+        System.out.printf("PID %d: %n", vmInfo_.getId());
+        System.out.printf("ARGS: [UNKNOWN] %n");
       }
 
       String join = join(vmInfo_.getRuntimeMXBean().getInputArguments(), " ");
-      System.out.printf(" VMARGS: %s%n", join);
+      System.out.printf("VMARGS: %s%n", join);
 
-      System.out.printf(" VM: %s %s %s%n", properties.get("java.vendor"),
+      System.out.printf("VM: %s %s %s%n", properties.get("java.vendor"),
           properties.get("java.vm.name"), properties.get("java.version"));
     }
 
@@ -177,20 +178,21 @@ public class VMOfflineView extends AbstractConsoleView
         {
           break;
         }
-        if (info != null && !info.getThreadName().startsWith("RMI TCP Connection"))
+        double currentUtilization = getThreadCPUUtilization(cpuTimeMap.get(tid), vmInfo_.getDeltaUptime());
+        if (info != null && currentUtilization > minUtilization_ && !info.getThreadName().startsWith("RMI TCP Connection"))
         {
           System.out.printf("%s,%s,%d,%5.2f%%,%d,%s\n",
               timeStamp,
               info.getThreadName(),
               pid_,
-              getThreadCPUUtilization(cpuTimeMap.get(tid), vmInfo_.getDeltaUptime()),
+              currentUtilization,
               info.getBlockedCount(),
               info.isInNative()
           );
 
           StackTraceElement[] trace = info.getStackTrace();
           for (StackTraceElement t : trace) {
-            System.out.printf("%s,%s.%s(%d)\n",
+            System.out.printf(" %s,%s.%s(%d)\n",
                 info.getThreadName(),
                 t.getClassName(),
                 t.getMethodName(),
