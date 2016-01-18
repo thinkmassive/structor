@@ -1,0 +1,1 @@
+hbase ALL=(ALL) NOPASSWD: ALL
