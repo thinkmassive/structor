@@ -20,15 +20,12 @@ create table all_types(
 	char_2_val     char(2),
 	char_11_val    char(11),
 
-	boolean_val boolean
+	boolean_val boolean,
+
+	date_val date,
+	timestamp_val timestamp
 )
-ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
-WITH SERDEPROPERTIES (
-                "separatorChar" = "|",
-                "quoteChar"     = '"',
-                "escapeChar"    = "\\"
-                )
-stored as textfile;
+row format delimited fields terminated by '|' stored as textfile;
 
 LOAD DATA LOCAL INPATH '/tmp/all_types.0.txt' INTO TABLE all_types;
 LOAD DATA LOCAL INPATH '/tmp/all_types.1.txt' INTO TABLE all_types;
