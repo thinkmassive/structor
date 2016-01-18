@@ -95,6 +95,10 @@ def getDagSettings(options, applicationId):
 def extractCounters(dag):
 	allcounters = {}
 
+	# This happens some times, not sure why.
+	if "counters" not in dag["otherinfo"]:
+		return allcounters
+
 	groups = dag["otherinfo"]["counters"]["counterGroups"]
 	for g in groups:
 		counters = g["counters"]
