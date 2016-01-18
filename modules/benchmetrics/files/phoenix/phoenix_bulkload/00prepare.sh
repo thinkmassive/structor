@@ -26,7 +26,7 @@ hdfs dfs -copyFromLocal /tmp/phoenix_data /tmp/phoenix_data
 rm -f /tmp/phoenix_data/*.txt
 
 # Create the table.
-/usr/hdp/2.3.4.0-3485/phoenix/bin/sqlline.py -f /vagrant/modules/benchmetrics/files/phoenix/phoenix_bulkload/create_table.sql
+/usr/hdp/current/phoenix-client/bin/sqlline.py -f /vagrant/modules/benchmetrics/files/phoenix/phoenix_bulkload/create_table.sql
 
 # Allow sudo access for HBase so we can track YARN disk usage.
 sudo cp /vagrant/modules/benchmetrics/files/phoenix/phoenix_bulkload/493_hbase /etc/sudoers.d
