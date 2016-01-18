@@ -2,6 +2,7 @@
 
 SCALE=2
 
+/vagrant/modules/benchmetrics/files/cleanYarn.sh
 sudo service hive-server2 stop
 sudo usermod -a -G hadoop vagrant
 
