@@ -51,6 +51,7 @@ class kafka_server {
     file { "/etc/init.d/kafka":
       ensure => file,
       source => 'puppet:///modules/kafka_server/kafka',
+      mode => '0755',
       replace => true,
       before => Service['kafka'],
     }
