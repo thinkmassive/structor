@@ -59,10 +59,10 @@ class phoenix_query_server {
   }
 
   # A sample query.
-  file { "/home/vagrant/sample-phoenix-query-server-query.sh":
+  file { "/home/vagrant/sample-phoenix-query-server-query.py":
     ensure => "file",
     mode => '0755',
-    source => 'puppet:///modules/phoenix_query_server/sample-phoenix-query-server-query.sh',
+    source => 'puppet:///modules/phoenix_query_server/sample-phoenix-query-server-query.py',
     owner => vagrant,
     group => vagrant,
   }
