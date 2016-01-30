@@ -23,10 +23,6 @@ def main():
 		print "Error: Input file (-f) option is required"
 		parser.print_help()
 		sys.exit(1)
-	if options.threadname == None:
-		print "Error: Thread name (-n) option is required"
-		parser.print_help()
-		sys.exit(1)
 	threshold = float(options.threshold)
 
 	ignorePackage = {
