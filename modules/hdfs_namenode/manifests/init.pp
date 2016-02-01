@@ -57,11 +57,6 @@ class hdfs_namenode {
   }
   ->
 
-  file { "/etc/init.d/hadoop-hdfs-namenode":
-    ensure => 'link',
-    target => "$start_script",
-  }
-  ->
   exec {"namenode-format":
     command => "hadoop namenode -format",
     path => "$path",
@@ -157,5 +152,28 @@ class hdfs_namenode {
     command => "hadoop fs -chmod -R +rX /hdp",
     path => "$path",
     user => "hdfs",
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hadoop-hdfs-namenode.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-hdfs-namenode.service",
+      before => Service["hadoop-hdfs-namenode"],
+    }
+    file { "/etc/systemd/system/hadoop-hdfs-namenode.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hadoop-hdfs-namenode.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-hdfs-namenode.service.d/default.conf",
+      before => Service["hadoop-hdfs-namenode"],
+    }
+  } else {
+    file { "/etc/init.d/hadoop-hdfs-namenode":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hadoop-hdfs-namenode"],
+    }
   }
 }

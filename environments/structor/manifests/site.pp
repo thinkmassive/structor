@@ -271,6 +271,13 @@ if hasrole($roles, 'hive-server2') {
   }
 }
 
+# ZK before Kafka
+if hasrole($roles, 'kafka') {
+  if hasrole($roles, 'zk') {
+    Class['zookeeper_server'] -> Class['kafka_server']
+  }
+}
+
 # Ensure oozie runs after the datanode on the same node
 if hasrole($roles, 'slave') and hasrole($roles, 'oozie') {
   Class['hdfs_datanode'] -> Class['oozie_server']

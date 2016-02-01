@@ -20,6 +20,10 @@ class spark_client {
 
   $path="${jdk::home}/bin:/bin:/usr/bin"
 
+  package { "spark${package_version}-python":
+    ensure => installed,
+  }
+
   package { "spark${package_version}":
     ensure => installed,
   }

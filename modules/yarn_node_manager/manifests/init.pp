@@ -57,12 +57,6 @@ class yarn_node_manager {
     cwd => "/",
     path => "$path",
   }
-  ->
-  file { "/etc/init.d/hadoop-yarn-nodemanager":
-    ensure => 'link',
-    target => "$start_script",
-    before => Service["hadoop-yarn-nodemanager"],
-  }
 
   if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 3 and $hdp_version_patch+0 <= 2) {
     exec { "chgrp yarn /usr/hdp/${hdp_version}/hadoop-yarn/bin/container-executor":
@@ -82,5 +76,28 @@ class yarn_node_manager {
   service {"hadoop-yarn-nodemanager":
     ensure => running,
     enable => true,
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hadoop-yarn-nodemanager.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-yarn-nodemanager.service",
+      before => Service["hadoop-yarn-nodemanager"],
+    }
+    file { "/etc/systemd/system/hadoop-yarn-nodemanager.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hadoop-yarn-nodemanager.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-yarn-nodemanager.service.d/default.conf",
+      before => Service["hadoop-yarn-nodemanager"],
+    }
+  } else {
+    file { "/etc/init.d/hadoop-yarn-nodemanager":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hadoop-yarn-nodemanager"],
+    }
   }
 }

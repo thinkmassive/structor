@@ -63,11 +63,6 @@ class yarn_resource_manager {
     path => "$path",
   }
   ->
-  file { "/etc/init.d/hadoop-yarn-resourcemanager":
-    ensure => 'link',
-    target => "$yarn_start_script",
-  }
-  ->
   service {"hadoop-yarn-resourcemanager":
     ensure => running,
     enable => true,
@@ -82,13 +77,54 @@ class yarn_resource_manager {
     path => "$path",
   }
   ->
-  file { "/etc/init.d/hadoop-mapreduce-historyserver":
-    ensure => 'link',
-    target => "$mapreduce_start_script",
-  }
-  ->
   service {"hadoop-mapreduce-historyserver":
     ensure => running,
     enable => true,
+  }
+
+  # Startup for resource manager.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hadoop-yarn-resourcemanager.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-yarn-resourcemanager.service",
+      before => Service["hadoop-yarn-resourcemanager"],
+    }
+    file { "/etc/systemd/system/hadoop-yarn-resourcemanager.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hadoop-yarn-resourcemanager.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-yarn-resourcemanager.service.d/default.conf",
+      before => Service["hadoop-yarn-resourcemanager"],
+    }
+  } else {
+    file { "/etc/init.d/hadoop-yarn-resourcemanager":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hadoop-yarn-resourcemanager"],
+    }
+  }
+
+  # Startup for history server.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hadoop-mapreduce-historyserver.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-mapreduce-historyserver.service",
+      before => Service["hadoop-mapreduce-historyserver"],
+    }
+    file { "/etc/systemd/system/hadoop-mapreduce-historyserver.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hadoop-mapreduce-historyserver.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-mapreduce-historyserver.service.d/default.conf",
+      before => Service["hadoop-mapreduce-historyserver"],
+    }
+  } else {
+    file { "/etc/init.d/hadoop-mapreduce-historyserver":
+      ensure => 'link',
+      target => "$mapreduce_start_script",
+      before => Service["hadoop-mapreduce-historyserver"],
+    }
   }
 }

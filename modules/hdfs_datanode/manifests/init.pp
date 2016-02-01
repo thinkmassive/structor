@@ -50,13 +50,31 @@ class hdfs_datanode {
     path => "$path",
   }
   ->
-  file { "/etc/init.d/hadoop-hdfs-datanode":
-    ensure => 'link',
-    target => "$start_script",
-  }
-  ->
   service {"hadoop-hdfs-datanode":
     ensure => running,
     enable => true,
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hadoop-hdfs-datanode.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-hdfs-datanode.service",
+      before => Service["hadoop-hdfs-datanode"],
+    }
+    file { "/etc/systemd/system/hadoop-hdfs-datanode.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hadoop-hdfs-datanode.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-hdfs-datanode.service.d/default.conf",
+      before => Service["hadoop-hdfs-datanode"],
+    }
+  } else {
+    file { "/etc/init.d/hadoop-hdfs-datanode":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hadoop-hdfs-datanode"],
+    }
   }
 }

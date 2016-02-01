@@ -1,0 +1,14 @@
+[Unit]
+Description=Apache HBase HMaster
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+EnvironmentFile=/etc/systemd/system/hbase-master.service.d/default.conf
+ExecStart=/usr/hdp/current/hbase-master/bin/hbase-daemon.sh --config /etc/hbase/conf start master
+Group=hbase
+Restart=on-failure
+Type=forking
+User=hbase
+
+[Install]
+WantedBy=multi-user.target

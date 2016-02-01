@@ -1,0 +1,14 @@
+[Unit]
+Description=Apache Kafka
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+EnvironmentFile=/etc/systemd/system/kafka.service.d/default.conf
+ExecStart=/usr/hdp/current/kafka-broker/bin/kafka-server-start.sh /usr/hdp/current/kafka-broker/config/server.properties
+Group=kafka
+Restart=on-failure
+Type=simple
+User=kafka
+
+[Install]
+WantedBy=multi-user.target

@@ -69,21 +69,38 @@ class hbase_master {
     subscribe => File['/etc/hbase/conf/hbase-site.xml'],
   }
 
-  # Replace broken start scripts if needed.
-  if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
-    file { "/etc/init.d/hbase-master":
-      ensure => file,
-      source => "puppet:///files/init.d/hbase-master",
-      owner => root,
-      group => root,
-      mode => '755',
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hbase-master.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hbase-master.service",
+      before => Service["hbase-master"],
+    }
+    file { "/etc/systemd/system/hbase-master.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hbase-master.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hbase-master.service.d/default.conf",
       before => Service["hbase-master"],
     }
   } else {
-    file { "/etc/init.d/hbase-master":
-      ensure => 'link',
-      target => "$start_script",
-      before => Service["hbase-master"],
+    # Replace broken start scripts if needed.
+    if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
+      file { "/etc/init.d/hbase-master":
+        ensure => file,
+        source => "puppet:///files/init.d/hbase-master",
+        owner => root,
+        group => root,
+        mode => '755',
+        before => Service["hbase-master"],
+      }
+    } else {
+      file { "/etc/init.d/hbase-master":
+        ensure => 'link',
+        target => "$start_script",
+        before => Service["hbase-master"],
+      }
     }
   }
 }

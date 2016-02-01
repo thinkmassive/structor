@@ -29,18 +29,6 @@ class phoenix_query_server {
     -> Service["phoenix-query-server"]
   }
  
-  # Install and enable.
-  # HDP 2.x doesn't have a Phoenix Query Server startup script, insert our own.
-  if ($hdp_version_major+0 <= 2) {
-    file { "/etc/init.d/phoenix-query-server":
-      ensure => file,
-      mode => '0755',
-      replace => true,
-      source => 'puppet:///modules/phoenix_query_server/phoenix-query-server',
-      before => Service['phoenix-query-server'],
-    }
-  }
-
   # Fix the control script to add core-site to classpath (for secure cluster)
   if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 3) {
     file { "/usr/hdp/$hdp_version/phoenix/bin/queryserver.py":
@@ -65,5 +53,33 @@ class phoenix_query_server {
     source => 'puppet:///modules/phoenix_query_server/sample-phoenix-query-server-query.py',
     owner => vagrant,
     group => vagrant,
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/phoenix-query-server.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/phoenix-query-server.service",
+      before => Service["phoenix-query-server"],
+    }
+    file { "/etc/systemd/system/phoenix-query-server.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/phoenix-query-server.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/phoenix-query-server.service.d/default.conf",
+      before => Service["phoenix-query-server"],
+    }
+  } else {
+    # HDP 2.x doesn't have a Phoenix Query Server startup script, insert our own.
+    if ($hdp_version_major+0 <= 2) {
+      file { "/etc/init.d/phoenix-query-server":
+        ensure => file,
+        mode => '0755',
+        replace => true,
+        source => 'puppet:///modules/phoenix_query_server/phoenix-query-server',
+        before => Service['phoenix-query-server'],
+      }
+    }
   }
 }

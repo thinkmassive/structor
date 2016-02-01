@@ -74,21 +74,38 @@ class hbase_regionserver {
     subscribe => File['/etc/hbase/conf/hbase-site.xml'],
   }
 
-  # Replace broken start scripts if needed.
-  if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
-    file { "/etc/init.d/hbase-regionserver":
-      ensure => file,
-      source => "puppet:///files/init.d/hbase-regionserver",
-      owner => root,
-      group => root,
-      mode => '755',
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hbase-regionserver.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hbase-regionserver.service",
+      before => Service["hbase-regionserver"],
+    }
+    file { "/etc/systemd/system/hbase-regionserver.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hbase-regionserver.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hbase-regionserver.service.d/default.conf",
       before => Service["hbase-regionserver"],
     }
   } else {
-    file { "/etc/init.d/hbase-regionserver":
-      ensure => 'link',
-      target => "$start_script",
-      before => Service["hbase-regionserver"],
+    # Replace broken start scripts if needed.
+    if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
+      file { "/etc/init.d/hbase-regionserver":
+        ensure => file,
+        source => "puppet:///files/init.d/hbase-regionserver",
+        owner => root,
+        group => root,
+        mode => '755',
+        before => Service["hbase-regionserver"],
+      }
+    } else {
+      file { "/etc/init.d/hbase-regionserver":
+        ensure => 'link',
+        target => "$start_script",
+        before => Service["hbase-regionserver"],
+      }
     }
   }
 }

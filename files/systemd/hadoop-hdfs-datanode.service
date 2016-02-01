@@ -1,0 +1,14 @@
+[Unit]
+Description=Apache Hadoop HDFS Datanode
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+EnvironmentFile=/etc/systemd/system/hadoop-hdfs-datanode.service.d/default.conf
+ExecStart=/usr/hdp/current/hadoop-hdfs-datanode/../hadoop/sbin/hadoop-daemon.sh --config /usr/hdp/current/hadoop-hdfs-datanode/../hadoop/conf start datanode
+Group=hdfs
+Restart=on-failure
+Type=forking
+User=hdfs
+
+[Install]
+WantedBy=multi-user.target

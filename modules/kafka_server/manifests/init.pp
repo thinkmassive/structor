@@ -15,6 +15,7 @@
 
 class kafka_server {
   require repos_setup
+  require zookeeper_server
   require jdk
 
   $path="/bin:/usr/bin"
@@ -46,17 +47,6 @@ class kafka_server {
     before => Service['kafka'],
   }
 
-  # HDP 2.x doesn't have a usable Kafka startup script, insert our own.
-  if ($hdp_version_major+0 <= 2) {
-    file { "/etc/init.d/kafka":
-      ensure => file,
-      source => 'puppet:///modules/kafka_server/kafka',
-      mode => '0755',
-      replace => true,
-      before => Service['kafka'],
-    }
-  }
-
   # Create a topic called test.
   file { "/tmp/create_test_topic.sh":
     ensure => "file",
@@ -68,5 +58,29 @@ class kafka_server {
     cwd => "/tmp",
     path => "$path",
     require => Service['kafka'],
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/kafka.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/kafka.service",
+      before => Service["kafka"],
+    }
+    file { "/etc/systemd/system/kafka.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/kafka.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/kafka.service.d/default.conf",
+      before => Service["kafka"],
+    }
+  } else {
+    file { "/etc/init.d/kafka":
+      ensure => file,
+      source => 'puppet:///modules/kafka_server/kafka',
+      replace => true,
+      before => Service['kafka'],
+    }
   }
 }

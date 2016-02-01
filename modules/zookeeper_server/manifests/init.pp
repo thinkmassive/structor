@@ -98,11 +98,6 @@ class zookeeper_server {
     content => template('zookeeper_server/configuration.erb'),
   }
   ->
-  file { "/etc/init.d/zookeeper-server":
-    ensure => 'link',
-    target => "$start_script",
-  }
-  ->
   file { "${zookeeper_client::data_dir}":
     ensure => directory,
     owner => zookeeper,
@@ -137,5 +132,28 @@ class zookeeper_server {
   service { "zookeeper-server":
     ensure => running,
     enable => true,
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/zookeeper-server.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/zookeeper-server.service",
+      before => Service["zookeeper-server"],
+    }
+    file { "/etc/systemd/system/zookeeper-server.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/zookeeper-server.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/zookeeper-server.service.d/default.conf",
+      before => Service["zookeeper-server"],
+    }
+  } else {
+    file { "/etc/init.d/zookeeper-server":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["zookeeper-server"],
+    }
   }
 }
