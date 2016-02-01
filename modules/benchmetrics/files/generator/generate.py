@@ -178,6 +178,30 @@ def fake_accounts(scale=1, child=0):
 		#print "Written %d transactions for %d customers" % (totals, i-start_rows)
 	return 0
 
+def fake_raw_timeseries(scale=1, child=0):
+	nDevices = int(scale*math.log(scale)+1)
+
+	# Always identical generators.
+	random.seed(0)
+	generators = [ lambda : random.gammavariate(random.randint(8, 12), random.random()) for i in xrange(0, nDevices) ]
+
+	# Change it up.
+	random.seed(child)
+
+	table = open("raw_timeseries.%06d.txt" % child, "w")
+	ts_step_seconds = 15
+	seconds_in_day = 24 * 60 * 60
+	tsmin = datetime(2016, 1, child+1, 0, 0)
+	start_timestamp = time.mktime(tsmin.timetuple())
+
+	# Generate this day's data.
+	for i in xrange(0, seconds_in_day / ts_step_seconds):
+		this_time = start_timestamp + i * ts_step_seconds
+		for j in xrange(0, nDevices):
+			value = round(generators[j](), 3)
+			record = [ j, this_time, value ]
+			write_rows(table, [record])
+
 def fake_phoenix_timeseries(scale=1, child=0):
 	num_days = 7 * 8
 	record_interval_seconds = 15
