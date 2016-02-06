@@ -2,6 +2,7 @@
 class proxy_server {
 
   require repos_setup
+  require proxy_client
 
   package { "squid":
     ensure => installed
