@@ -1,0 +1,14 @@
+[Unit]
+Description=Apache Hadoop YARN Timeline Server
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+EnvironmentFile=/etc/systemd/system/hadoop-yarn-timelineserver.service.d/default.conf
+ExecStart=/usr/hdp/current/hadoop-yarn-timelineserver/../hadoop-yarn/sbin/yarn-daemon.sh --config /usr/hdp/current/hadoop-yarn-timelineserver/../hadoop/conf start timelineserver
+Group=yarn
+Restart=on-failure
+Type=forking
+User=yarn
+
+[Install]
+WantedBy=multi-user.target

@@ -283,6 +283,11 @@ if hasrole($roles, 'slave') and hasrole($roles, 'oozie') {
   Class['hdfs_datanode'] -> Class['oozie_server']
 }
 
+# Datanode before HS2 to avoid 0-length Tez library.
+if hasrole($roles, 'slave') and hasrole($roles, 'hive-server2') {
+  Class['hdfs_datanode'] -> Class['hive_server2']
+}
+
 if hasrole($roles, 'phoenix-query-server') {
   if hasrole($roles, 'hbase-regionserver') {
     Class['hbase_regionserver'] -> Class['phoenix_query_server']

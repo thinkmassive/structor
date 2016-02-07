@@ -47,15 +47,32 @@ class yarn_timelineserver {
     cwd => "/",
     path => "$path",
   }
-  ->
-  file { "/etc/init.d/hadoop-yarn-timelineserver":
-    ensure => 'link',
-    target => "$start_script",
-    before => Service["hadoop-yarn-timelineserver"],
-  }
 
   service {"hadoop-yarn-timelineserver":
     ensure => running,
     enable => true,
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hadoop-yarn-timelineserver.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-yarn-timelineserver.service",
+      before => Service["hadoop-yarn-timelineserver"],
+    }
+    file { "/etc/systemd/system/hadoop-yarn-timelineserver.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hadoop-yarn-timelineserver.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hadoop-yarn-timelineserver.service.d/default.conf",
+      before => Service["hadoop-yarn-timelineserver"],
+    }
+  } else {
+    file { "/etc/init.d/hadoop-yarn-timelineserver":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hadoop-yarn-timelineserver"],
+    }
   }
 }

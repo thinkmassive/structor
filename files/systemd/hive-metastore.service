@@ -1,0 +1,15 @@
+[Unit]
+Description=Apache Hive Metastore
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+EnvironmentFile=/etc/systemd/system/hive-metastore.service.d/default.conf
+ExecStart=/usr/hdp/current/hive-metastore/etc/rc.d/init.d/hive-metastore start
+Group=root
+PIDFile=/var/run/hive/hive.pid
+Restart=on-failure
+Type=forking
+User=root
+
+[Install]
+WantedBy=multi-user.target

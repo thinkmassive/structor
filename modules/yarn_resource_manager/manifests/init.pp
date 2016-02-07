@@ -100,7 +100,7 @@ class yarn_resource_manager {
   } else {
     file { "/etc/init.d/hadoop-yarn-resourcemanager":
       ensure => 'link',
-      target => "$start_script",
+      target => "$yarn_start_script",
       before => Service["hadoop-yarn-resourcemanager"],
     }
   }

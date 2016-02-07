@@ -42,13 +42,7 @@ class hive_server2 {
     ensure => file,
     source => 'puppet:///modules/hive_server2/hive-server2',
     path => "$start_script",
-    # XXX: Replacing for now due to bugs in startup script.
-    replace => true,
-  }
-  ->
-  file { '/etc/init.d/hive-server2':
-    ensure => link,
-    target => $start_script,
+    replace => false,
   }
   ->
   service { 'hive-server2':
@@ -61,5 +55,28 @@ class hive_server2 {
     source => 'puppet:///modules/hive_server2/extractHiveServer2Queries.py',
     owner => vagrant,
     group => vagrant,
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hive-server2.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hive-server2.service",
+      before => Service["hive-server2"],
+    }
+    file { "/etc/systemd/system/hive-server2.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hive-server2.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hive-server2.service.d/default.conf",
+      before => Service["hive-server2"],
+    }
+  } else {
+    file { "/etc/init.d/hive-server2":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hive-server2"],
+    }
   }
 }

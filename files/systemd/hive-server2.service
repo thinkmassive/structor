@@ -1,0 +1,20 @@
+[Unit]
+Description=Apache HiveServer2
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+EnvironmentFile=/etc/systemd/system/hive-server2.service.d/default.conf
+ExecStart=/usr/hdp/current/hive-server2/etc/rc.d/init.d/hive-server2 start
+Group=root
+PIDFile=/var/run/hive/hive-server.pid
+Restart=on-failure
+Type=forking
+User=root
+
+EnvironmentFile=/etc/systemd/system/hive-metastore.service.d/default.conf
+Group=root
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target

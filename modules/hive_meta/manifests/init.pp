@@ -18,6 +18,13 @@ class hive_meta {
   require hive_db
 
   $path="/bin:/usr/bin"
+  $component = "hive-metastore"
+  if ($hdp_version_major+0 <= 2 and $hdp_version_minor+0 <= 2) {
+    $start_script="/usr/hdp/$hdp_version/etc/$platform_start_script_path/$component"
+  }
+  else {
+    $start_script="/usr/hdp/$hdp_version/hive/etc/$platform_start_script_path/$component"
+  }
 
   if $security == "true" {
     require hive_keytab
@@ -32,12 +39,6 @@ class hive_meta {
     path => "$path",
   }
   ->
-  file { '/etc/init.d/hive-metastore':
-    ensure => file,
-    content => template('hive_meta/hive-metastore.erb'),
-    mode => 'a+rx',
-  }
-  ->
   exec { "schematool -dbType mysql -initSchema":
     user => "hive",
     cwd => "/",
@@ -48,5 +49,28 @@ class hive_meta {
   service { 'hive-metastore':
     ensure => running,
     enable => true,
+  }
+
+  # Startup.
+  if ($operatingsystem == "centos" and $operatingsystemmajrelease == "7") {
+    file { "/etc/systemd/system/hive-metastore.service":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hive-metastore.service",
+      before => Service["hive-metastore"],
+    }
+    file { "/etc/systemd/system/hive-metastore.service.d":
+      ensure => 'directory',
+    } ->
+    file { "/etc/systemd/system/hive-metastore.service.d/default.conf":
+      ensure => 'file',
+      source => "/vagrant/files/systemd/hive-metastore.service.d/default.conf",
+      before => Service["hive-metastore"],
+    }
+  } else {
+    file { "/etc/init.d/hive-metastore":
+      ensure => 'link',
+      target => "$start_script",
+      before => Service["hive-metastore"],
+    }
   }
 }

@@ -1,14 +1,24 @@
 {
+  "os": "centos7",
+  "hdp_short_version": "2.3.4",
+  "vm_mem": 6144,
+  "vm_cpus": 4,
+
+  "am_mem": 512,
+  "server_mem": 768,
+  "client_mem": 1024,
+
+  "security": true,
   "domain": "example.com",
   "realm": "EXAMPLE.COM",
-  "security": true,
-  "vm_mem": 3072,
-  "server_mem": 300,
-  "client_mem": 200,
-  "clients" : [ "hdfs", "hive", "oozie", "pig", "tez", "yarn", "zk" ],
+
+  "clients" : [ "hdfs", "hive", "tez", "yarn" ],
   "nodes": [
-    {"hostname": "nn", "ip": "240.0.0.11",
-     "roles": ["client", "kdc", "hive-db", "hive-meta", "nn", "oozie", "slave",
-               "yarn", "zk"]}
-  ]
+    {"hostname": "hdp-secure", "ip": "192.168.59.12",
+     "roles": ["client", "hive-db", "hive-meta", "hive-server2", "kdc", "nn", "slave", "yarn", "yarn-timelineserver"]}
+  ],
+
+  "hive_options" : "interactive",
+
+  "extras": [ "sample-hive-data" ]
 }

@@ -16,25 +16,33 @@
 class odbc_client {
   $path="/bin:/usr/bin"
 
-  $version="2.0.5.1005"
-  $build="hive-odbc-native-$version"
-  $rpmbase="$build-1.el6.x86_64"
-  $rpm="$rpmbase.rpm"
-  $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/centos6/$rpm"
-
   $config_path="/usr/local/odbc"
   $odbcini_path="$config_path/odbc.ini"
   $odbcinstini_path="$config_path/odbcinst.ini"
   $driverini_path="/usr/lib/hive/lib/native/Linux-amd64-64/hortonworks.hiveodbc.ini"
 
-  package { [ "unixODBC", "unixODBC-devel", "cyrus-sasl-gssapi", "cyrus-sasl-plain" ]:
-    ensure => installed,
-    before => Exec["Download ODBC"],
+  if ($operatingsystem == "centos") {
+    package { [ "unixODBC", "unixODBC-devel", "cyrus-sasl-gssapi", "cyrus-sasl-plain" ]:
+      ensure => installed,
+      before => Exec["Download ODBC"],
+    }
+    if ($operatingsystemmajrelease == "6") {
+      $version="2.0.5.1005"
+      $build="hive-odbc-native-$version"
+      $rpmbase="$build-1.el6.x86_64"
+      $rpm="$rpmbase.rpm"
+      $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/centos6/$rpm"
+      $expected_sums="expected_sums_odbc_centos6.txt"
+    } else {
+      # XXX: No CentOS 7 driver yet.
+    }
+  } else {
+    # XXX: Needs definition.
   }
 
   file { "/tmp/expected_sums_odbc.txt":
     ensure => file,
-    source => "puppet:///modules/odbc_client/expected_sums_odbc.txt",
+    source => "puppet:///modules/odbc_client/$expected_sums",
   }
   ->
   exec { "Download ODBC":
