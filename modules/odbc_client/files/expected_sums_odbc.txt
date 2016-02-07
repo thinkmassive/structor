@@ -1,1 +1,0 @@
-9a25457d6d80d0cd2a895915a32a449c  hive-odbc-native-2.0.5.1005-1.el6.x86_64.rpm
