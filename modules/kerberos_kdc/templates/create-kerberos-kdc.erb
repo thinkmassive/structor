@@ -41,6 +41,7 @@ kdb5_util create -s -P <%= password %>
 # create the accounts and keytabs
 kadmin.local << EOF
 addprinc -pw <%= password %>  vagrant
+addprinc -pw admin  admin/admin
 <% nodelist.each do |node|
      node[:roles].map{|r| users[r]}.flatten.to_set.select {|n| n != nil}.
         each do |user| -%>

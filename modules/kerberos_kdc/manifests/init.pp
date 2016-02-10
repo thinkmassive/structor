@@ -48,4 +48,9 @@ class kerberos_kdc {
     ensure => running,
     enable => true,
   }
+  ->
+  service { 'kadmin':
+    ensure => running,
+    enable => true,
+  }
 }
