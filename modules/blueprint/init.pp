@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class ambari_server {
+class blueprint {
   require repos_setup
   $path="/bin:/usr/bin:/sbin:/usr/sbin"
 
@@ -30,23 +30,6 @@ class ambari_server {
 
   package { "ambari-server":
     ensure => installed
-  }
-  ->
-  exec { "ambari-server-setup":
-    command => "/usr/sbin/ambari-server setup --silent"
-  }
-  ->
-  exec { "Fix startup script":
-    command => "/vagrant/modules/ambari_server/files/fix_broken_start_script.sh"
-  }
-  ->
-  exec { "ambari-server-start":
-    command => "/usr/sbin/ambari-server start --silent"
-  }
-  ->
-  exec { "Fix Ambari's embedded Postgres to survive reboot":
-    command => "chkconfig postgresql --levels 2345 on",
-    path => $path,
   }
   ->
   exec { "deploy blueprint":

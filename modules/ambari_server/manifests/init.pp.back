@@ -15,6 +15,7 @@
 
 class ambari_server {
   require repos_setup
+  require jdk
   $path="/bin:/usr/bin:/sbin:/usr/sbin"
 
 
@@ -33,7 +34,7 @@ class ambari_server {
   }
   ->
   exec { "ambari-server-setup":
-    command => "/usr/sbin/ambari-server setup --silent"
+    command => "/usr/sbin/ambari-server setup -j /usr/lib/jvm/java --silent"
   }
   ->
   exec { "Fix startup script":
@@ -46,16 +47,6 @@ class ambari_server {
   ->
   exec { "Fix Ambari's embedded Postgres to survive reboot":
     command => "chkconfig postgresql --levels 2345 on",
-    path => $path,
-  }
-  ->
-  exec { "deploy blueprint":
-    command => "curl -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/blueprint.json -u admin:admin http://localhost:8080/api/v1/blueprints/BP",
-    path => $path,
-  }
- ->
-  exec { "install blueprint":
-    command => "curl -iv -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/cluster.txt -u admin:admin http://localhost:8080/api/v1/clusters/supportLab",
     path => $path,
   }
 }
