@@ -49,6 +49,11 @@ class ambari_server {
     path => $path,
   }
   ->
+  exec { "sleep for heartbeat":
+    command => "sleep 70 && echo \"inserting pause for the heartbeat\"",
+    path => $path,
+  }
+  ->
   exec { "deploy blueprint":
     command => "curl -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/blueprint.json -u admin:admin http://localhost:8080/api/v1/blueprints/BP",
     path => $path,
