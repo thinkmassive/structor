@@ -59,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # All Vagrant configuration is done here. The most common configuration
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "omalley/centos6_x64"
+  config.vm.box = "puppetlabs/centos-7.2-64-puppet"
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", profile[:vm_mem] ]
@@ -75,6 +75,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       node_config.vm.network :private_network, ip: node[:ip]
       node_config.ssh.forward_agent = true
       node_config.vm.provision "puppet" do |puppet|
+	puppet.environment_path = "environments"
+	puppet.environment = "testenv"
+	#puppet.manifests_path = "manifests"
+	#puppet.manifest_file= "default.pp"
         puppet.module_path = "modules"
         puppet.options = ["--libdir", "/vagrant", 
 	    "--verbose", "--debug",
