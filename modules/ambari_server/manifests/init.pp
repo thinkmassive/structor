@@ -50,7 +50,7 @@ class ambari_server {
   }
   ->
   exec { "sleep for heartbeat":
-    command => "sleep 70 && echo \"inserting pause for the heartbeat\"",
+    command => "sleep 90 && echo \"inserting pause for the heartbeat\"",
     path => $path,
   }
   ->
