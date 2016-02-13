@@ -15,18 +15,16 @@
 
 class ip_setup {
 
-  service {"iptables":
-    ensure => stopped,
-    enable => false,
+  exec {'stop-firewalld':
+    command => "/usr/sbin/systemctl stop firewalld",
   }
 
-  service {"ip6tables":
-    ensure => stopped,
-    enable => false,
+  service {'disable-firewalld':
+    command => "/usr/sbin/systemctl disable firewalld",
   }
 
   exec { 'disableipv6':
-    command => "sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sysctl -w net.ipv6.conf.default.disable_ipv6=1",
+    command => "/usr/sbin/sysctl -w net.ipv6.conf.all.disable_ipv6=1 && /usr/sbin/sysctl -w net.ipv6.conf.default.disable_ipv6=1",
   }
 
   file { '/etc/sysctl.d/disableipv6.conf':
