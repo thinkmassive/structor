@@ -60,8 +60,6 @@ that node. The available roles are:
 * slave - HDFS DataNode & Yarn NodeManager
 * yarn - Yarn Resource Manager and MapReduce Job History Server
 * zk - Zookeeper Server
-* proxy-server - Squid proxy server for yum caching
-* proxy-client -  Squid proxy client for yum caching
 
 This is an example of the current default.profile
 ```
@@ -96,7 +94,6 @@ security, you'll need to kinit before you run any hadoop commands.
 
 in /etc/hosts:
 ```
-240.0.0.2 proxy.example.com
 240.0.0.10 gw.example.com
 240.0.0.11 nn.example.com
 240.0.0.12 slave1.example.com
