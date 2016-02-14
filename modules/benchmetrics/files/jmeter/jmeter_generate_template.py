@@ -15,7 +15,7 @@ testplan = """
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
-      <stringProp name="TestPlan.user_define_classpath">../../apache-hive-1.3.0-SNAPSHOT-jdbc.jar</stringProp>
+      <stringProp name="TestPlan.user_define_classpath">/vagrant/modules/benchmetrics/files/jmeter/apache-hive-1.3.0-SNAPSHOT-jdbc.jar</stringProp>
     </TestPlan>
     <hashTree>
       <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
@@ -157,19 +157,25 @@ def scrub(l):
     m = SQL_COMMENT.search(l)
     if m: return l.replace(m.group(0), "");
     return l
-def oneliner(q):
-    lines = [scrub(l.strip()) for l in q.split("\n")]
+
+def oneliner(q, targetdb=None):
+    if targetdb:
+        lines = [l.replace("${DB}", targetdb) for l in q.split("\n")]
+    lines = [scrub(l.strip()) for l in lines]
     return " ".join(lines)
 
 def main(argv):
-    (opts, args) = getopt(argv, "d:e:j:n:p:t:u:")
+    (opts, args) = getopt(argv, "D:d:e:j:n:p:t:")
     threads = 1
     repeats = 1
     explain = ""
     path = None
     jdbc = "jdbc:hive2://localhost:10000/"
     database = None
+    targetdb = None
     for k,v in opts:
+        if(k == "-D"):
+            targetdb = v
         if(k == "-d"):
             database = v
         if(k == "-e"):
@@ -182,9 +188,8 @@ def main(argv):
             path = v
         if(k == "-t"):
             threads = int(v)
-        if(k == "-u"):
-            jdbc = v
     if database == None:
+        print "Usage: [-D dbsub] -d database [-e] [-j jdbc] [-n repeats] -p path [-t threads]"
         print "Specify database (-d)"
         sys.exit(1)
     jdbc_url = jdbc + "%s?hive.exec.orc.split.strategy=ETL" % database;
@@ -192,7 +197,7 @@ def main(argv):
     if path == None:
         print "Need -p (path to queries)"
         sys.exit(1)
-    output_path = "runs/%s" % os.path.basename(path)
+    output_path = "jmeter_harness"
     queries = []
     queries += [("hive", v) for v in glob("%s/*.sql"% path)]
     if len(queries) == 0:
@@ -208,7 +213,7 @@ def main(argv):
             continue
         qtext = qtext.replace(";","")
         qname = basename(q).replace(".sql","")
-        jdbc_queries.append((qname, oneliner(qtext)))
+        jdbc_queries.append((qname, oneliner(qtext, targetdb)))
 
     try:
         os.mkdir(output_path)
