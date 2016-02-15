@@ -28,6 +28,11 @@ class ambari_server {
     groups => "users",
   }
 
+->
+  exec { "delete bad repos on server":
+    command => "rm -rf /etc/yum.repos.d/hdp.repo",
+    path => $path,
+  }
   package { "ambari-server":
     ensure => installed
   }
