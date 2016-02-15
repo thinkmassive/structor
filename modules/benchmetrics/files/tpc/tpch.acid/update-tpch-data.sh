@@ -28,7 +28,10 @@ hdfs dfs -mkdir -p $DIR/lineitem_stage $DIR/orders_stage $DIR/delete_stage
 hdfs dfs -copyFromLocal $DIR/lineitem* $DIR/lineitem_stage
 hdfs dfs -copyFromLocal $DIR/orders*   $DIR/orders_stage
 hdfs dfs -copyFromLocal $DIR/delete*   $DIR/delete_stage
+hdfs dfs -du $DIR
 
 # Load the data in Hive.
 DB=tpch_bin_flat_acid_$SCALE
 hive -d DB=$DB -f /vagrant/modules/benchmetrics/files/tpc/tpch.acid/update-tpch-data.sql
+hdfs dfs -du /apps/hive/warehouse
+hdfs dfs -du /home/vagrant
