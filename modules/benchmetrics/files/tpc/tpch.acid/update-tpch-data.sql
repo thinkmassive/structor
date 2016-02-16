@@ -40,6 +40,6 @@ ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE
 LOCATION '/tmp/tpch.updates/delete_stage';
 
 insert into table lineitem select * from lineitem_stage;
-insert into table orders select * from orders;
+insert into table orders select * from orders_stage;
 delete from lineitem where L_ORDERKEY in (select D_ORDERKEY from delete_stage);
 delete from orders   where O_ORDERKEY in (select D_ORDERKEY from delete_stage);

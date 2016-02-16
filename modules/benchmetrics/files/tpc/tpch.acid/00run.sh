@@ -10,13 +10,16 @@ while [ $i -le 10 ] ; do
 	i=`expr $i + 1`
 done
 
+SCALE=2
+DB=tpch_bin_flat_acid_$SCALE
+
 # Compact and query.
 echo "Queue compactions"
 /vagrant/modules/benchmetrics/files/tpc/tpch.acid/compact-tpch-tables.sh
 
 echo "Run Query 1"
 date
-hive -d DB=${DATABASE} -f /vagrant/modules/benchmetrics/files/tpc/tpch.acid/queries/tpch_query1.sql
+hive -d DB=${DB} -f /vagrant/modules/benchmetrics/files/tpc/tpch.acid/queries/tpch_query1.sql
 echo "Done"
 date
 
@@ -33,6 +36,6 @@ done
 # Query again.
 echo "Run Query 1 Again"
 date
-hive -d DB=${DATABASE} -f /vagrant/modules/benchmetrics/files/tpc/tpch.acid/queries/tpch_query1.sql
+hive -d DB=${DB} -f /vagrant/modules/benchmetrics/files/tpc/tpch.acid/queries/tpch_query1.sql
 echo "Done"
 date
