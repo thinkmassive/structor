@@ -19,7 +19,7 @@ include ip_setup
 include selinux
 include weak_random
 include ntp
-include utils
+#include utils
 
 # determine the required modules based on the roles.
 

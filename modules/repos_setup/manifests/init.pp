@@ -31,6 +31,12 @@ class repos_setup {
   exec { 'yum-update':
     command => "/usr/bin/yum -q -y update",
   }
+  package { 'deltarpm':
+    ensure => 'installed',
+  }
+  package { 'hadoop':
+    ensure => 'installed',
+  }
 #  exec { 'yum-makecache':
 #    command => "/usr/bin/yum makecache",
 #  }
@@ -38,8 +44,8 @@ class repos_setup {
 #    command => "/usr/bin/yum -q -y upgrade",
 #    timeout => 1800,
 #  }
-  exec { 'yum-install-hadoop':
-    command => "/usr/bin/yum -q -y install hadoop",
-    timeout => 1800,
-  }
+#  exec { 'yum-install-hadoop':
+#    command => "/usr/bin/yum -q -y install hadoop",
+#    timeout => 1800,
+#  }
 }

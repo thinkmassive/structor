@@ -59,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # All Vagrant configuration is done here. The most common configuration
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "puppetlabs/centos-7.2-64-puppet"
+  config.vm.box = "thinkmassive/centos7-vbox-puppet"
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", profile[:vm_mem] ]

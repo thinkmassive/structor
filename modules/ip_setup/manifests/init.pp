@@ -15,13 +15,13 @@
 
 class ip_setup {
 
-  exec {'stop-firewalld':
-    command => "/bin/systemctl stop firewalld",
-  }
+#  exec {'stop-firewalld':
+#    command => "/bin/systemctl stop firewalld",
+#  }
 
-  exec {'disable-firewalld':
-    command => "/bin/systemctl disable firewalld",
-  }
+#  exec {'disable-firewalld':
+#    command => "/bin/systemctl disable firewalld",
+#  }
 
   exec { 'disableipv6':
     command => "/usr/sbin/sysctl -w net.ipv6.conf.all.disable_ipv6=1 && /usr/sbin/sysctl -w net.ipv6.conf.default.disable_ipv6=1",
