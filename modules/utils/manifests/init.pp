@@ -13,33 +13,26 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class repos_setup {
-  file { '/etc/yum.repos.d/HDP.repo':
-    ensure => file,
-    source => 'puppet:///files/repos/hdp.repo',
+class utils {
+
+  package { "vim":
+    ensure => installed
   }
-  file { '/etc/yum.repos.d/ambari.repo':
-    ensure => file,
-    source => 'puppet:///files/repos/ambari.repo',
+  ->  
+  package { "screen":
+    ensure => installed
   }
-  package { 'epel-release-6-8':
-    ensure => absent,
+  ->  
+  package { "lsof":
+    ensure => installed
   }
-  exec { 'yum-clean':
-    command => "/usr/bin/yum clean all",
+  ->  
+  package { "sysstat":
+    ensure => installed
   }
-  exec { 'yum-update':
-    command => "/usr/bin/yum -q -y update",
+  ->  
+  package { "git":
+    ensure => installed
   }
-#  exec { 'yum-makecache':
-#    command => "/usr/bin/yum makecache",
-#  }
-#  exec { 'yum-upgrade':
-#    command => "/usr/bin/yum -q -y upgrade",
-#    timeout => 1800,
-#  }
-  exec { 'yum-install-hadoop':
-    command => "/usr/bin/yum -q -y install hadoop",
-    timeout => 1800,
-  }
+
 }

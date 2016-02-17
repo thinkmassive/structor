@@ -16,11 +16,11 @@
 class ip_setup {
 
   exec {'stop-firewalld':
-    command => "/usr/sbin/systemctl stop firewalld",
+    command => "/bin/systemctl stop firewalld",
   }
 
-  service {'disable-firewalld':
-    command => "/usr/sbin/systemctl disable firewalld",
+  exec {'disable-firewalld':
+    command => "/bin/systemctl disable firewalld",
   }
 
   exec { 'disableipv6':

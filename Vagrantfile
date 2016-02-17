@@ -77,8 +77,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       node_config.vm.provision "puppet" do |puppet|
 	puppet.environment_path = "environments"
 	puppet.environment = "testenv"
-	#puppet.manifests_path = "manifests"
-	#puppet.manifest_file= "default.pp"
         puppet.module_path = "modules"
         puppet.options = ["--libdir", "/vagrant", 
 	    "--verbose", "--debug",
