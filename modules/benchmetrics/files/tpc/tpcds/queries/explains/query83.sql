@@ -1,9 +1,5 @@
-use ${DB};
-
--- Note: Waiting on ticket 1782.
-
-drop table if exists query83_temp;
-create temporary table query83_temp as
+explain drop table if exists query83_temp;
+explain create temporary table query83_temp as
 select d_date
         from date_dim
         where d_week_seq in
@@ -11,7 +7,7 @@ select d_date
                 from date_dim d2
           where d2.d_date in ('1998-01-02','1998-10-15','1998-11-10'));
 
-with sr_items as
+explain with sr_items as
  (select i_item_id item_id,
         sum(sr_return_quantity) sr_item_qty
  from store_returns,

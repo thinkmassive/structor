@@ -1,4 +1,4 @@
-use ${DB};
+explain
 
 select 
     s_store_name,

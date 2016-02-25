@@ -1,4 +1,4 @@
-use ${DB};
+explain
 
 select  i_item_desc 
        ,i_category 

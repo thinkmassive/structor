@@ -25,9 +25,6 @@ source query21.sql;
 !echo query22.sql;
 source query22.sql;
 
-!echo query24.sql;
-source query24.sql;
-
 !echo query25.sql;
 source query25.sql;
 
@@ -147,9 +144,6 @@ source query80.sql;
 
 !echo query82.sql;
 source query82.sql;
-
-!echo query83.sql;
-source query83.sql;
 
 !echo query84.sql;
 source query84.sql;

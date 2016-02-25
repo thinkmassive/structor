@@ -1,4 +1,4 @@
-use ${DB};
+explain
 
 
 select  i_brand_id brand_id, i_brand brand,
