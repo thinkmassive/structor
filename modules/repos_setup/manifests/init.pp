@@ -22,30 +22,10 @@ class repos_setup {
     ensure => file,
     source => 'puppet:///files/repos/ambari.repo',
   }
-  package { 'epel-release-6-8':
-    ensure => absent,
-  }
   exec { 'yum-clean':
     command => "/usr/bin/yum clean all",
   }
   exec { 'yum-update':
     command => "/usr/bin/yum -q -y update",
   }
-  package { 'deltarpm':
-    ensure => 'installed',
-  }
-  package { 'hadoop':
-    ensure => 'installed',
-  }
-#  exec { 'yum-makecache':
-#    command => "/usr/bin/yum makecache",
-#  }
-#  exec { 'yum-upgrade':
-#    command => "/usr/bin/yum -q -y upgrade",
-#    timeout => 1800,
-#  }
-#  exec { 'yum-install-hadoop':
-#    command => "/usr/bin/yum -q -y install hadoop",
-#    timeout => 1800,
-#  }
 }
