@@ -11,6 +11,9 @@ Restart=on-failure
 Type=simple
 User=zookeeper
 WorkingDirectory=/var/lib/zookeeper
+PermissionsStartOnly=true
+ExecStartPre=/usr/bin/mkdir -p /var/run/pid/zookeeper
+ExecStartPre=/usr/bin/chown zookeeper:zookeeper /var/run/pid/zookeeper
 
 [Install]
 WantedBy=multi-user.target
