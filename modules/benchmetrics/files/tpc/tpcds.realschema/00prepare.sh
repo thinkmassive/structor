@@ -7,7 +7,7 @@ sudo service hive-server2 stop
 sudo usermod -a -G hadoop vagrant
 
 # Don't do anything if the data is already loaded.
-hdfs dfs -ls /apps/hive/warehouse/tpcds_bin_partitioned_orc_$SCALE.db >/dev/null
+hdfs dfs -ls /apps/hive/warehouse/tpcds_real_bin_partitioned_orc_$SCALE.db >/dev/null
 
 if [ $? -ne 0 ];  then
 	# Build it.
