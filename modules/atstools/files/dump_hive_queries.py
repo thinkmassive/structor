@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
-# This module is an add-on, you will need to install it.
+# This module is an add-on, you may need to install it if you are using Python 2.6.
 from dateutil.parser import parse
 
 import datetime
 import json
 import logging
 import os
+import pipes
 import pprint
 import urllib2 as url
 import xml.etree.ElementTree as ET
@@ -15,6 +16,7 @@ from optparse import OptionParser
 def main():
 	parser = OptionParser()
 	parser.add_option("-D", "--debug", help="debug", default=False, action='store_true')
+	parser.add_option("-S", "--secure", help="Connect to secure cluster", default=False, action='store_true')
 	parser.add_option("-a", "--ats", help="ATS endpoint (e.g. http://yarn.example.com:8188)")
 	parser.add_option("-e", "--end", help="End time in epoch seconds")
 	parser.add_option("-s", "--start", help="Start time in epoch seconds")
@@ -26,6 +28,10 @@ def main():
 		logger = logging.getLogger()
 		logging.basicConfig(level=logging.DEBUG)
 		logger.setLevel(logging.DEBUG)
+
+	# Handle secure.
+	if options.secure:
+		import urllib2_kerberos as u2k
 
 	# Get the ATS endpoint if it's not given.
 	if options.ats == None:
@@ -63,33 +69,76 @@ def main():
 	print "Found %d queries" % len(dags)
 	if len(dags) > 0:
 		for d in dags:
+			if "dagPlan" not in d["otherinfo"]:
+				continue
+			if "dagInfo" not in d["otherinfo"]["dagPlan"]:
+				continue
 			user = d['otherinfo']['user']
-			dag = d['otherinfo']['dagPlan']['dagName']
 			hiveQuery = d["otherinfo"]["dagPlan"]["dagInfo"]
 			parsed = json.loads(hiveQuery)
 			hiveQuery = parsed['description']
 			counters = extractCounters(d)
 			applicationId = d['otherinfo']['applicationId']
 			settings = getDagSettings(options, applicationId)
-			sqlName = "%s.%s.sql" % (dag, user)
+
+			if "dagContext" in d['otherinfo']['dagPlan']:
+				hiveId = d['otherinfo']['dagPlan']['dagContext']['callerId']
+			else:
+				dag = d['otherinfo']['dagPlan']['dagName']
+				hiveId = dag.split(":")[0]
+			hiveExtras = getExtraHiveInfo(options, hiveId)
+			if hiveExtras != None:
+				if "QUERY" in hiveExtras['otherinfo']:
+					queryDict = json.loads(hiveExtras['otherinfo']['QUERY'])
+					queryPlan = queryDict['queryPlan']
+				else:
+					queryPlan = {}
+			sqlName = "%s.%s.sql" % (hiveId, user)
+
 			with open(sqlName, "w") as fd:
 				pp = pprint.PrettyPrinter(indent=2, stream=fd)
 				fd.write("-- Query Text\n")
 				fd.write(hiveQuery)
-				fd.write("\n-- Job Settings\n")
-				pp.pprint(settings)
+				fd.write("\n-- Query Plan\n")
+				if hiveExtras != None:
+					fd.write(json.dumps(queryPlan))
+				else:
+					fd.write("ERROR")
 				fd.write("\n-- Job Counters\n")
 				pp.pprint(counters)
+				fd.write("\n-- Job Settings\n")
+				pp.pprint(settings)
+
+def getExtraHiveInfo(options, id):
+	atsUrl = "%s/ws/v1/timeline/HIVE_QUERY_ID/%s" % (options.ats, id)
+	logger = logging.getLogger()
+	logger.debug("Settings Hive url %s" % atsUrl)
+	try:
+		if options.secure:
+			opener = url.build_opener(u2k.HTTPKerberosAuthHandler())
+		else:
+			opener = url.build_opener()
+		opened = opener.open(atsUrl)
+		response = opened.read()
+		objects = json.loads(response)
+		return objects
+	except:
+		return None
 
 def getDagSettings(options, applicationId):
 	applicationId.replace("application", "tez")
 	logger = logging.getLogger()
 	atsUrl = "%s/ws/v1/timeline/TEZ_APPLICATION/tez_%s" % (options.ats, applicationId)
 	logger.debug("Settings url %s" % atsUrl)
-	request = url.Request(atsUrl)
-	handler = url.urlopen(request)
-	response = handler.read()
+	if options.secure:
+		opener = url.build_opener(u2k.HTTPKerberosAuthHandler())
+	else:
+		opener = url.build_opener()
+	opened = opener.open(atsUrl)
+	response = opened.read()
 	objects = json.loads(response)
+	if "config" not in objects['otherinfo']:
+		return {}
 	return objects['otherinfo']['config']
 
 def extractCounters(dag):
@@ -97,6 +146,8 @@ def extractCounters(dag):
 
 	# This happens some times, not sure why.
 	if "counters" not in dag["otherinfo"]:
+		return allcounters
+	if "counterGroups" not in dag["otherinfo"]["counters"]:
 		return allcounters
 
 	groups = dag["otherinfo"]["counters"]["counterGroups"]
@@ -127,23 +178,26 @@ def getDags(options):
 	retrieved = 100
 	parameters["windowStart"] = start
 	parameters["windowEnd"] = end
-	while retrieved == windowSize:
+	while retrieved == 100:
 		query = "&".join([
 			x + "=" + str(parameters[x])
 			for x in parameters.keys()
 			if parameters[x] != None ])
 		atsUrl = "%s/ws/v1/timeline/TEZ_DAG_ID?%s" % (options.ats, query)
 		logger.debug("Request url %s" % atsUrl)
-		request = url.Request(atsUrl)
-		handler = url.urlopen(request)
-		response = handler.read()
+		if options.secure:
+			opener = url.build_opener(u2k.HTTPKerberosAuthHandler())
+		else:
+			opener = url.build_opener()
+		opened = opener.open(atsUrl)
+		response = opened.read()
 		objects = json.loads(response)
 		newDags = objects["entities"]
 		retrieved = len(newDags)
 		if retrieved == 0:
 			return dags
 		lastTime = newDags[-1]["starttime"]
-		parameters["windowStart"] = lastTime
+		parameters["windowEnd"] = lastTime
 		dags.extend(newDags)
 	return dags
 
