@@ -45,5 +45,14 @@ class install_hdfs_tarballs {
     }
   }
 
+  if hasrole($clients, 'hive2') {
+    require hive2
 
+    exec {"install-tez2-tarball":
+      command => "hadoop fs -put /usr/hdp/${hdp_version}/tez_hive2/lib/tez.tar.gz /hdp/apps/${hdp_version}/tez/tez_hive2.tar.gz",
+      unless  => "hadoop fs -test -e /hdp/apps/${hdp_version}/tez/tez_hive2.tar.gz",
+      path    => "$path",
+      user    => "hdfs",
+    }
+  }
 }
