@@ -59,7 +59,7 @@
     
   <property>
     <name>yarn.nodemanager.resource.memory-mb</name>
-    <value><%= @vm_mem.to_i - 1024 %></value>
+    <value><%= @vm_mem.to_i - 2048 %></value>
   </property>
     
   <property>
@@ -84,7 +84,7 @@
     
   <property>
     <name>yarn.scheduler.maximum-allocation-mb</name>
-    <value><%= @vm_mem.to_i - 1024 %></value>
+    <value><%= @vm_mem.to_i - 2048 %></value>
   </property>
     
   <property>
@@ -151,6 +151,16 @@
   <property>
     <name>yarn.timeline-service.generic-application-history.store-class</name>
     <value>org.apache.hadoop.yarn.server.applicationhistoryservice.NullApplicationHistoryStore</value>
+  </property>
+
+  <property>
+    <name>yarn.timeline-service.http-cross-origin.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
+    <value>true</value>
   </property>
 
 <% if @security == "true" -%>

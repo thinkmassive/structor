@@ -41,6 +41,7 @@ class sample_hive_data {
     command => "hive -f /vagrant/modules/sample_hive_data/files/foodmart.db/foodmart_hive.ddl",
     path => "$path",
     user => vagrant,
+    unless => "sudo strings /var/lib/mysql/ibdata1 | grep foodmart.db",
   }
   ->
   exec { "Add sample data (Parquet)":
@@ -54,5 +55,6 @@ class sample_hive_data {
     command => "hive -f /vagrant/modules/sample_hive_data/files/foodmart_parquet.db/foodmart_hive.ddl",
     path => "$path",
     user => vagrant,
+    unless => "sudo strings /var/lib/mysql/ibdata1 | grep foodmart_parquet.db",
   }
 }
