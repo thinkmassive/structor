@@ -47,10 +47,11 @@ public class VMOfflineView extends AbstractConsoleView
 
   private Map<Long, Long> previousThreadCPUMillis   = new HashMap<Long, Long>();
 
-  public VMOfflineView(int vmid) throws Exception
+  public VMOfflineView(int vmid, double minUtilization) throws Exception
   {
     super(100);
     pid_ = vmid;
+    minUtilization_ = minUtilization;
     LocalVirtualMachine localVirtualMachine = LocalVirtualMachine
         .getLocalVirtualMachine(vmid);
     vmInfo_ = VMInfo.processNewVM(localVirtualMachine, vmid);
