@@ -1,0 +1,446 @@
+<%#
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-%>
+<% @metastores =
+     eval(@nodes).select {|node| node[:roles].include? 'hive-meta'}.
+       map {|node| node[:hostname]};
+   @is_metastore = @metastores.include? @hostname;
+   @dblist = eval(@nodes).select {|node| node[:roles].include? 'hive-db'};
+   @db = (@dblist.size == 0 ? "unknown" : @dblist[0][:hostname]) +"."+ @domain;
+   @hive2_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'hive2-server2'}.
+      map{|node| node[:hostname]};
+   @zookeeper_servers = eval(@nodes).
+      select {|node| node[:roles].include? 'zk'}.
+      map{|node| node[:hostname] + "." + @domain + ":2181"}.join(",");
+   @ats_servers = eval(@nodes).
+     select {|node| node[:roles].include? 'yarn-timelineserver'}.
+     map{|node| node[:hostname] + "." + @domain};
+   @llap_nodes = eval(@nodes).
+       select {|node| node[:roles].include? 'hive2-llap'}.
+       map {|node| node[:hostname] + "." + @domain}.join(",");
+ -%>
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>javax.jdo.option.ConnectionDriverName</name>
+    <value>com.mysql.jdbc.Driver</value>
+    <description>Driver class name for a JDBC metastore</description>
+  </property>
+
+  <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:mysql://<%= @db %>:3306/hive?createDatabaseIfNotExist=true</value>
+    <description>JDBC connect string for a JDBC metastore</description>
+  </property>
+  
+  <property>
+    <name>javax.jdo.option.ConnectionUserName</name>
+    <value>hive</value>
+    <description>username to use against metastore database</description>
+  </property>
+
+  <property>
+    <name>javax.jdo.option.ConnectionPassword</name>
+    <value>vagrant</value>
+    <description>password to use against metastore database</description>
+  </property>
+
+<% if @llap_nodes.length > 0 -%>
+  <property>
+    <name>hive.execution.mode</name>
+    <value>llap</value>
+  </property>
+
+  <property>
+    <name>hive.llap.execution.mode</name>
+    <value>all</value>
+  </property>
+
+  <property>
+    <name>hive.llap.io.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property> 
+    <name>hive.llap.auto.allow.uber</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>hive.llap.object.cache.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.tez.input.generate.consistent.splits</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.llap.client.consistent.splits</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.llap.task.scheduler.locality.delay</name>
+    <value>-1</value>
+  </property>
+
+  <property>
+    <name>hive.exec.orc.split.strategy</name>
+    <value>BI</value>
+  </property>
+
+  <property>
+    <name>hive.llap.daemon.allow.permanent.fns</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>llap.daemon.service.hosts</name>
+    <value><%= @llap_nodes %></value>
+    <description>Comma separated list of nodes running daemons</description>
+  </property>
+
+  <property>
+    <name>llap.daemon.service.hosts</name>
+    <value>@llap0</value>
+    <description>Comma separated list of nodes running daemons</description>
+  </property>
+
+  <property>
+    <name>hive.zookeeper.namespace</name>
+    <value>llap</value>
+  </property>
+
+  <property>
+    <name>hive.zookeeper.quorum</name>
+    <value><%= @zookeeper_servers %></value>
+  </property>
+<% end -%>
+
+<% if @security == "true" -%>
+  <property>
+    <name>hive.metastore.kerberos.keytab.file</name>
+    <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/hive.keytab</value>
+    <description>The path to the Kerberos Keytab file containing the 
+      metastore thrift server's service principal.</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.kerberos.principal</name>
+    <value>hive/_HOST@<%= @realm %></value>
+    <description>The service principal for the metastore thrift server. The 
+       special string _HOST will be replaced automatically with the correct
+       host name.</description>
+  </property>
+
+  <property>
+    <name>hive.server2.authentication</name>
+    <value>KERBEROS</value>
+  </property>
+
+  <property>
+    <name>hive.server2.authentication.kerberos.keytab</name>
+    <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/hive.keytab</value>
+  </property>
+
+  <property>
+    <name>hive.server2.authentication.kerberos.principal</name>
+    <value>hive/_HOST@<%= @realm %></value>
+  </property>
+<% end -%>
+
+<% if @hive2_servers.length > 1 -%>
+  <property>
+    <name>hive.server2.support.dynamic.service.discovery</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.server2.zookeeper.namespace</name>
+    <value>hiveserver2</value>
+  </property>
+
+  <property>
+    <name>hive.zookeeper.quorum</name>
+    <value><%= @zookeeper_servers %></value>
+  </property>
+<% end %>
+
+  <property>
+    <name>datanucleus.autoStartMechanism</name>
+    <value>SchemaTable</value>
+  </property>
+
+  <property>
+    <name>datanucleus.autoCreateSchema</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>hadoop.clientside.fs.operations</name>
+    <value>true</value>
+    <description>FS operations are owned by client</description>
+  </property>
+
+  <property>
+    <name>hive.compactor.initiator.on</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.compactor.worker.threads</name>
+    <value>1</value>
+  </property>
+
+  <property>
+    <name>hive.exec.dynamic.partition.mode</name>
+    <value>nonstrict</value>
+  </property>
+
+  <property>
+    <name>hive.metastore.cache.pinobjtypes</name>
+    <value>Table,Database,Type,FieldSchema,Order</value>
+    <description>List of comma separated metastore object types that should be
+       pinned in the cache</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.client.socket.timeout</name>
+    <value>60</value>
+    <description>MetaStore Client socket timeout in seconds</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.execute.setugi</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.metastore.sasl.enabled</name>
+    <value><%= @security %></value>
+    <description>If true, the metastore thrift interface will be secured with 
+      SASL. Clients must authenticate with Kerberos.</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.warehouse.dir</name>
+    <value>/apps/hive/warehouse</value>
+    <description>location of default database for the warehouse</description>
+  </property>
+
+  <property>
+    <name>hive.optimize.ppd.storage</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.security.authorization.enabled</name>
+    <value>true</value>
+    <description>enable or disable the hive client authorization</description>
+  </property>
+
+  <property>
+    <name>hive.security.authorization.manager</name>
+    <value>org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider</value>
+    <description>the hive client authorization manager class name.
+      The user defined authorization class should implement interface 
+       HiveAuthorizationProvider.
+    </description>
+  </property>
+
+  <property>
+    <name>hive.support.concurrency</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>hive.txn.manager</name>
+    <value>org.apache.hadoop.hive.ql.lockmgr.DummyTxnManager</value>
+  </property>
+
+  <!-- Optimizations -->
+  <property>
+    <name>hive.auto.convert.join</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.auto.convert.join.noconditionaltask</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.auto.convert.sortmerge.join</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.auto.convert.sortmerge.join.to.mapjoin</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.cbo.enable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.compute.query.using.stats</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.stats.fetch.column.stats</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.convert.join.bucket.mapjoin.tez</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.execution.engine</name>
+    <value>tez</value>
+  </property>
+
+  <property>
+    <name>hive.mapjoin.optimized.hashtable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.constant.propagation</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.index.filter</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.metadataonly</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.null.scan</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.optimize.reducededuplication</name>
+    <value>true</value>
+  </property>
+    
+  <property>
+    <name>hive.optimize.reducededuplication.min.reducer</name>
+    <value>4</value>
+  </property>
+
+  <property>
+    <name>hive.orc.compute.splits.num.threads</name>
+    <value>10</value>
+  </property>
+    
+  <property>
+    <name>hive.orc.splits.include.file.footer</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.execution.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.execution.reduce.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.groupby.checkinterval</name>
+    <value>4096</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.groupby.flush.percent</name>
+    <value>0.1</value>
+  </property>
+
+  <property>
+    <name>hive.vectorized.groupby.maxentries</name>
+    <value>10000</value>
+  </property>
+
+  <property>
+    <name>hive.tez.container.size</name>
+    <value><%= @client_mem.to_i %></value>
+  </property>
+
+  <property>
+    <name>hive.server2.tez.initialize.default.sessions</name>
+   <value>true</value>
+  </property>
+
+  <property>
+    <name>hive.server2.tez.default.queues</name>
+    <value>default</value>
+  </property>
+
+  <property>
+    <name>hive.server2.tez.sessions.per.default.queue</name>
+    <value>1</value>
+  </property>
+
+  <property>
+    <name>hive.server2.enable.doAs</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>hive.prewarm.enabled</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>tez.session.am.dag.submit.timeout.secs</name>
+    <value>14400</value>
+  </property>
+
+<% if @ats_servers.length > 0 -%>
+  <property>
+    <name>hive.exec.failure.hooks</name>
+    <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+  </property>
+
+  <property>
+    <name>hive.exec.post.hooks</name>
+    <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+  </property>
+
+  <property>
+    <name>hive.exec.pre.hooks</name>
+    <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+  </property>
+<% end -%>
+
+</configuration>
