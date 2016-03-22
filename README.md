@@ -10,9 +10,9 @@ Structor creates Hadoops.
 # Install Vagrant 1.8.1 or later.
 git clone https://github.com/cartershanklin/structor
 cd structor
-ln -s profiles/hdp2.5.0.profile current.profile
+ln -s profiles/hdp250.profile current.profile
 vagrant up
-# When that finishes, open http://192.168.59.11/ or vagrant ssh hdp2.5.0
+# When that finishes, open http://192.168.59.11/ or vagrant ssh hdp250
 ```
 
 ## Some details.
