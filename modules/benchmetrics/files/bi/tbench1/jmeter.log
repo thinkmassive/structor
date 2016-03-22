@@ -1,0 +1,81 @@
+2016/03/20 15:19:22 INFO  - jmeter.util.JMeterUtils: Setting Locale to en_US 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: Loading user properties from: /usr/local/share/apache-jmeter-2.13/bin/user.properties 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: Loading system properties from: /usr/local/share/apache-jmeter-2.13/bin/system.properties 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: Copyright (c) 1998-2015 The Apache Software Foundation 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: Version 2.13 r1665067 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: java.version=1.7.0_95 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: java.vm.name=OpenJDK 64-Bit Server VM 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: os.name=Linux 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: os.arch=amd64 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: os.version=2.6.32-504.el6.x86_64 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: file.encoding=UTF-8 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: Default Locale=English (United States) 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: JMeter  Locale=English (United States) 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: JMeterHome=/usr/local/share/apache-jmeter-2.13 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: user.dir  =/vagrant/modules/benchmetrics/files/bi/tbench1 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: PWD       =/vagrant/modules/benchmetrics/files/bi/tbench1 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: IP: 192.168.59.11 Name: hdp234.example.com FullName: hdp234.example.com 
+2016/03/20 15:19:22 INFO  - jmeter.services.FileServer: Default base='/vagrant/modules/benchmetrics/files/bi/tbench1' 
+2016/03/20 15:19:22 INFO  - jmeter.services.FileServer: Set new base='/vagrant/modules/benchmetrics/files/bi/tbench1/jmeter_harness' 
+2016/03/20 15:19:22 INFO  - jmeter.save.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2 
+2016/03/20 15:19:22 INFO  - jmeter.save.SaveService: Using SaveService properties file encoding UTF-8 
+2016/03/20 15:19:22 INFO  - jmeter.save.SaveService: Using SaveService properties file version 1656252 
+2016/03/20 15:19:22 INFO  - jmeter.save.SaveService: Using SaveService properties version 2.8 
+2016/03/20 15:19:22 INFO  - jmeter.save.SaveService: All converter versions present and correct 
+2016/03/20 15:19:22 INFO  - jmeter.save.SaveService: Loading file: /vagrant/modules/benchmetrics/files/bi/tbench1/jmeter_harness/tpcds_bin_partitioned_orc_2_1thread.jmx 
+2016/03/20 15:19:22 INFO  - jmeter.JMeter: Creating summariser <summary> 
+2016/03/20 15:19:22 INFO  - jmeter.engine.StandardJMeterEngine: Listeners will be started after enabling running version 
+2016/03/20 15:19:22 INFO  - jmeter.engine.StandardJMeterEngine: To revert to the earlier behaviour, define jmeterengine.startlistenerslater=false 
+2016/03/20 15:19:22 INFO  - jmeter.engine.StandardJMeterEngine: Running the test! 
+2016/03/20 15:19:22 INFO  - jmeter.samplers.SampleEvent: List of sample_variables: [] 
+2016/03/20 15:19:22 INFO  - jmeter.samplers.SampleEvent: List of sample_variables: [] 
+2016/03/20 15:19:22 INFO  - jmeter.engine.util.CompoundVariable: Note: Function class names must contain the string: '.functions.' 
+2016/03/20 15:19:22 INFO  - jmeter.engine.util.CompoundVariable: Note: Function class names must not contain the string: '.gui.' 
+2016/03/20 15:19:22 INFO  - jmeter.testelement.TestPlan: add /vagrant/modules/benchmetrics/files/jmeter/apache-hive-1.3.0-SNAPSHOT-jdbc.jar to classpath 
+2016/03/20 15:19:23 INFO  - org.apache.hive.jdbc.Utils: Supplied authorities: localhost:10000 
+2016/03/20 15:19:23 INFO  - org.apache.hive.jdbc.Utils: Resolved authority: localhost:10000 
+2016/03/20 15:19:23 INFO  - org.apache.hive.jdbc.HiveConnection: Will try to open client transport with JDBC Uri: jdbc:hive2://localhost:10000/ 
+2016/03/20 15:19:23 INFO  - jmeter.JMeter: Running test (1458487163277) 
+2016/03/20 15:19:23 INFO  - jmeter.engine.StandardJMeterEngine: Starting ThreadGroup: 1 : User-0 
+2016/03/20 15:19:23 INFO  - jmeter.engine.StandardJMeterEngine: Starting 1 threads for group User-0. 
+2016/03/20 15:19:23 INFO  - jmeter.engine.StandardJMeterEngine: Thread will continue on error 
+2016/03/20 15:19:23 INFO  - jmeter.threads.ThreadGroup: Starting thread group number 1 threads 1 ramp-up 1 perThread 1000.0 delayedStart=false 
+2016/03/20 15:19:23 INFO  - jmeter.threads.JMeterThread: jmeterthread.startearlier=true (see jmeter.properties) 
+2016/03/20 15:19:23 INFO  - jmeter.threads.JMeterThread: Running PostProcessors in forward order 
+2016/03/20 15:19:23 INFO  - jmeter.threads.ThreadGroup: Started thread group number 1 
+2016/03/20 15:19:23 INFO  - jmeter.engine.StandardJMeterEngine: All thread groups have been started 
+2016/03/20 15:19:23 INFO  - jmeter.threads.JMeterThread: Thread started: User-0 1-1 
+2016/03/20 15:19:23 INFO  - jmeter.services.FileServer: Stored: ./tpcds_bin_partitioned_orc_2_1thread.csv 
+2016/03/20 15:19:23 INFO  - jmeter.samplers.SampleResult: Note: Sample TimeStamps are START times 
+2016/03/20 15:19:23 INFO  - jmeter.samplers.SampleResult: sampleresult.default.encoding is set to ISO-8859-1 
+2016/03/20 15:19:23 INFO  - jmeter.samplers.SampleResult: sampleresult.useNanoTime=true 
+2016/03/20 15:19:23 INFO  - jmeter.samplers.SampleResult: sampleresult.nanoThreadSleep=5000 
+2016/03/20 15:19:32 INFO  - jmeter.reporters.Summariser: summary +      2 in     9s =    0.2/s Avg:  4320 Min:  2820 Max:  5820 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:20:02 INFO  - jmeter.reporters.Summariser: summary +      1 in    31s =    0.0/s Avg: 30964 Min: 30964 Max: 30964 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:20:02 INFO  - jmeter.reporters.Summariser: summary =      3 in    40s =    0.1/s Avg: 13201 Min:  2820 Max: 30964 Err:     0 (0.00%) 
+2016/03/20 15:25:02 INFO  - jmeter.reporters.Summariser: summary +      7 in   300s =    0.0/s Avg: 42813 Min:  2142 Max: 64589 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:25:02 INFO  - jmeter.reporters.Summariser: summary =     10 in   339s =    0.0/s Avg: 33930 Min:  2142 Max: 64589 Err:     0 (0.00%) 
+2016/03/20 15:27:35 INFO  - jmeter.reporters.Summariser: summary +      5 in   153s =    0.0/s Avg: 30597 Min:  1387 Max: 50698 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:27:35 INFO  - jmeter.reporters.Summariser: summary =     15 in   492s =    0.0/s Avg: 32819 Min:  1387 Max: 64589 Err:     0 (0.00%) 
+2016/03/20 15:38:35 INFO  - jmeter.reporters.Summariser: summary +     17 in   660s =    0.0/s Avg: 38798 Min:   728 Max: 62414 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:38:35 INFO  - jmeter.reporters.Summariser: summary =     32 in  1152s =    0.0/s Avg: 35995 Min:   728 Max: 64589 Err:     0 (0.00%) 
+2016/03/20 15:39:00 INFO  - jmeter.reporters.Summariser: summary +     11 in  25.4s =    0.4/s Avg:  2307 Min:    40 Max:  7454 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:39:00 INFO  - jmeter.reporters.Summariser: summary =     43 in  1178s =    0.0/s Avg: 27377 Min:    40 Max: 64589 Err:     0 (0.00%) 
+2016/03/20 15:44:04 INFO  - jmeter.reporters.Summariser: summary +     11 in   304s =    0.0/s Avg: 27588 Min:  2911 Max: 68808 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:44:04 INFO  - jmeter.reporters.Summariser: summary =     54 in  1482s =    0.0/s Avg: 27420 Min:    40 Max: 68808 Err:     0 (0.00%) 
+2016/03/20 15:47:30 INFO  - jmeter.reporters.Summariser: summary +      4 in   206s =    0.0/s Avg: 51294 Min: 45790 Max: 60333 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:47:30 INFO  - jmeter.reporters.Summariser: summary =     58 in  1687s =    0.0/s Avg: 29067 Min:    40 Max: 68808 Err:     0 (0.00%) 
+2016/03/20 15:48:30 INFO  - jmeter.reporters.Summariser: summary +      2 in    60s =    0.0/s Avg: 29874 Min:  2034 Max: 57715 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:48:30 INFO  - jmeter.reporters.Summariser: summary =     60 in  1747s =    0.0/s Avg: 29094 Min:    40 Max: 68808 Err:     0 (0.00%) 
+2016/03/20 15:48:41 INFO  - org.apache.hive.jdbc.Utils: Supplied authorities: localhost:10000 
+2016/03/20 15:48:41 INFO  - org.apache.hive.jdbc.Utils: Resolved authority: localhost:10000 
+2016/03/20 15:48:41 INFO  - org.apache.hive.jdbc.HiveConnection: Will try to open client transport with JDBC Uri: jdbc:hive2://localhost:10000/ 
+2016/03/20 15:48:41 INFO  - org.apache.hive.jdbc.Utils: Supplied authorities: localhost:10000 
+2016/03/20 15:48:41 INFO  - org.apache.hive.jdbc.Utils: Resolved authority: localhost:10000 
+2016/03/20 15:48:41 INFO  - org.apache.hive.jdbc.HiveConnection: Will try to open client transport with JDBC Uri: jdbc:hive2://localhost:10000/ 
+2016/03/20 15:59:33 INFO  - jmeter.reporters.Summariser: summary +     13 in   663s =    0.0/s Avg: 50992 Min:    43 Max: 355248 Err:     2 (15.38%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 15:59:33 INFO  - jmeter.reporters.Summariser: summary =     73 in  2410s =    0.0/s Avg: 32993 Min:    40 Max: 355248 Err:     2 (2.74%) 
+2016/03/20 16:32:05 INFO  - jmeter.reporters.Summariser: summary +      3 in  1953s =    0.0/s Avg: 650858 Min: 236417 Max: 1448208 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0 
+2016/03/20 16:32:05 INFO  - jmeter.reporters.Summariser: summary =     76 in  4363s =    0.0/s Avg: 57383 Min:    40 Max: 1448208 Err:     2 (2.63%) 
+2016/03/20 16:34:34 INFO  - jmeter.reporters.ResultCollector: Shutdown hook started 
+2016/03/20 16:34:34 INFO  - jmeter.reporters.ResultCollector: Shutdown hook ended 
