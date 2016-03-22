@@ -1,0 +1,195 @@
+{% block body %}
+ 
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<table>
+<tr>
+  <td><div id="etl_comparisons_div" style="width: 600px; height: 500px;"></div></td>
+  <td><div id="explain_timings_div" style="width: 600px; height: 500px;"></div></td>
+</tr>
+<tr>
+  <td><div id="interactive_features_div" style="width: 600px; height: 500px;"></div></td>
+  <td></td>
+</tr>
+<tr>
+  <td colspan="2"><div id="tpch_times_div" style="width: 1200; height: 500px;"></div></td>
+</tr>
+<tr>
+  <td colspan="2"><div id="tbench1_faster_div" style="width: 1200px; height: 500px;"></div></td>
+</tr>
+<tr>
+  <td colspan="2"><div id="tbench1_other_div" style="width: 1200px; height: 500px;"></div></td>
+</tr>
+<table>
+
+<script type='text/javascript'>//<![CDATA[ 
+ 
+google.load('visualization', '1', {packages: ['corechart', 'bar']});
+google.setOnLoadCallback(drawEtlComparisons);
+google.setOnLoadCallback(drawExplainTimings);
+google.setOnLoadCallback(drawInteractiveFeatures);
+google.setOnLoadCallback(drawTpchTimes);
+google.setOnLoadCallback(drawTbench1);
+
+function drawEtlComparisons() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Suite');
+      data.addColumn('number', '{{ old_version }}');
+      data.addColumn('number', '{{ new_version }}');
+      data.addRows([
+          [{v: 'TPC-DS Load', f: 'TPC-DS Load'},     {{ etl_comparisons[5][2] }}, {{ etl_comparisons[5][3] }}],
+          [{v: 'Airline Load', f: 'Airline Load'},   {{ etl_comparisons[0][2] }}, {{ etl_comparisons[0][3] }}],
+          [{v: 'Airline Stats', f: 'Airline Stats'}, {{ etl_comparisons[1][2] }}, {{ etl_comparisons[1][3] }}],
+          [{v: 'Avro to ORC', f: 'Avro to ORC'},     {{ etl_comparisons[3][2] }}, {{ etl_comparisons[3][3] }}],
+      ]);
+      var options = {
+        title: 'ETL: 1 Node, {{ old_version }} vs {{ new_version }}',
+        chartArea: {width: '65%'},
+        hAxis: {
+          fontSize:10,
+          title: 'Suite',
+        },
+        legend: { position: 'bottom' },
+        vAxis: {
+          title: 'Time (s)'
+        }
+      };
+      var chart = new google.visualization.ColumnChart(document.getElementById('etl_comparisons_div'));
+      chart.draw(data, options);
+}
+ 
+function drawExplainTimings() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Suite');
+      data.addColumn('number', '{{ old_version }}');
+      data.addColumn('number', '{{ new_version }}');
+      data.addRows([
+          [{v: 'All Options', f: 'All Options'}, {{ explain_timings[0][2] }}, {{ explain_timings[0][3] }}],
+          [{v: 'No CBO', f: 'No CBO'},           {{ explain_timings[1][2] }}, {{ explain_timings[1][3] }}],
+          [{v: 'No PPD', f: 'No PPD'},           {{ explain_timings[2][2] }}, {{ explain_timings[2][3] }}],
+          [{v: 'No Fetch', f: 'No Fetch'},       {{ explain_timings[3][2] }}, {{ explain_timings[3][3] }}],
+      ]);
+      var options = {
+        title: 'Explain: {{ old_version }} vs {{ new_version }}',
+        chartArea: {width: '65%'},
+        hAxis: {
+          fontSize:10,
+          title: 'Suite',
+        },
+        legend: { position: 'bottom' },
+        vAxis: {
+          title: 'Time (s)'
+        }
+      };
+      var chart = new google.visualization.ColumnChart(document.getElementById('explain_timings_div'));
+      chart.draw(data, options);
+}
+ 
+function drawInteractiveFeatures() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Test');
+      data.addColumn('number', '{{ old_version }}');
+      data.addColumn('number', '{{ new_version }}');
+      data.addRows([
+          [{v: 'Select Star', f: 'Select Star'},               {{ interactive[0][2] }}, {{ interactive[0][3] }}],
+          [{v: 'Simple Aggregation', f: 'Simple Aggregation'}, {{ interactive[1][2] }}, {{ interactive[1][3] }}],
+          [{v: 'HAVING 1 > 0', f: 'HAVING 1 > 0'},             {{ interactive[2][2] }}, {{ interactive[2][3] }}],
+      ]);
+      var options = {
+        title: 'Interactive Features: {{ old_version }} vs {{ new_version }}',
+        chartArea: {width: '65%'},
+        hAxis: {
+          fontSize:10,
+          title: 'Suite',
+        },
+        legend: { position: 'bottom' },
+        vAxis: {
+          title: 'Time (s)'
+        }
+      };
+      var chart = new google.visualization.ColumnChart(document.getElementById('interactive_features_div'));
+      chart.draw(data, options);
+}
+ 
+function drawTpchTimes() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Query');
+      data.addColumn('number', '{{ old_version }}');
+      data.addColumn('number', '{{ new_version }}');
+      data.addRows([
+        {% for x in tpch_times %}
+          [{v: '{{ x[1] }}', f: '{{ x[0] }}'}, {{ x[2] }}, {{ x[3] }}],
+        {% endfor %}
+      ]);
+      var options = {
+        title: 'TPC-H: 1 Node, Scale 2, {{ old_version }} vs {{ new_version }}',
+        chartArea: {width: '75%'},
+        hAxis: {
+          fontSize:10,
+          title: 'Query',
+          slantedText:true,
+          slantedTextAngle:90
+        },
+        vAxis: {
+          title: 'Time (s)'
+        }
+      };
+      var chart = new google.visualization.ColumnChart(document.getElementById('tpch_times_div'));
+      chart.draw(data, options);
+}
+ 
+function drawTbench1() {
+      var other_interactive_data = new google.visualization.DataTable();
+      other_interactive_data.addColumn('string', 'Query');
+      other_interactive_data.addColumn('number', '{{ old_version }}');
+      other_interactive_data.addColumn('number', '{{ new_version }}');
+      other_interactive_data.addRows([
+        {% for x in other_interactive %}
+          [{v: '{{ x[0] }}', f: '{{ x[1] }}'}, {{ x[2] }}, {{ x[3] }}],
+        {% endfor %}
+      ]);
+      var other_interactive_options = {
+        title: 'BI Benchmark: 1 Node, Scale 2, {{ old_version }} vs {{ new_version }} "Other Interactive"',
+        chartArea: {width: '75%'},
+        hAxis: {
+          fontSize:10,
+          title: 'Query',
+          slantedText:true,
+          slantedTextAngle:90
+        },
+        vAxis: {
+          title: 'Time (s)'
+        }
+      };
+      var other_chart = new google.visualization.ColumnChart(document.getElementById('tbench1_other_div'));
+      other_chart.draw(other_interactive_data, other_interactive_options);
+
+      var faster_data = new google.visualization.DataTable();
+      faster_data.addColumn('string', 'Query');
+      faster_data.addColumn('number', '{{ old_version }}');
+      faster_data.addColumn('number', '{{ new_version }}');
+      faster_data.addRows([
+        {% for x in faster_queries %}
+          [{v: '{{ x[0] }}', f: '{{ x[1] }}'}, {{ x[2] }}, {{ x[3] }}],
+        {% endfor %}
+      ]);
+      var faster_options = {
+        title: 'BI Benchmark: 1 Node, Scale 2, {{ old_version }} vs {{ new_version }} "Faster Queries"',
+        chartArea: {width: '75%'},
+        hAxis: {
+          fontSize:10,
+          title: 'Query',
+          slantedText:true,
+          slantedTextAngle:90
+        },
+        vAxis: {
+          title: 'Time (s)'
+        }
+      };
+      var faster_chart = new google.visualization.ColumnChart(document.getElementById('tbench1_faster_div'));
+      faster_chart.draw(faster_data, faster_options);
+    }
+//]]>  
+ 
+</script>
+ 
+{% endblock %}
