@@ -35,10 +35,6 @@ def main():
 	# Load the test definitions.
 	tests = loadTestDefinitions()
 
-	# Prepare environment.
-	setDirectory()
-	prepareEnvironment(options)
-
 	# Run specified tests.
 	components = packages = mytests = None
 	if options.component:
@@ -47,6 +43,11 @@ def main():
 		packages = { x:1 for x in options.package.split(",") }
 	if options.test:
 		mytests = { x:1 for x in options.test.split(",") }
+
+	# Prepare environment.
+	setDirectory()
+	prepareEnvironment(options)
+
 	runTests(tests, components, packages, mytests)
 
 def prepareEnvironment(options):
@@ -118,11 +119,11 @@ def runTest(host, package, test, subtest):
 
 	# Run the test.
 	startTime = time.time()
-	print "\nSTART EXECUTE %s %s %s\n" % (package, test, startTime)
+	print "\nSTART EXECUTE %s %s GLOBAL %s\n" % (package, test, startTime)
 	sys.stdout.flush()
 	runScript(host, runPath)
 	endTime = time.time()
-	print "\nFINISH EXECUTE %s %s %s" % (package, test, endTime)
+	print "\nFINISH EXECUTE %s %s GLOBAL %s" % (package, test, endTime)
 	print "EXECUTION TIME %s %s %0.3f\n" % (package, test, endTime - startTime)
 	sys.stdout.flush()
 
@@ -142,7 +143,7 @@ def runCommand(command, capture=False):
 
 	if DRYRUN:
 		print command
-		return 0
+		return ("", 0)
 	else:
 		print command
 		if capture:
