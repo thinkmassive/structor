@@ -1,6 +1,9 @@
 create database if not exists ${DB};
 use ${DB};
 
+!echo START EXECUTE etl tpcds.realschema convert;
+!date +%s.%N;
+
 drop table if exists call_center;
 create table call_center
 stored as ${FILE}
@@ -383,6 +386,12 @@ create table web_site
 stored as ${FILE}
 as select * from ${SOURCE}.web_site;
 
+!echo FINISH EXECUTE etl tpcds.realschema convert;
+!date +%s.%N;
+
+!echo START EXECUTE etl tpcds.realschema stats;
+!date +%s.%N;
+
 analyze table call_center compute statistics for columns;
 analyze table catalog_page compute statistics for columns;
 analyze table catalog_returns compute statistics for columns;
@@ -407,3 +416,6 @@ analyze table web_page compute statistics for columns;
 analyze table web_returns compute statistics for columns;
 analyze table web_sales compute statistics for columns;
 analyze table web_site compute statistics for columns;
+
+!echo FINISH EXECUTE etl tpcds.realschema stats;
+!date +%s.%N;

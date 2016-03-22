@@ -1,3 +1,4 @@
+set hive.conf.validation=false;
 set hive.tez.container.size=2048;
 set hive.enforce.bucketing=true;
 set hive.enforce.sorting=true;
