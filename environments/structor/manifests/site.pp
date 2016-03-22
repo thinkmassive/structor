@@ -59,6 +59,9 @@ if hasrole($roles, 'client') {
   if hasrole($clients, 'jvmtop') {
     include jvmtop_client
   }
+  if hasrole($clients, 'maven') {
+    include maven
+  }
   if hasrole($clients, 'odbc') {
     include odbc_client
   }
@@ -67,6 +70,9 @@ if hasrole($roles, 'client') {
   }
   if hasrole($clients, 'pig') {
     include pig_client
+  }
+  if hasrole($clients, 'slider') {
+    include slider
   }
   if hasrole($clients, 'spark') {
     include spark_client
@@ -93,6 +99,26 @@ if hasrole($roles, 'client') {
   #}
 }
 
+# Various Druid roles.
+if hasrole($roles, 'druid-bard') {
+  include druid_bard
+}
+if hasrole($roles, 'druid-broker') {
+  include druid_broker
+}
+if hasrole($roles, 'druid-coordinator') {
+  include druid_coordinator
+}
+if hasrole($roles, 'druid-historical') {
+  include druid_historical
+}
+if hasrole($roles, 'druid-middlemanager') {
+  include druid_middlemanager
+}
+if hasrole($roles, 'druid-overlord') {
+  include druid_overlord
+}
+
 if hasrole($roles, 'flume-server') {
   include flume_server
 }
@@ -117,6 +143,18 @@ if hasrole($roles, 'hive-server2') {
   include hive_server2
 }
 
+if hasrole($roles, 'hive2') {
+  include hive2
+}
+
+if hasrole($roles, 'hive2-llap') {
+  include hive2_llap
+}
+
+if hasrole($roles, 'hive2-server2') {
+  include hive2_server2
+}
+
 if hasrole($roles, 'hue') {
   include hue_server
 }
@@ -131,6 +169,10 @@ if hasrole($roles, 'knox') {
 
 if hasrole($roles, 'hive-llap') {
   include hive_llap
+}
+
+if hasrole($roles, 'httpd') {
+  include httpd
 }
 
 if hasrole($roles, 'nn') {
@@ -156,6 +198,10 @@ if hasrole($roles, 'ranger-server') {
 if hasrole($roles, 'slave') {
   include hdfs_datanode
   include yarn_node_manager
+}
+
+if hasrole($roles, 'tez-ui') {
+  include tez_ui
 }
 
 if hasrole($roles, 'wildfly') {
