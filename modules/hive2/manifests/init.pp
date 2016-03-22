@@ -41,17 +41,6 @@ class hive2 {
     content => template('hive2/tez-site.xml.erb'),
     require => Package["tez_hive2${package_version}"],
   }
-  file { '/etc/hadoop/hdp/hadoop-env.sh.hive2':
-    ensure => file,
-    content => template('hive2/hadoop-env.sh.erb'),
-  }
-  #->
-  #exec { 'Replace hadoop-env':
-  #  # XXX: This will stop when we have the real solution in 2.6.
-  #  cwd => "/",
-  #  path => $path,
-  #  command => "mv -f /etc/hadoop/hdp/hadoop-env.sh.hive2 /etc/hadoop/hdp/hadoop-env.sh",
-  #}
 
   # Convenience links.
   file {"/usr/bin/hive2":

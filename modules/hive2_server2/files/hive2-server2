@@ -52,14 +52,15 @@ PROC_NAME="java"
 
 SERVICE_NAME="hive2-server2"
 
-export HIVE_HOME="/usr/hdp/current/hive-server2-hive2/../hive"
+export HIVE_HOME="/usr/hdp/current/hive-server2-hive2/../hive2"
 export HADOOP_HOME="/usr/hdp/current/hive-server2-hive2/../hadoop"
 
 SVC_USER="${SVC_USER:-hive}"
 
 USER="$SVC_USER"
 CONF_DIR="${HIVE_HOME}/conf/conf.server"
-. $CONF_DIR/hive-env.sh
+. /etc/hive2/conf/hive-env.sh
+# . $CONF_DIR/hive-env.sh
 
 HIVE_PID_DIR="${HIVE_PID_DIR:-/var/run/hive}"
 HIVE_LOG_DIR="${HIVE_LOG_DIR:-/var/log/hive}"

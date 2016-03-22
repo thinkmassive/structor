@@ -15,6 +15,7 @@
 
 class hive2_server2 {
   require hive2
+  require os_performance
 
   $path="/bin:/usr/bin"
 

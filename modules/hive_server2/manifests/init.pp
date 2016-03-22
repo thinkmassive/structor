@@ -15,6 +15,7 @@
 
 class hive_server2 {
   require hive_client
+  require os_performance
 
   $path="/bin:/usr/bin"
   $component = "hive-server2"
