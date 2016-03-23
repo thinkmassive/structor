@@ -12,17 +12,30 @@ app = Flask(__name__, template_folder=tmpl_dir)
 def get_number(s):
 	return ''.join(re.findall('\d+', s))
 
-def get_tbench1_data(version):
-	records = []
+def get_csv_data(version):
+	records = {}
+	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'benchmark_data', "{0}.csv".format(version))
+	with open(path) as fd:
+		reader = csv.reader(fd)
+		reader.next()
+		for row in reader:
+			(package, test, prepare_time, execution_time) = row
+			if package not in records:
+				records[package] = {}
+			if test not in records[package]:
+				records[package][test] = { version: {} }
+			records[package][test][version] = execution_time
+	return records
 
-	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../runs/cooked', "{0}_tbench1.csv".format(version))
+def get_tbench1_data(version):
+	records = {}
+	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'benchmark_data', "{0}_tbench1.csv".format(version))
 	with open(path) as fd:
 		reader = csv.reader(fd)
 		reader.next()
 		for row in reader:
 			(name, status, time) = ( row[4], row[6], row[17] )
-			records.append([name, get_number(name), status, time])
-
+			records[name] = time
 	return records
 
 def get_bi_timings(old_version, new_version):
@@ -31,65 +44,78 @@ def get_bi_timings(old_version, new_version):
 	tbench1_data_v2 = get_tbench1_data(new_version)
 
 	# Merge the results together.
-	tbench1_data = [ [ x[0][0], x[0][1], x[0][3], x[1][3] ] for x in zip(tbench1_data_v1, tbench1_data_v2) ]
+	tbench_data= {}
+	keys = tbench1_data_v1.keys()
+	keys.extend(tbench1_data_v2.keys())
+	for k in keys:
+		old_value = tbench1_data_v1.get(k) or "0"
+		new_value = tbench1_data_v2.get(k) or "0"
+		tbench_data[k] = (old_value, new_value)
 
 	# Split out "other interactive" and the rest.
-	other_interactive = [ x for x in tbench1_data if x[0].startswith("hive-otherinteractive") ]
-	faster_queries    = [ x for x in tbench1_data if not x[0].startswith("hive-otherinteractive") ]
+	other_interactive = { get_number(k) : v for k, v in tbench_data.items() if k.startswith("hive-otherinteractive") }
+	faster_queries = { get_number(k) : v for k, v in tbench_data.items() if not k.startswith("hive-otherinteractive") }
 	return (other_interactive, faster_queries)
 
-def get_csv_data(version):
-	records = []
+def get_tpch_times(csv_data, old_version, new_version):
+	tpch_times = {}
+	tpch_dict = csv_data["tpch"]
+	for (k, v) in tpch_dict.iteritems():
+		if k.startswith("tpch_query"):
+			old_value = v.get(old_version) or "0"
+			new_value = v.get(new_version) or "0"
+			tpch_times[get_number(k)] = (old_value, new_value)
+	return tpch_times
 
-	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../runs/cooked', "{0}.csv".format(version))
+# Normalize any statically defined tests.
+def normalize_data(csv_data, old_version, new_version):
+	d = {}
+	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../tests.csv')
 	with open(path) as fd:
 		reader = csv.reader(fd)
 		reader.next()
-		for row in reader:
-			records.append(row)
-	return records
+		for l in reader:
+			(component, package, test, subtest, description, enabled) = l
+			old_value = "0"
+			new_value = "0"
+			if test in csv_data[package] and old_version in csv_data[package][test]:
+				old_value = csv_data[package][test][old_version]
+			if test in csv_data[package] and new_version in csv_data[package][test]:
+				new_value = csv_data[package][test][new_version]
+			d[test] = ( old_value, new_value )
+	return d
 
-def get_etl_comparisons(old_version, new_version):
-	csv_old = get_csv_data(old_version)
-	csv_new = get_csv_data(new_version)
-	old = [ x for x in csv_old if x[0].startswith("etl") or x[0].startswith("tpcds") ]
-	new = [ x for x in csv_new if x[0].startswith("etl") or x[0].startswith("tpcds") ]
-	data = [ [ x[0][0], x[0][1], x[0][3], x[1][3] ] for x in zip(old, new) ]
-	return data
-
-def extract_data(old_version, new_version, tag):
-	csv_old = get_csv_data(old_version)
-	csv_new = get_csv_data(new_version)
-	old = [ x for x in csv_old if x[0].startswith(tag) ]
-	new = [ x for x in csv_new if x[0].startswith(tag) ]
-	data = [ [ x[0][0], x[0][1], x[0][3], x[1][3] ] for x in zip(old, new) ]
-	return data
- 
-def get_explain_timings(old_version, new_version):
-	return extract_data(old_version, new_version, "explain")
- 
-def get_tpch_times(old_version, new_version):
-	tpch_times = extract_data(old_version, new_version, "tpch")
-	tpch_times = [ [ get_number(x[1]), x[1], x[2], x[3] ] for x in tpch_times ]
-	return tpch_times
- 
-def get_interactive_features(old_version, new_version):
-	return extract_data(old_version, new_version, "interactive")
+def merge_csv_data(old_data, new_data):
+	csv_data = old_data
+	for package in new_data.keys():
+		if package not in csv_data:
+			csv_data[package] = {}
+		for test in new_data[package].keys():
+			if test in csv_data[package]:
+				csv_data[package][test].update(new_data[package][test])
+			else:
+				csv_data[package][test] = new_data[package][test]
+	return csv_data
  
 @app.route("/")
 def dashboard():
 	old_version = "hdp234"
-	new_version = "hdp234"
+	new_version = "hdp250"
 
-	# Stats for the dashboard.
-	etl_comparisons = get_etl_comparisons(old_version, new_version)
-	explain_timings = get_explain_timings(old_version, new_version)
-	tpch_times      = get_tpch_times(old_version, new_version)
-	interactive     = get_interactive_features(old_version, new_version)
+	old_data = get_csv_data(old_version)
+	new_data = get_csv_data(new_version)
+	csv_data = merge_csv_data(old_data, new_data)
+
+	# Normalize most data.
+	d = normalize_data(csv_data, old_version, new_version)
+
+	# Larger sets.
+	tpch = get_tpch_times(csv_data, old_version, new_version)
 	(other_interactive, faster_queries) = get_bi_timings(old_version, new_version)
 
 	# Render the charts.
 	return render_template('dashboard.html', **locals())
  
 if __name__ == "__main__":
+	#app.debug = True
 	app.run()
