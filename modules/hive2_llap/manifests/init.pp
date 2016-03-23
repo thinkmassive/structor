@@ -32,19 +32,22 @@ class hive2_llap {
     $yarn_total = $vm_mem - 4096
   }
 
-  # 1 GB within this YARN size will be allocated to the Slider AM and GC slop factor.
-  # Note: This doesn't scale to large memory.
+  # Note: These computations assume <16 GB VMs.
+  $max_queries = 2
+  $am_size = $am_mem+0
   $slider_am_overhead = 512
-  $llap_yarn_size = $yarn_total - 1024 - $slider_am_overhead
-  $gc_slop = 512
-  if ($vm_cpus+0 * $client_mem+0 < ($yarn_total - $gc_slop)) {
-    $num_executors = $vm_cpus
-    $cache_size = $llap_yarn_size - (($num_executors * $client_mem+0) + $gc_slop)
-  } else {
-    $num_executors = $llap_yarn_size / $client_mem+0
-    $cache_size = 0
+  $gc_anti_slop = 512
+  $num_executors = $vm_cpus+0
+  $total_am_overhead       = ($am_size * $max_queries) + $slider_am_overhead
+  $full_executor_allotment = ($client_mem+0) * $num_executors
+  $llap_yarn_size          = $yarn_total - $total_am_overhead
+  if ($full_executor_allotment > $llap_yarn_size) {
+    # Not enough capacity, try it with half the number of executors.
+    $num_executors = $num_executors / 2
+    $full_executor_allotment = $client_mem+0 * $num_executors
   }
-  $xmx_size = ($num_executors * $client_mem+0) + 512 - 1
+  $cache_size = $llap_yarn_size - $full_executor_allotment
+  $xmx_size   = $full_executor_allotment - $gc_anti_slop
 
   # Build a package.
   $extra_args="-XX:+UseG1GC -XX:TLABSize=8m -XX:+ResizeTLAB -XX:+UseNUMA -XX:+AggressiveOpts -XX:+AlwaysPreTouch -XX:InitiatingHeapOccupancyPercent=80 -XX:MaxGCPauseMillis=200"

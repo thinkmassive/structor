@@ -60,7 +60,6 @@ SVC_USER="${SVC_USER:-hive}"
 USER="$SVC_USER"
 CONF_DIR="${HIVE_HOME}/conf/conf.server"
 . /etc/hive2/conf/hive-env.sh
-# . $CONF_DIR/hive-env.sh
 
 HIVE_PID_DIR="${HIVE_PID_DIR:-/var/run/hive}"
 HIVE_LOG_DIR="${HIVE_LOG_DIR:-/var/log/hive}"

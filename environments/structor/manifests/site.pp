@@ -333,6 +333,14 @@ if hasrole($roles, 'slave') and hasrole($roles, 'oozie') {
 if hasrole($roles, 'slave') and hasrole($roles, 'hive-server2') {
   Class['hdfs_datanode'] -> Class['hive_server2']
 }
+if hasrole($roles, 'slave') and hasrole($roles, 'hive2-server2') {
+  Class['hdfs_datanode'] -> Class['hive2_server2']
+}
+
+# Hack until LLAP stops reading from HDFS at build time.
+if hasrole($roles, 'hive2-llap') {
+  Class['install_hdfs_tarballs'] -> Class['hive2_llap']
+}
 
 if hasrole($roles, 'phoenix-query-server') {
   if hasrole($roles, 'hbase-regionserver') {
