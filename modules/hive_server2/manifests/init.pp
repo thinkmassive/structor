@@ -39,13 +39,6 @@ class hive_server2 {
     path => "$path",
   }
   ->
-  file { "hive-server2 start script":
-    ensure => file,
-    source => 'puppet:///modules/hive_server2/hive-server2',
-    path => "$start_script",
-    replace => false,
-  }
-  ->
   service { 'hive-server2':
     ensure => running,
     enable => true,
@@ -74,6 +67,17 @@ class hive_server2 {
       before => Service["hive-server2"],
     }
   } else {
+    if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 2) {
+      file { "$start_script":
+        ensure => file,
+        source => "puppet:///modules/hive_server2/hive-server2",
+        mode => '755',
+        owner => root,
+        group => root,
+        replace => true,
+        before => Service["hive-server2"],
+      }
+    }
     file { "/etc/init.d/hive-server2":
       ensure => 'link',
       target => "$start_script",
