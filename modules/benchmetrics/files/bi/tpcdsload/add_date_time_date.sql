@@ -1,5 +1,6 @@
 use tpcds_bin_partitioned_orc_2;
 
+drop table if exists date_dim_date;
 create table date_dim_date
 (
     d_date_sk                 int                           ,
