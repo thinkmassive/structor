@@ -111,7 +111,7 @@ STORED AS ORC
 tblproperties("transactional"="true");
 insert into table customer select * from ${SOURCE}.customer;
 
-!echo "COMPUTING STATS"
+!echo "COMPUTING STATS";
 
 analyze table customer compute statistics for columns;
 analyze table lineitem compute statistics for columns;

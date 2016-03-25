@@ -41,7 +41,7 @@ create table supplier
 stored as ${FILE}
 as select * from ${SOURCE}.supplier;
 
-!echo "COMPUTING STATS"
+!echo "COMPUTING STATS";
 
 analyze table customer compute statistics for columns;
 analyze table lineitem compute statistics for columns;
