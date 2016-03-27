@@ -87,7 +87,7 @@ def runTests(tests, components, packages, mytests):
 	host = getHostname()
 	for t in tests:
 		# See if we are to run this test.
-		(component, package, test, subtest, description, enabled) = t
+		(component, package, test, subtest, description, enabled, cleaner, version) = t
 		if components and component not in components:
 			continue
 		if packages and package not in packages:
@@ -96,38 +96,51 @@ def runTests(tests, components, packages, mytests):
 			continue
 		if mytests and test not in mytests:
 			continue
+		clean = False
+		if cleaner.lower() == "true":
+			clean = True
 
-		print "Running:", description, "(%s/%s:%s)" % (package, test, subtest)
-		runTest(host, package, test, subtest)
+		runTest(host, package, test, subtest, clean, version)
 
-def runTest(host, package, test, subtest):
+def runTest(host, package, test, subtest, clean, version):
 	basePath = "/vagrant/modules/benchmetrics/files"
 	thisTest = "%s/%s/%s/" % (basePath, package, test)
 	preparePath = "%s/00prepare.sh" % thisTest
 	runPath     = "%s/00run.sh" % thisTest
 	cleanPath   = "%s/00clean.sh" % thisTest
 
+	# Launch the background cleaner thread if requested.
+	cleaner_process = None
+	if clean:
+		cleaner = "vagrant ssh {0} -c /vagrant/modules/benchmetrics/files/cleanYarnLoop.sh".format(host)
+		cleaner_process = subprocess.Popen(["bash", "-c", cleaner], stdout=subprocess.PIPE)
+		print "Background cleaner running"
+		time.sleep(3)
+
 	# Prepare the test's environment.
 	startTime = time.time()
-	print "\nSTART PREPARE %s %s %s\n" % (package, test, startTime)
+	print "\nSTART PREPARE %s %s %s %s\n" % (package, test, version, startTime)
 	sys.stdout.flush()
 	runScript(host, preparePath)
 	endTime = time.time()
-	print "\nFINISH PREPARE %s %s %s" % (package, test, endTime)
-	print "PREPARE TIME %s %s %0.3f\n" % (package, test, endTime - startTime)
+	print "\nFINISH PREPARE %s %s %s %s" % (package, test, version, endTime)
+	print "PREPARE TIME %s %s %s %0.3f\n" % (package, test, version, endTime - startTime)
 	sys.stdout.flush()
 
 	# Run the test.
 	startTime = time.time()
-	print "\nSTART EXECUTE %s %s GLOBAL %s\n" % (package, test, startTime)
+	print "\nSTART EXECUTE %s %s %s GLOBAL %s\n" % (package, test, version, startTime)
 	sys.stdout.flush()
 	runScript(host, runPath)
 	endTime = time.time()
-	print "\nFINISH EXECUTE %s %s GLOBAL %s" % (package, test, endTime)
-	print "EXECUTION TIME %s %s %0.3f\n" % (package, test, endTime - startTime)
+	print "\nFINISH EXECUTE %s %s %s GLOBAL %s" % (package, test, version, endTime)
+	print "EXECUTION TIME %s %s %s %0.3f\n" % (package, test, version, endTime - startTime)
 	sys.stdout.flush()
 
 	# Clean up.
+	if cleaner_process:
+		print "Stopping background cleaner"
+		cleaner_process.terminate()
 	runScript(host, cleanPath)
 
 def runScript(host, path):

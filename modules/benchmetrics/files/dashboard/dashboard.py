@@ -1,5 +1,6 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort
 import csv
+import glob
 import json
 import itertools
 import os
@@ -30,12 +31,15 @@ def get_csv_data(version):
 def get_tbench1_data(version):
 	records = {}
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'benchmark_data', "{0}_tbench1.csv".format(version))
-	with open(path) as fd:
-		reader = csv.reader(fd)
-		reader.next()
-		for row in reader:
-			(name, status, time) = ( row[4], row[6], row[17] )
-			records[name] = time
+	try:
+		with open(path) as fd:
+			reader = csv.reader(fd)
+			reader.next()
+			for row in reader:
+				(name, status, time) = ( row[4], row[6], row[17] )
+				records[name] = time
+	except:
+		pass
 	return records
 
 def get_bi_timings(old_version, new_version):
@@ -75,7 +79,7 @@ def normalize_data(csv_data, old_version, new_version):
 		reader = csv.reader(fd)
 		reader.next()
 		for l in reader:
-			(component, package, test, subtest, description, enabled) = l
+			(component, package, test, subtest, description, enabled, cleaner, version) = l
 			old_value = "0"
 			new_value = "0"
 			if test in csv_data[package] and old_version in csv_data[package][test]:
@@ -96,11 +100,21 @@ def merge_csv_data(old_data, new_data):
 			else:
 				csv_data[package][test] = new_data[package][test]
 	return csv_data
+
+def get_all_versions():
+	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'benchmark_data', "hdp???.csv")
+	candidates = glob.glob(path)
+	candidates = [ os.path.basename(x) for x in candidates ]
+	versions = [ x[0:6] for x in candidates ]
+	return { v : {} for v in versions }
  
 @app.route("/")
 def dashboard():
-	old_version = "hdp234"
-	new_version = "hdp250"
+	old_version = request.args.get('old') or "hdp234"
+	new_version = request.args.get('new') or "hdp250"
+	all_versions = get_all_versions()
+	all_versions[old_version]["old"] = True
+	all_versions[new_version]["new"] = True
 
 	old_data = get_csv_data(old_version)
 	new_data = get_csv_data(new_version)
@@ -117,5 +131,5 @@ def dashboard():
 	return render_template('dashboard.html', **locals())
  
 if __name__ == "__main__":
-	#app.debug = True
+	app.debug = True
 	app.run()

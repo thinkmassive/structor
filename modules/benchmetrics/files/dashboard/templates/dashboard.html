@@ -1,6 +1,28 @@
 {% block body %}
- 
+
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<form action="/">
+<table>
+<tr><td>Versions:</td>
+<td>
+<select name="old" id="old">
+{% for (k, v) in all_versions.iteritems() %}
+  <option{% if "old" in v %} selected="selected"{% endif %}>{{ k }}</option>
+{% endfor %}
+</select>
+</td>
+<td>
+<select name="new" id="new">
+{% for (k, v) in all_versions.iteritems() %}
+  <option{% if "new" in v %} selected="selected"{% endif %}>{{ k }}</option>
+{% endfor %}
+</select>
+</td>
+<td><input type="submit" value="Update"></td>
+</tr>
+</form> 
+ 
 <table>
 <tr>
   <td><div id="etl_comparisons_div" style="width: 600px; height: 500px;"></div></td>
@@ -68,7 +90,7 @@ function drawExplainTimings() {
     [{v: 'No Fetch', f: 'No Fetch'},       {{ d["sa_orig_nofetch"][0] }}, {{ d["sa_orig_nofetch"][1] }}],
   ]);
   var options = {
-    title: 'Explain: {{ old_version }} vs {{ new_version }}',
+    title: 'Query compile (890 queries): {{ old_version }} vs {{ new_version }}',
     chartArea: {width: '65%'},
     hAxis: {
       fontSize:10,
