@@ -35,4 +35,4 @@ fi
 
 echo "Building TPC-H Data Generator"
 make
-echo "TPC-H Data Generator built, you can now use tpcds-setup.sh to generate data."
+echo "TPC-H Data Generator built, you can now use tpcds-datagen.sh to generate data."

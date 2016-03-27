@@ -34,5 +34,6 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Building TPC-DS Data Generator"
+make clean
 make
 echo "TPC-DS Data Generator built, you can now use tpcds-setup.sh to generate data."

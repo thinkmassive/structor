@@ -17,5 +17,6 @@ if [ $? -ne 0 ];  then
 
 	# Generate and optimize the data.
 	echo "Generate the data at scale $SCALE"
+	sh /vagrant/modules/benchmetrics/files/tpc/tpcds.realschema/tpcds-datagen.sh $SCALE
 	sh /vagrant/modules/benchmetrics/files/tpc/tpcds.realschema/tpcds-setup.sh $SCALE
 fi
