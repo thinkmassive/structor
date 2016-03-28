@@ -1,9 +1,9 @@
-#VERSION_NUMBER=2.5.0.0-20
-[HDP-2.5.0.0-20]
-name=HDP Version - HDP-2.5.0.0-20
-baseurl=http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos6/2.x/BUILDS/2.5.0.0-20
+#VERSION_NUMBER=2.5.0.0-39
+[HDP-2.5.0.0-39]
+name=HDP Version - HDP-2.5.0.0-39
+baseurl=http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos6/2.x/BUILDS/2.5.0.0-39
 gpgcheck=1
-gpgkey=http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos6/2.x/BUILDS/2.5.0.0-20/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins
+gpgkey=http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos6/2.x/BUILDS/2.5.0.0-39/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins
 enabled=1
 priority=1
 
