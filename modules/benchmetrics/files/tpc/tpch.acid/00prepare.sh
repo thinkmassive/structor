@@ -10,6 +10,9 @@ sudo usermod -a -G hadoop vagrant
 hdfs dfs -ls /apps/hive/warehouse/tpch_bin_flat_acid_$SCALE.db >/dev/null
 
 if [ $? -ne 0 ];  then
+	# CentOS 7 doesn't have this one pre-installed.
+	sudo yum install -y unzip
+
 	# Build it.
 	echo "Building the data generator"
 	cd /vagrant/modules/benchmetrics/files/tpc/tpch.acid
