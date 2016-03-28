@@ -34,3 +34,4 @@ create table date_dim_date
 );
 
 insert into date_dim_date select * from date_dim;
+analyze table date_dim_date compute statistics for columns;
