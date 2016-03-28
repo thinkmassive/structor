@@ -118,6 +118,9 @@ if hasrole($roles, 'druid-middlemanager') {
 if hasrole($roles, 'druid-overlord') {
   include druid_overlord
 }
+if hasrole($roles, 'druid-pivot') {
+  include druid_pivot
+}
 
 if hasrole($roles, 'flume-server') {
   include flume_server

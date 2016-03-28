@@ -3,7 +3,15 @@
 <%
    @ambari = eval(@nodes).select {|node| node[:roles].include? 'ambari-server'
        }.map{|node| node[:hostname] + "." + @domain};
+   @druid_coordinator = eval(@nodes).select {|node| node[:roles].include? 'druid-coordinator'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @druid_overlord = eval(@nodes).select {|node| node[:roles].include? 'druid-overlord'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @druid_pivot = eval(@nodes).select {|node| node[:roles].include? 'druid-pivot'
+       }.map{|node| node[:hostname] + "." + @domain};
    @hbase = eval(@nodes).select {|node| node[:roles].include? 'hbase-master'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @hive2_server2 = eval(@nodes).select {|node| node[:roles].include? 'hive2-server2'
        }.map{|node| node[:hostname] + "." + @domain};
    @hue = eval(@nodes).select {|node| node[:roles].include? 'hue'
        }.map{|node| node[:hostname] + "." + @domain};
@@ -24,8 +32,20 @@ Useful links:
 <% if @ambari.length > 0 -%>
   <li><a href="http://<%= @ambari[0] %>:8000/">Ambari</a></li>
 <% end -%>
+<% if @druid_coordinator.length > 0 -%>
+  <li><a href="http://<%= @druid_coordinator[0] %>:8081/">Druid Coordinator</a></li>
+<% end -%>
+<% if @druid_overlord.length > 0 -%>
+  <li><a href="http://<%= @druid_overlord[0] %>:8090/">Druid Overlord</a></li>
+<% end -%>
+<% if @druid_pivot.length > 0 -%>
+  <li><a href="http://<%= @druid_pivot[0] %>:9095/">Druid Pivot Server</a></li>
+<% end -%>
 <% if @hbase.length > 0 -%>
   <li><a href="http://<%= @hbase[0] %>:16000/">HBase Master</a></li>
+<% end -%>
+<% if @hive2_server2.length > 0 -%>
+  <li><a href="http://<%= @hive2_server2[0] %>:10041/">HiveServer2 UI</a></li>
 <% end -%>
 <% if @hue.length > 0 -%>
   <li><a href="http://<%= @hue[0] %>:8080/">HUE</a></li>
