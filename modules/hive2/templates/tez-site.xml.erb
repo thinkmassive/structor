@@ -169,7 +169,7 @@
 
   <property>
     <name>tez.am.container.idle.release-timeout-min.millis</name>
-    <value>15000</value>
+    <value>30000</value>
     <description>The minimum amount of time to hold on to a container that is idle. Only active when reuse is enabled.</description>
   </property>
 
@@ -272,13 +272,13 @@
 
   <property>
     <name>tez.runtime.io.sort.mb</name>
-    <value>341</value>
+    <value><%= @client_mem.to_i / 3 %></value>
     <description>The size of the sort buffer when output needs to be sorted</description>
   </property>
 
   <property>
     <name>tez.runtime.unordered.output.buffer.size-mb</name>
-    <value>102</value>
+    <value><%= @client_mem.to_i / 10 %></value>
     <description>The size of the buffer when output does not require to be sorted</description>
   </property>
 
