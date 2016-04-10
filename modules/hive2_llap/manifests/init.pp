@@ -50,7 +50,7 @@ class hive2_llap {
   $xmx_size   = $full_executor_allotment - $gc_anti_slop
 
   # Build a package.
-  $extra_args="-XX:+UseG1GC -XX:TLABSize=8m -XX:+ResizeTLAB -XX:+UseNUMA -XX:+AggressiveOpts -XX:+AlwaysPreTouch -XX:InitiatingHeapOccupancyPercent=80 -XX:MaxGCPauseMillis=200"
+  $extra_args="-XX:+UseG1GC -XX:TLABSize=8m -XX:+ResizeTLAB -XX:+UseNUMA -XX:+AggressiveOpts -XX:+AlwaysPreTouch -XX:InitiatingHeapOccupancyPercent=80 -XX:MaxGCPauseMillis=200 -XX:HeapDumpPath=/tmp/llap.hprof -XX:-HeapDumpOnOutOfMemoryError"
   exec { "Eliminate old Slider package":
     command => "rm -rf /usr/hdp/llap-slider",
     path => $path,
