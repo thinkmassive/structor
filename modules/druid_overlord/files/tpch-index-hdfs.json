@@ -1,0 +1,94 @@
+{
+  "type" : "index_hadoop",
+  "spec" : {
+    "ioConfig" : {
+      "type" : "hadoop",
+      "inputSpec" : {
+        "type" : "static",
+        "paths" : "/user/vagrant/tpch-denormalized"
+      }
+    },
+    "dataSchema" : {
+      "dataSource" : "tpch-hdfs",
+      "granularitySpec" : {
+        "type" : "uniform",
+        "segmentGranularity" : "day",
+        "queryGranularity" : "none",
+        "intervals" : ["2006-01-01/2006-12-31"]
+      },
+      "parser" : {
+        "type" : "string",
+        "parseSpec" : {
+          "format" : "csv",
+          "columns" : [
+            "OrderDate",
+            "OrderStatus",
+            "OrderPriority",
+            "ProductName",
+            "ProductBrand",
+            "ProductType",
+            "SupplierName",
+            "NationName",
+            "NationRegionkey",
+            "LineitemQuantity",
+            "LineitemExtendedprice",
+            "LineitemDiscount",
+            "LineitemTax",
+            "LineitemOrderKey",
+            "LineitemSupplierKey"
+          ],
+          "dimensionsSpec" : {
+            "dimensions" : [
+              "OrderStatus",
+              "OrderPriority",
+              "ProductName",
+              "ProductBrand",
+              "ProductType",
+              "SupplierName",
+              "NationName",
+              "NationRegionkey"
+            ]
+          },
+          "timestampSpec" : {
+            "format" : "auto",
+            "column" : "OrderDate"
+          }
+        }
+      },
+      "metricsSpec" : [
+        {
+          "name" : "count",
+          "type" : "count"
+        },
+        {
+          "name" : "LineitemQuantity",
+          "type" : "longSum",
+          "fieldName" : "LineitemQuantity"
+        },
+        {
+          "name" : "LineitemExtendedprice",
+          "type" : "doubleSum",
+          "fieldName" : "LineitemExtendedprice"
+        },
+        {
+          "name" : "LineitemDiscount",
+          "type" : "doubleSum",
+          "fieldName" : "LineitemDiscount"
+        },
+        {
+          "name" : "LineitemTax",
+          "type" : "doubleSum",
+          "fieldName" : "LineitemTax"
+        }
+      ]
+    },
+    "tuningConfig" : {
+      "type" : "hadoop",
+      "partitionsSpec" : {
+        "type" : "hashed",
+        "targetPartitionSize" : 50000000
+      },
+      "jobProperties" : {}
+    }
+  }
+}

@@ -1,0 +1,44 @@
+#!/bin/bash -eu
+
+# Declare build version
+#if [ "$(git status --porcelain)" != "" ]
+#then
+#  echo "git checkout not clean!" >&2
+#  exit 1
+#fi
+
+IMPLY_NAME="imply"
+IMPLY_COMMIT="$(git rev-list --max-count 1 --abbrev-commit HEAD)"
+IMPLY_BASE_VERSION="1.1.1"
+
+# Create staging directory
+mkdir -p "$STAGING_DIR/$IMPLY_NAME"
+
+# Copy bin, conf, and quickstart stuff
+for dir in bin conf conf-quickstart quickstart
+do
+  cp -R src/"$dir" "$STAGING_DIR/$IMPLY_NAME/$dir"
+done
+
+# Unzip quickstart data file
+gunzip "$STAGING_DIR/$IMPLY_NAME/quickstart/wikiticker-2015-09-12-sampled.json.gz"
+
+# Fetch and build software
+STAGING_DIR="$STAGING_DIR/$IMPLY_NAME" src/build/zk
+STAGING_DIR="$STAGING_DIR/$IMPLY_NAME" src/build/pivot
+STAGING_DIR="$STAGING_DIR/$IMPLY_NAME" src/build/tranquility
+STAGING_DIR="$STAGING_DIR/$IMPLY_NAME" src/build/druid
+
+if [ "$IMPLY_LONG_VERSION" != "" ]
+then
+  IMPLY_VERSION="$IMPLY_BASE_VERSION-$IMPLY_COMMIT$(cat "$TMP_DIR/version.txt")"
+else
+  IMPLY_VERSION="$IMPLY_BASE_VERSION"
+fi
+
+IMPLY_DIR="${IMPLY_NAME}-${IMPLY_VERSION}"
+mv "$STAGING_DIR/$IMPLY_NAME" "$STAGING_DIR/$IMPLY_DIR"
+
+echo "$IMPLY_VERSION" > "$STAGING_DIR"/build.version
+echo "$IMPLY_VERSION" > "$STAGING_DIR"/"$IMPLY_DIR"/dist/VERSION.txt
+echo "$IMPLY_NAME" > "$STAGING_DIR"/build.name
