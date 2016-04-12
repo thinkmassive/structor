@@ -25,9 +25,9 @@ def extractStats(file):
 		query = "ERR"
 		for line in fd:
 			if line.startswith("PREPARE TIME"):
-				(a1, a2, package, test, prepare_time) = line.split()
+				(a1, a2, package, test, version, prepare_time) = line.split()
 			elif line.startswith("EXECUTION TIME"):
-				(a1, a2, package, test, execution_time) = line.split()
+				(a1, a2, package, test, version, execution_time) = line.split()
 				print "{0},{1},{2},{3}".format(package, test, prepare_time, execution_time)
 			elif line.startswith("START EXECUTE hive tpc"):
 				(a1, a2, package, test, query) = line.split()
