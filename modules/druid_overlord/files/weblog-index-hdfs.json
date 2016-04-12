@@ -9,12 +9,12 @@
       }
     },
     "dataSchema" : {
-      "dataSource" : "weblogs-hdfs",
+      "dataSource" : "weblogs-hdfs2",
       "granularitySpec" : {
         "type" : "uniform",
         "segmentGranularity" : "day",
         "queryGranularity" : "none",
-        "intervals" : ["2012-03-01/2012-03-08"]
+        "intervals" : ["2016-03-01/2016-03-08"]
       },
       "parser" : {
         "type" : "string",
@@ -28,7 +28,9 @@
             "sex",
             "promotion",
             "referrer",
-            "zip"
+            "zip",
+            "is_promo",
+            "age_group"
           ],
           "dimensionsSpec" : {
             "dimensions" : [
@@ -38,7 +40,9 @@
               "sex",
               "promotion",
               "referrer",
-              "zip"
+              "zip",
+              "is_promo",
+              "age_group"
             ]
           },
           "delimiter" : "|",
