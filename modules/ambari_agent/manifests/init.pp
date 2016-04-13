@@ -20,10 +20,10 @@ class ambari_agent {
   $tmp_dir = "/tmp"
   $conf_dir = "/etc/ambari-agent/conf"
 
-  exec { "delete bad repos":
-    command => "rm -rf /etc/yum.repos.d/hdp.repo 2> /dev/null",
-    path => $path,
-  }
+#  exec { "delete bad repos":
+#    command => "rm -rf /etc/yum.repos.d/hdp.repo 2> /dev/null",
+#    path => $path,
+#  }
 
   package { "ambari-agent":
     ensure => installed
@@ -43,7 +43,11 @@ class ambari_agent {
     group => 'root',
     mode => '755',
   }
-  ->  
+  ->
+#  package { "hadoop":
+#    ensure => installed
+#  }
+#  ->  
   exec { "ambari-agent-start":
     command => "/usr/sbin/ambari-agent start"
   }

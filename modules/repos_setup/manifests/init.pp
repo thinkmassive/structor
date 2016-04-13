@@ -54,6 +54,14 @@ class repos_setup {
     }
   }
 
+  # Update yum cache
+  if ($operatingsystem == "centos") {
+    exec { "yum clean all && yum update":
+      command => "/usr/bin/yum clean all && /usr/bin/yum update -y",
+      timeout => 600
+    }
+  }
+
   if ($operatingsystem == "ubuntu" and $operatingsystemmajrelease == "14.04") {
     file { '/etc/apt/sources.list.d/hdp.list':
       ensure => file,

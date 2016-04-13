@@ -64,7 +64,8 @@ profile = loadProfile()
 
 # Set defaults.
 default_os = "centos6"
-default_ambari_version = "2.1.2.1"
+default_hdp_short_version = "2.3.4"
+default_ambari_version = "2.2.0.0"
 default_java_version = "java-1.7.0-openjdk"
 
 profile[:hdp_short_version] ||= default_hdp_short_version
@@ -82,12 +83,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if Vagrant.has_plugin?("vagrant-cachier")
     # Configure cached packages to be shared between instances of the same base box.
     config.cache.scope = :box
+    config.cache.enable :yum
+    config.cache.synced_folder_opts = {
+      type: :nfs,
+      mount_options: ['rw', 'vers=3', 'tcp', 'nolock']
+    }
   end
 
   # All Vagrant configuration is done here. The most common configuration
   # Every Vagrant virtual environment requires a box to build off of.
   if (profile[:os] == "centos6")
-    config.vm.box = "puppetlabs/centos-6.6-64-puppet"
+    config.vm.box = "thinkmassive/centos6-vbox-puppet"
+    #config.vm.box = "puppetlabs/centos-6.6-64-puppet"
     package_version = "_" + (hdp_version.gsub /[.-]/, '_')
     platform_start_script_path = "rc.d/init.d"
   elsif (profile[:os] == "centos7")
