@@ -107,6 +107,20 @@ def get_all_versions():
 	candidates = [ os.path.basename(x) for x in candidates ]
 	versions = [ x[0:6] for x in candidates ]
 	return { v : {} for v in versions }
+
+def get_sql_coverage():
+	coverage = {}
+	raw = {}
+	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'benchmark_data', "sql_coverage.csv")
+	with open(path) as fd:
+		reader = csv.reader(fd)
+		for l in reader:
+			(version, score) = l
+			raw[version] = float(score)
+
+	for k in raw.keys():
+		coverage[k] = (raw[k] / raw["total"]) * 100
+	return coverage
  
 @app.route("/")
 def dashboard():
@@ -119,6 +133,9 @@ def dashboard():
 	old_data = get_csv_data(old_version)
 	new_data = get_csv_data(new_version)
 	csv_data = merge_csv_data(old_data, new_data)
+
+	# SQL coverage data.
+	coverage = get_sql_coverage()
 
 	# Normalize most data.
 	d = normalize_data(csv_data, old_version, new_version)
