@@ -1,0 +1,31 @@
+{
+ "blueprint": "hdpcluster",
+ "default_password": "replace-with-strong-password",
+ "configurations": [],
+ "host_groups": [
+  {
+   "name": "host_group_1",
+   "hosts": [
+    {
+     "fqdn": "mgmt.support.local"
+    }
+   ]
+  },
+  {
+   "name": "host_group_2",
+   "hosts": [
+    {
+     "fqdn": "node1.support.local"
+    }
+   ]
+  },
+  {
+   "name": "host_group_3",
+   "hosts": [
+    {
+     "fqdn": "node2.support.local"
+    }
+   ]
+  }
+ ]
+}
