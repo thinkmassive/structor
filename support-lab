@@ -110,7 +110,7 @@ function Deploy {
   cd $rundir
 
   # Apply Blueprint - TODO: make non-fqdn specific
-  #ApplyBlueprint mgmt.support.local
+  ApplyBlueprint mgmt.support.local
 
 }
 
