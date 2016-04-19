@@ -10,6 +10,9 @@ sudo usermod -a -G hadoop vagrant
 hdfs dfs -ls /apps/hive/warehouse/tpcds_bin_partitioned_orc_$SCALE.db >/dev/null
 
 if [ $? -ne 0 ];  then
+	# CentOS 7 doesn't have this one pre-installed.
+	sudo yum install -y unzip
+
 	# Build it.
 	echo "Building the data generator"
 	cd /vagrant/modules/benchmetrics/files/tpc/tpcds
@@ -17,5 +20,6 @@ if [ $? -ne 0 ];  then
 
 	# Generate and optimize the data.
 	echo "Generate the data at scale $SCALE"
+	sh /vagrant/modules/benchmetrics/files/tpc/tpcds/tpcds-datagen.sh $SCALE
 	sh /vagrant/modules/benchmetrics/files/tpc/tpcds/tpcds-setup.sh $SCALE
 fi

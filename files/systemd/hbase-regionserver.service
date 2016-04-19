@@ -9,6 +9,9 @@ Group=hbase
 Restart=on-failure
 Type=forking
 User=hbase
+PermissionsStartOnly=true
+ExecStartPre=/usr/bin/mkdir -p /var/run/pid/hbase
+ExecStartPre=/usr/bin/chown hbase:hbase /var/run/pid/hbase
 
 [Install]
 WantedBy=multi-user.target

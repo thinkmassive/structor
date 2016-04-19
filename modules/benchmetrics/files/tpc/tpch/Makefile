@@ -15,4 +15,5 @@ target/tpch_2_17_0/dbgen/dbgen:
 	( cd target/tpch_2_17_0/dbgen && make -f makefile.suite clean; make -f makefile.suite CC=gcc DATABASE=ORACLE MACHINE=LINUX WORKLOAD=TPCH )
 
 clean:
+	(cd target/tpch_2_17_0/dbgen && make -f makefile.suite clean)
 	(cd target ; mvn clean)

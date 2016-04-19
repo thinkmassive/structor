@@ -1,0 +1,1 @@
+7c6b460b1ae37d8fcb5eda95544e2df6  hive-odbc-native_2.0.5.1005-2_amd64.deb

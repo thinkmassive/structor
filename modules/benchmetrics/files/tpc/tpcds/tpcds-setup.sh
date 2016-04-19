@@ -45,24 +45,6 @@ if [ $SCALE -eq 1 ]; then
 	exit 1
 fi
 
-# Do the actual data load.
-hdfs dfs -mkdir -p ${DIR}
-hdfs dfs -ls ${DIR}/${SCALE} > /dev/null
-if [ $? -ne 0 ]; then
-	echo "Generating data at scale factor $SCALE."
-	(cd target; hadoop jar target/*.jar -d ${DIR}/${SCALE}/ -s ${SCALE})
-fi
-hdfs dfs -ls ${DIR}/${SCALE} > /dev/null
-if [ $? -ne 0 ]; then
-	echo "Data generation failed, exiting."
-	exit 1
-fi
-echo "TPC-DS text data generation complete."
-
-# Create the text/flat tables as external tables. These will be later be converted to ORCFile.
-echo "Loading text data into external tables."
-runcommand "hive -i settings/etlsettings.sql -f ddl/text/alltables.sql -d DB=tpcds_text_${SCALE} -d LOCATION=${DIR}/${SCALE}"
-
 # Create the partitioned and bucketed tables.
 if [ "X$FORMAT" = "X" ]; then
 	FORMAT=orc

@@ -91,7 +91,7 @@ class hbase_regionserver {
     }
   } else {
     # Replace broken start scripts if needed.
-    if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
+    if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 3 and $hdp_version_patch+0 <= 2) {
       file { "/etc/init.d/hbase-regionserver":
         ensure => file,
         source => "puppet:///files/init.d/hbase-regionserver",

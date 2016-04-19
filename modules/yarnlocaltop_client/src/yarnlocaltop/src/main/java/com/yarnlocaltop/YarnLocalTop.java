@@ -70,6 +70,9 @@ public class YarnLocalTop
     parser
         .acceptsAll(Arrays.asList(new String[] { "p", "pid" }),
             "Connect to only this PID").withRequiredArg().ofType(Integer.class);
+    parser
+        .acceptsAll(Arrays.asList(new String[] { "m", "minutilization" }),
+            "Don't report below this utilization").withRequiredArg().ofType(Double.class);
     return parser;
   }
 
@@ -99,6 +102,7 @@ public class YarnLocalTop
 
     Integer pid = null;
     double delay = 1.0;
+    Double minUtilization = 10d;
     Integer iterations = -1;
     Integer threadlimit = null;
     boolean threadLimitEnabled = true;
@@ -125,7 +129,10 @@ public class YarnLocalTop
     {
       pid = (Integer) a.valueOf("pid");
     }
-
+    if (a.hasArgument("minutilization"))
+    {
+      minUtilization = (Double) a.valueOf("minutilization");
+    }
     if (a.hasArgument("threadlimit"))
     {
       threadlimit = (Integer) a.valueOf("threadlimit");
@@ -134,7 +141,7 @@ public class YarnLocalTop
     YarnLocalTop top = new YarnLocalTop();
     top.setDelay(delay);
     top.setMaxIterations(iterations);
-    top.run(pid);
+    top.run(pid, minUtilization);
   }
 
   private void updateInfoList(List<VMInfo> vmInfoList, Map<Integer, LocalVirtualMachine> oldMachines, Map<Integer, LocalVirtualMachine> newMachines)
@@ -268,7 +275,7 @@ public class YarnLocalTop
     consoleHandler.setLevel(java.util.logging.Level.FINEST);
   }
 
-  protected void run(Integer pid) throws Exception
+  protected void run(Integer pid, double minUtilization) throws Exception
   {
     try
     {
@@ -298,7 +305,7 @@ public class YarnLocalTop
           for (Integer i : pids) {
             if (map.get(i) == null) {
               logger.fine(String.format("Tracking new PID %d", i));
-              VMOfflineView view = new VMOfflineView(i);
+              VMOfflineView view = new VMOfflineView(i, minUtilization);
               map.put(i, view);
             }
           }
@@ -310,7 +317,7 @@ public class YarnLocalTop
         if (pid != null) {
           if (map.get(pid) == null) {
             logger.fine(String.format("Adding static PID %d", pid));
-            VMOfflineView view = new VMOfflineView(pid);
+            VMOfflineView view = new VMOfflineView(pid, minUtilization);
             map.put(pid, view);
           }
         }

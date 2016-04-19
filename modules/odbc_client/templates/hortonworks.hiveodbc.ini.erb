@@ -17,4 +17,8 @@ SwapFilePath=/tmp
 ## - Note that AIX has a different format for specifying its shared libraries.
 
 #   SimbaDM / unixODBC
+<% if @os_version == "ubuntu14" %>
+ODBCInstLib=/usr/lib/x86_64-linux-gnu/libodbcinst.so
+<% else %>
 ODBCInstLib=/usr/lib64/libodbcinst.so
+<% end %>

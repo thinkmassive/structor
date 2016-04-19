@@ -1,0 +1,23 @@
+#!/bin/sh
+
+<% @overlord = eval(@nodes).select {|node| node[:roles].include? 'druid-overlord'
+                  }[0][:hostname] + "." + @domain;
+ -%>
+
+# Setup dependencies.
+sh /vagrant/modules/benchmetrics/files/generator/setupGenerator.sh
+
+# Generate weblog data.
+echo "Generating weblog data"
+cd /tmp
+python /vagrant/modules/benchmetrics/files/generator/generate.py -w omniture
+
+# Copy the data in.
+hdfs dfs -mkdir -p /user/vagrant/weblog-denormalized
+hdfs dfs -copyFromLocal fake_weblog.000000.txt /user/vagrant/weblog-denormalized
+
+# Index the weblog data.
+echo "Submitting index task"
+SPEC=/vagrant/modules/druid_overlord/files/weblog-index-hdfs.json
+POST_INDEX_TASK=/usr/local/share/druid/bin/post-index-task
+$POST_INDEX_TASK --url http://<%= @overlord %>:8090/ --file $SPEC

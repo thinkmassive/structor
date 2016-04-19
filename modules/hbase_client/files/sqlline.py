@@ -49,6 +49,7 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-e", "--evaluate", help="Evaluate inline SQL")
     parser.add_option("-f", "--file", dest="run", help="SQL script to execute")
+    parser.add_option("-m", "--memory", help="Max client memory")
     parser.add_option("-z", "--zookeeper", help="Zookeeper quorum")
 
     defaultColor = "true"
@@ -72,6 +73,11 @@ if __name__ == '__main__':
     # Attempt to find the Zookeeper quorum if it's not specified.
     if options.zookeeper == None:
         options.zookeeper = phoenix_utils.find_zookeeper()
+
+    # Explicit memory setting?
+    memory_arg = ""
+    if options.memory != None:
+        memory_arg = " {0} ".format(options.memory)
 
     # Build the classpath. Having core-site in the classpath lets us connect to secure clusters.
     classpath_components = [ phoenix_utils.hbase_conf_dir,
@@ -98,7 +104,9 @@ if __name__ == '__main__':
     # Build the Java command line.
     option_hash = dict((x, eval("options.%s" % x)) for x in automatic)
     other_options = " ".join([ "--%s=%s" % (x, option_hash[x]) for x in automatic if option_hash[x]])
-    java_cmd = 'java -cp "' + classpath + \
+    java_cmd = 'java ' + \
+        memory_arg + \
+        '-cp "' + classpath + \
         '" -Dlog4j.configuration=file:' + os.path.join(phoenix_utils.current_dir, "log4j.properties") + \
         " sqlline.SqlLine -d org.apache.phoenix.jdbc.PhoenixDriver " + \
         " -u jdbc:phoenix:" + options.zookeeper + \

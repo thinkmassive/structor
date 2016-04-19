@@ -1,20 +1,27 @@
 {
-  "hdp_short_version": "2.3.2",
+  "hdp_short_version": "2.5.0",
   "java_version": "java-1.8.0-openjdk",
-  "domain": "example.com",
-  "realm": "EXAMPLE.COM",
-  "security": false,
-  "vm_mem": 8192,
+  "vm_mem": 12288,
   "vm_cpus": 4,
+
   "am_mem": 512,
   "server_mem": 768,
   "client_mem": 1024,
-  "clients" : [ "hdfs", "hive", "odbc", "tez", "yarn", "yarnlocaltop", "zk" ],
+
+  "security": false,
+  "domain": "example.com",
+  "realm": "EXAMPLE.COM",
+
+  "clients" : [ "hdfs", "hive", "hive2", "odbc", "slider", "tez", "yarn", "zk" ],
   "nodes": [
-    {"hostname": "llap", "ip": "240.0.0.11",
-     "roles": ["client", "hive-db", "hive-meta", "hive-server2", "hive-llap",
-               "nn", "postgres", "slave", "yarn", "zk"]}
+    {"hostname": "llap", "ip": "192.168.59.11",
+     "roles": ["client", "hive-db", "hive-meta",
+               "hive2", "hive2-llap", "hive2-server2",
+               "httpd", "nn", "slave", "tez-ui",
+               "yarn", "yarn-timelineserver", "zk"]}
   ],
+
+  "hive_options" : "interactive",
 
   "extras": [ "sample-hive-data" ]
 }

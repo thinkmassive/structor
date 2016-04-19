@@ -1,6 +1,6 @@
 {
   "hdp_short_version": "2.3.4",
-  "vm_mem": 6144,
+  "vm_mem": 8192,
   "vm_cpus": 4,
 
   "am_mem": 512,

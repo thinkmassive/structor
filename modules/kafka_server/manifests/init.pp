@@ -24,10 +24,10 @@ class kafka_server {
   package { "kafka" :
     ensure => installed,
   }
-  ->
   service { 'kafka':
     ensure => running,
     enable => true,
+    require => Package['kafka'],
   }
 
   # Configure.
@@ -35,16 +35,19 @@ class kafka_server {
     ensure => file,
     content => template('kafka_server/consumer.properties.erb'),
     before => Service['kafka'],
+    require => Package['kafka'],
   }
   file { '/etc/kafka/conf/producer.properties':
     ensure => file,
     content => template('kafka_server/producer.properties.erb'),
     before => Service['kafka'],
+    require => Package['kafka'],
   }
   file { '/etc/kafka/conf/server.properties':
     ensure => file,
     content => template('kafka_server/server.properties.erb'),
     before => Service['kafka'],
+    require => Package['kafka'],
   }
 
   # Create a topic called test.
@@ -52,12 +55,6 @@ class kafka_server {
     ensure => "file",
     mode => '755',
     content => template('kafka_server/create_test_topic.sh.erb'),
-  }
-  ->
-  exec { "/tmp/create_test_topic.sh":
-    cwd => "/tmp",
-    path => "$path",
-    require => Service['kafka'],
   }
 
   # Startup.

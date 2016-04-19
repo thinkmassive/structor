@@ -1,15 +1,26 @@
 # "Structor 2" -- Structor + lots of extensions
 =======
 
-Vagrant files for creating virtual multi-node Hadoop clusters on various OSes,
-both with and without security.
+Structor creates Hadoops.
+
+## Get started really fast.
+
+```
+# Install VirtualBox 5 or later.
+# Install Vagrant 1.8.1 or later.
+git clone https://github.com/cartershanklin/structor
+cd structor
+ln -s profiles/hdp250.profile current.profile
+vagrant up
+# When that finishes, open http://192.168.59.11/ or vagrant ssh hdp250
+```
+
+## Some details.
 
 The currently supported OSes and the providers:
 * CentOS 6
 * CentOS 7
 * Ubuntu 14.04
-
-We would like to get SUSE support as well.
 
 The currently supported projects:
 * Ambari
@@ -18,7 +29,7 @@ The currently supported projects:
 * HBase
 * HDFS
 * Hive
-* Hive LLAP (Experimental)
+* Hive 2
 * Hive ODBC Client
 * HiveServer 2
 * Kafka
@@ -33,8 +44,6 @@ The currently supported projects:
 * Yarn
 * Zookeeper
 
-We'd love to support other Hadoopish things like Storm, etc. as well.
-
 ## Modify the cluster
 
 Structor supports profiles that control the configuration of the
@@ -43,7 +52,7 @@ directory including a default.profile. To pick a different profile,
 create a link in the top level directory named current.profile that
 links to the desired profile.
 
-Current profiles:
+Some profiles:
 * 1node-nonsecure - a single node non-secure Hadoop cluster
 * 3node-nonsecure - a three node non-secure Hadoop cluster
 * 3node-secure - a three node secure Hadoop cluster

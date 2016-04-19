@@ -61,7 +61,7 @@ class hive_db {
     command => "mysql_secure_installation < files/secure-mysql.txt",
     path => "${path}",
     cwd => "/vagrant/modules/hive_db",
-    unless => "test ! -d /var/lib/mysql/test",
+    unless => "test -f /root/.mysql_setup_complete",
   }
   ->
   exec { "add-remote-root":
@@ -69,10 +69,21 @@ class hive_db {
     path => $path,
   }
   ->
+  file { "/root/.mysql_setup_complete":
+    ensure => "file",
+  }
+  ->
   exec { "create-hivedb":
     command => "mysql -u root --password=vagrant < files/setup-hive.txt",
     path => "${path}",
     cwd => "/vagrant/modules/hive_db",
     creates => "/var/lib/mysql/hive",
+  }
+  ->
+  exec { "create-druiddb":
+    command => "mysql -u root --password=vagrant < files/setup-druid.txt",
+    path => "${path}",
+    cwd => "/vagrant/modules/hive_db",
+    creates => "/var/lib/mysql/druid",
   }
 }

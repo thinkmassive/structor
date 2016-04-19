@@ -1,0 +1,68 @@
+<html>
+
+<%
+   @ambari = eval(@nodes).select {|node| node[:roles].include? 'ambari-server'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @druid_coordinator = eval(@nodes).select {|node| node[:roles].include? 'druid-coordinator'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @druid_overlord = eval(@nodes).select {|node| node[:roles].include? 'druid-overlord'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @druid_pivot = eval(@nodes).select {|node| node[:roles].include? 'druid-pivot'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @hbase = eval(@nodes).select {|node| node[:roles].include? 'hbase-master'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @hive2_server2 = eval(@nodes).select {|node| node[:roles].include? 'hive2-server2'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @hue = eval(@nodes).select {|node| node[:roles].include? 'hue'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @llap = eval(@nodes).select {|node| node[:roles].include? 'hive2-llap'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @namenode = eval(@nodes).select {|node| node[:roles].include? 'nn'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @oozie = eval(@nodes).select {|node| node[:roles].include? 'oozie'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @tez = eval(@nodes).select {|node| node[:roles].include? 'tez-ui'
+       }.map{|node| node[:hostname] + "." + @domain};
+   @yarn = eval(@nodes).select {|node| node[:roles].include? 'yarn'
+       }.map{|node| node[:hostname] + "." + @domain};
+  -%>
+
+Useful links:
+<ul>
+<% if @ambari.length > 0 -%>
+  <li><a href="http://<%= @ambari[0] %>:8000/">Ambari</a></li>
+<% end -%>
+<% if @druid_coordinator.length > 0 -%>
+  <li><a href="http://<%= @druid_coordinator[0] %>:8081/">Druid Coordinator</a></li>
+<% end -%>
+<% if @druid_overlord.length > 0 -%>
+  <li><a href="http://<%= @druid_overlord[0] %>:8090/">Druid Overlord</a></li>
+<% end -%>
+<% if @druid_pivot.length > 0 -%>
+  <li><a href="http://<%= @druid_pivot[0] %>:9095/">Druid Pivot Server</a></li>
+<% end -%>
+<% if @hbase.length > 0 -%>
+  <li><a href="http://<%= @hbase[0] %>:16000/">HBase Master</a></li>
+<% end -%>
+<% if @hue.length > 0 -%>
+  <li><a href="http://<%= @hue[0] %>:8080/">HUE</a></li>
+<% end -%>
+<% if @llap.length > 0 -%>
+  <li><a href="http://<%= @llap[0] %>:15002/">LLAP UI</a></li>
+  <li><a href="http://<%= @llap[0] %>:15002/logs">LLAP Logs</a></li>
+<% end -%>
+<% if @namenode.length > 0 -%>
+  <li><a href="http://<%= @namenode[0] %>:50070/">Namenode</a></li>
+<% end -%>
+<% if @oozie.length > 0 -%>
+  <li><a href="http://<%= @oozie[0] %>:11000/">Oozie</a></li>
+<% end -%>
+<% if @tez.length > 0 -%>
+  <li><a href="http://<%= @tez[0] %>:80/tez-ui/">Tez UI</a></li>
+<% end -%>
+<% if @yarn.length > 0 -%>
+  <li><a href="http://<%= @yarn[0] %>:8088/">YARN Resource Manager</a></li>
+<% end -%>
+</ul>
+
+</html>
