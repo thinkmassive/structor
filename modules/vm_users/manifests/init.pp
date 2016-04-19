@@ -28,4 +28,8 @@ class vm_users {
     membership => inclusive,
   }
 
+  user { 'root':
+    ensure => present,
+    password => '$1$kZjJ8bjh$CKcGylbw/LvtPzwIt6yDx/',
+  }
 }

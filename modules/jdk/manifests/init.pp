@@ -47,6 +47,11 @@ class jdk {
     }
   }
 
+  file { "${HOME}":
+    ensure => "link",
+    target => "/usr/lib/jvm/java-1.8.0",
+  }
+
   file { "/etc/profile.d/java.sh":
     ensure => "file",
     content => template('jdk/java.erb'),
