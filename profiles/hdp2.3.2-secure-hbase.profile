@@ -10,7 +10,7 @@
   "client_mem": 1024,
   "clients" : [ "hbase", "hdfs", "zk" ],
   "nodes": [
-    {"hostname": "hdp2.3.2-secure", "ip": "240.0.0.11",
+    {"hostname": "hdp232-secure", "ip": "240.0.0.11",
      "roles": ["client", "hbase-master", "hbase-regionserver", "kdc", "nn", "slave", "zk"]}
   ]
 }

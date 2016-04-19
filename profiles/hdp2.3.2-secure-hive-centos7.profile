@@ -11,7 +11,7 @@
   "client_mem": 1024,
   "clients" : [ "hdfs", "hive", "tez", "yarn", "zk" ],
   "nodes": [
-    {"hostname": "hdp2.3.2-secure", "ip": "240.0.0.11",
+    {"hostname": "hdp232-secure", "ip": "240.0.0.11",
      "roles": ["client", "kdc", "hive-db", "hive-meta", "hive-server2", "nn", "slave", "yarn", "zk"]}
   ]
 }

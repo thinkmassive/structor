@@ -9,6 +9,9 @@ Group=yarn
 Restart=on-failure
 Type=forking
 User=yarn
+PermissionsStartOnly=true
+ExecStartPre=/usr/bin/mkdir -p /var/run/pid/yarn
+ExecStartPre=/usr/bin/chown yarn:yarn /var/run/pid/yarn
 
 [Install]
 WantedBy=multi-user.target

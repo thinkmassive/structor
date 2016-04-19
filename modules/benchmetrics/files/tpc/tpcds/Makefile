@@ -16,4 +16,5 @@ target/v1.4.0/tools/dsdgen:
 	( cd target/v1.4.0/tools && make clean; make dsdgen )
 
 clean:
+	(cd target/v1.4.0/tools ; make clean)
 	(cd target ; mvn clean)

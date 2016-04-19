@@ -1,6 +1,7 @@
-set hive.tez.container.size=2048;
+set hive.conf.validation=false;
 set hive.enforce.bucketing=true;
 set hive.enforce.sorting=true;
+set hive.tez.container.size=2048;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.exec.max.dynamic.partitions.pernode=100000;
 set hive.exec.max.dynamic.partitions=100000;

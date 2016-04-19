@@ -11,7 +11,7 @@ Restart=on-failure
 Type=forking
 User=root
 
-EnvironmentFile=/etc/systemd/system/hive-metastore.service.d/default.conf
+EnvironmentFile=/etc/systemd/system/hive-server2.service.d/default.conf
 Group=root
 Restart=on-failure
 User=root

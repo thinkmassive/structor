@@ -1,0 +1,76 @@
+{
+  "type" : "index_hadoop",
+  "spec" : {
+    "ioConfig" : {
+      "type" : "hadoop",
+      "inputSpec" : {
+        "type" : "static",
+        "paths" : "/user/vagrant/weblog-denormalized"
+      }
+    },
+    "dataSchema" : {
+      "dataSource" : "weblogs-hdfs2",
+      "granularitySpec" : {
+        "type" : "uniform",
+        "segmentGranularity" : "day",
+        "queryGranularity" : "none",
+        "intervals" : ["2016-03-01/2016-03-08"]
+      },
+      "parser" : {
+        "type" : "string",
+        "parseSpec" : {
+          "format" : "tsv",
+          "columns" : [
+            "date",
+            "state",
+            "category",
+            "age",
+            "sex",
+            "promotion",
+            "referrer",
+            "zip",
+            "is_promo",
+            "age_group"
+          ],
+          "dimensionsSpec" : {
+            "dimensions" : [
+              "state",
+              "category",
+              "age",
+              "sex",
+              "promotion",
+              "referrer",
+              "zip",
+              "is_promo",
+              "age_group"
+            ]
+          },
+          "delimiter" : "|",
+          "timestampSpec" : {
+            "format" : "auto",
+            "column" : "date"
+          }
+        }
+      },
+      "metricsSpec" : [
+        {
+          "name" : "count",
+          "type" : "count"
+        },
+        {
+          "name" : "zip_unique",
+          "type" : "hyperUnique",
+          "fieldName" : "zip"
+        }
+      ]
+    },
+    "tuningConfig" : {
+      "type" : "hadoop",
+      "partitionsSpec" : {
+        "type" : "hashed",
+        "targetPartitionSize" : 50000000
+      },
+      "jobProperties" : {}
+    }
+  }
+}

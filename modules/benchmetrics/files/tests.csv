@@ -1,15 +1,17 @@
-Component,Package,Test,Subtest,Description,Enabled
-hive,etl,airline_convert,,Convert Airline on-time performance dataset from CSV to ORC,true
-hive,etl,airline_stats,,Gather stats on Airline on-time performance ORC dataset,true
-hive,etl,license_csv_avro,,Convert a CSV file with complex type to Avro,true
-hive,etl,license_avro_orc,,Convert Avro with complex type to ORC,true
-hive,etl,all_types,,Convert a CSV with all types into ORC,true
-hive,explain,sa_orig_allopt,,"Suite of 910 explain plans against an empty, unpartitioned schema, all optimizations",true
-hive,explain,sa_orig_nocbo,,"Suite of 910 explain plans against an empty, unpartitioned schema, no cbo",true
-hive,explain,sa_orig_noppd,,"Suite of 910 explain plans against an empty, unpartitioned schema, no ppd",true
-hive,explain,sa_orig_nofetch,,"Suite of 910 explain plans against an empty, unpartitioned schema, without column stats fetch",true
-hive,tpc,tpch,,TPC-H Derived Benchmark,true
-hive,interactive,cancel,,Launch a large query and cancel it after 3s,false
-hive,interactive,select_star,,"Select * on a large table, read 1 record and close",true
-hive,interactive,simple_aggregation,,A simple aggregation query,true
-hive,interactive,having_1_greater_0,,Execute a query that includes HAVING(1 > 0),true
+Component,Package,Test,Subtest,Description,Enabled,Cleaner,Version
+hive,etl,airline_convert,,Convert Airline on-time performance dataset from CSV to ORC,true,false,1
+hive,etl,airline_stats,,Gather stats on Airline on-time performance ORC dataset,true,false,1
+hive,etl,license_csv_avro,,Convert a CSV file with complex type to Avro,true,false,1
+hive,etl,license_avro_orc,,Convert Avro with complex type to ORC,true,false,1
+hive,etl,all_types,,Convert a CSV with all types into ORC,true,false,1
+hive,explain,sa_orig_allopt,,"Suite of 910 explain plans against an empty, unpartitioned schema, all optimizations",true,false,1
+hive,explain,sa_orig_nocbo,,"Suite of 910 explain plans against an empty, unpartitioned schema, no cbo",true,false,1
+hive,explain,sa_orig_noppd,,"Suite of 910 explain plans against an empty, unpartitioned schema, no ppd",true,false,1
+hive,explain,sa_orig_nofetch,,"Suite of 910 explain plans against an empty, unpartitioned schema, without column stats fetch",true,false,1
+hive,tpc,tpch,,TPC-H Derived Benchmark,true,false,1
+hive,interactive,cancel,,Launch a large query and cancel it after 3s,false,false,1
+hive,interactive,select_star,,"Select * on a large table, read 1 record and close",true,false,1
+hive,interactive,simple_aggregation,,A simple aggregation query,true,false,1
+hive,interactive,having_1_greater_0,,Execute a query that includes HAVING(1 > 0),true,false,1
+hive,bi,tpcdsload,,BI Benchmark,true,false,1
+hive,bi,tbench1,,BI Benchmark,true,true,1

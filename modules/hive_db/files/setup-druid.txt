@@ -1,0 +1,7 @@
+DELETE FROM mysql.user WHERE user = 'druid' and host = '%';
+delete from mysql.db where user = 'druid' and host = '%';
+flush privileges;
+create user 'druid'@'%' identified by 'vagrant';
+create database if not exists druid CHARACTER SET = 'utf8';
+grant all privileges on druid.* to 'druid'@'%';
+flush privileges;

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+<% @overlord = eval(@nodes).select {|node| node[:roles].include? 'druid-overlord'
+                  }[0][:hostname] + "." + @domain;
+ -%>
+
+# Generate data if we need it.
+echo "Checking for denormalized TPC-H data"
+hdfs dfs -test -e /user/vagrant/tpch-denormalized/000001_0
+if [ $? -ne 0 ]; then
+        # Generate TPC-H Scale 2 data.
+        echo "Generating Scale 2 TPC-H data"
+        /vagrant/modules/benchmetrics/files/tpc/tpch/00prepare.sh
+
+        # Denormalize some data.
+        echo "Denormalizing data"
+        hive -f /vagrant/modules/druid_overlord/files/denormalize-tpch.sql
+fi
+
+# Index it.
+echo "Submitting index task"
+SPEC=/home/vagrant/tpch-index-hdfs.json
+POST_INDEX_TASK=/usr/local/share/druid/bin/post-index-task
+$POST_INDEX_TASK --url http://<%= @overlord %>:8090/ --file $SPEC

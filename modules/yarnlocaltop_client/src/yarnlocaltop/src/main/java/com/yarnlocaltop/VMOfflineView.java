@@ -47,10 +47,11 @@ public class VMOfflineView extends AbstractConsoleView
 
   private Map<Long, Long> previousThreadCPUMillis   = new HashMap<Long, Long>();
 
-  public VMOfflineView(int vmid) throws Exception
+  public VMOfflineView(int vmid, double minUtilization) throws Exception
   {
     super(100);
     pid_ = vmid;
+    minUtilization_ = minUtilization;
     LocalVirtualMachine localVirtualMachine = LocalVirtualMachine
         .getLocalVirtualMachine(vmid);
     vmInfo_ = VMInfo.processNewVM(localVirtualMachine, vmid);
@@ -117,24 +118,6 @@ public class VMOfflineView extends AbstractConsoleView
         vmInfo_.getThreadMXBean().getTotalStartedThreadCount(),
         toHHMM(vmInfo_.getGcTime()), vmInfo_.getGcCount(),
         vmInfo_.getTotalLoadedClassCount());
-
-/*
-    System.out.printf(
-        " %d UP: %-7s #THR: %-4d #THRPEAK: %-4d #THRCREATED: %-4d USER: %-12s%n", pid_,
-        toHHMM(vmInfo_.getRuntimeMXBean().getUptime()), vmInfo_
-            .getThreadCount(), vmInfo_.getThreadMXBean().getPeakThreadCount(),
-        vmInfo_.getThreadMXBean().getTotalStartedThreadCount(), vmInfo_
-            .getOSUser());
-    System.out.printf(
-        " %d GC-Time: %-7s  #GC-Runs: %-8d  #TotalLoadedClasses: %-8d%n", pid_,
-        toHHMM(vmInfo_.getGcTime()), vmInfo_.getGcCount(),
-        vmInfo_.getTotalLoadedClassCount());
-    System.out.printf(
-        " %d CPU: %5.2f%% GC: %5.2f%% HEAP:%5s /%5s NONHEAP:%5s /%5s%n", pid_,
-        vmInfo_.getCpuLoad() * 100, vmInfo_.getGcLoad() * 100,
-        toMB(vmInfo_.getHeapUsed()), toMB(vmInfo_.getHeapMax()),
-        toMB(vmInfo_.getNonHeapUsed()), toMB(vmInfo_.getNonHeapMax()));
-*/
 
     try {
       printTopThreads();

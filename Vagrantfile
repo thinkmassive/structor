@@ -18,8 +18,7 @@ require 'json'
 VAGRANTFILE_API_VERSION = "2"
 
 # Profile search path:
-$profile_path = ["current.profile",
-                 "profiles/3node-nonsecure.profile"]
+$profile_path = ["current.profile"]
 
 ###############################################################################
 # Loads a profile, which is a JSON file describing a specific configuation.
@@ -31,6 +30,9 @@ def loadProfile()
     if file and File.file?(file)
       puts "Loading profile %s\n" % [File.realpath(file)]
       return JSON.parse( IO.read( file ), opts = { symbolize_names: true } )
+    else
+      puts "Missing profile. Create a link to your profile named current.profile."
+      exit
     end
   }
 end

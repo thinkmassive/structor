@@ -67,6 +67,17 @@ class hive_meta {
       before => Service["hive-metastore"],
     }
   } else {
+    if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 2) {
+      file { "$start_script":
+        ensure => file,
+        content => template('hive_meta/hive-metastore.erb'),
+        mode => '755',
+        owner => root,
+        group => root,
+        replace => true,
+        before => Service["hive-metastore"],
+      }
+    }
     file { "/etc/init.d/hive-metastore":
       ensure => 'link',
       target => "$start_script",

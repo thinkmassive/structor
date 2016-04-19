@@ -14,7 +14,7 @@
 #   limitations under the License.
 
 class odbc_client {
-  $path="/bin:/usr/bin"
+  $path="/sbin:/usr/sbin:/bin:/usr/bin"
 
   $config_path="/usr/local/odbc"
   $odbcini_path="$config_path/odbc.ini"
@@ -37,7 +37,16 @@ class odbc_client {
       # XXX: No CentOS 7 driver yet.
     }
   } else {
-    # XXX: Needs definition.
+    package { [ "unixodbc", "unixodbc-dev", "libsasl2-modules-gssapi-mit" ]:
+      ensure => installed,
+      before => Exec["Download ODBC"],
+    }
+    $version="2.0.5.1005"
+    $build="hive-odbc-native_$version"
+    $rpmbase="$build-2_amd64"
+    $rpm="$rpmbase.deb"
+    $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/debian/$rpm"
+    $expected_sums="expected_sums_odbc_ubuntu.txt"
   }
 
   file { "/tmp/expected_sums_odbc.txt":
@@ -51,13 +60,25 @@ class odbc_client {
     path => "$path",
     unless => "md5sum -c expected_sums_odbc.txt --quiet",
   }
-  ->
-  exec { "Install ODBC":
-    command => "rpm -i $rpm",
-    cwd => "/tmp",
-    path => "$path",
-    unless => "rpm -qa | grep $build",
-    before => File["$config_path"],
+
+  if ($operatingsystem == "centos") {
+    exec { "Install ODBC":
+      command => "rpm -i $rpm",
+      cwd => "/tmp",
+      path => "$path",
+      unless => "rpm -qa | grep $build",
+      before => File["$config_path"],
+      require => Exec["Download ODBC"],
+    }
+  } else {
+    exec { "Install ODBC":
+      command => "dpkg -i $rpm",
+      cwd => "/tmp",
+      path => "$path",
+      unless => "dpkg-query -l | grep $build",
+      before => File["$config_path"],
+      require => Exec["Download ODBC"],
+    }
   }
 
   # Config files.
@@ -90,26 +111,32 @@ class odbc_client {
   }
 
   # Install pyodbc.
-  package { "epel-release":
-    ensure => installed,
-  }
-  ->
-  package { "python-pip":
-    ensure => installed,
-  }
-  ->
-  package { "python-devel":
-    ensure => installed,
-  }
-  ->
-  package { "gcc-c++":
-    ensure => installed,
-  }
-  ->
-  exec { "Install pyodbc":
-    command => "pip install pyodbc",
-    cwd => "/tmp",
-    path => "$path",
+  if ($operatingsystem == "centos") {
+    package { "epel-release":
+      ensure => installed,
+    }
+    ->
+    package { "python-pip":
+      ensure => installed,
+    }
+    ->
+    package { "python-devel":
+      ensure => installed,
+    }
+    ->
+    package { "gcc-c++":
+      ensure => installed,
+    }
+    ->
+    exec { "Install pyodbc":
+      command => "pip install pyodbc",
+      cwd => "/tmp",
+      path => "$path",
+    }
+  } else {
+    package { "python-pyodbc":
+      ensure => installed,
+    }
   }
 
   # Sample query.

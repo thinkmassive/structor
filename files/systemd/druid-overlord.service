@@ -1,0 +1,14 @@
+[Unit]
+Description=Druid Overlord
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+ExecStart=/usr/local/share/druid/bin/run-druid overlord
+Group=druid
+Restart=on-failure
+Type=simple
+User=druid
+WorkingDirectory=/usr/local/share/druid/dist/druid
+
+[Install]
+WantedBy=multi-user.target

@@ -15,8 +15,9 @@
    limitations under the License.
 -%>
 <%
+  @hs2_roles = ['hive-server2', 'hive2-server2'];
   @hive_servers = eval(@nodes).
-    select {|node| node[:roles].include? 'hive-server2'}.
+    select {|node| (node[:roles] & @hs2_roles).length > 0}.
     map{|node| node[:hostname] + "." + @domain};
   @hsnode = (@hive_servers.size >= 1 ? @hive_servers[0] : "ERROR:NOHS2");
   @zookeeper_servers = eval(@nodes).

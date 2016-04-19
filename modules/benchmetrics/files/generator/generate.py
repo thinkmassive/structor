@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# You might need to sudo pip install fake-factory
+
 from faker import Factory
 
 import sys, math, random, time
@@ -110,7 +112,6 @@ def customer_accounts(i, edate):
 	addr_street_number, addr_street_name, addr_line_2, addr_city, addr_state, addr_postal_code, email, phone_home, phone_cell, phone_work, phone_work_ext,
 	date_of_birth, driver_lic, sex, effective_date]
 
-
 def write_rows(f, rs):
 	for r in rs:
 		f.write('|'.join(map(str,r)) + "\n")
@@ -177,6 +178,177 @@ def fake_accounts(scale=1, child=0):
 		write_rows(tbl_txns, t_s)
 		#print "Written %d transactions for %d customers" % (totals, i-start_rows)
 	return 0
+
+# Example records:
+# date,city,state,category,age,sex,promoid,referrerid,zip,ispromo,agegroup
+# 2016-03-15^AID^Aclothing^A34^AF^Apromo-01^Arefer-01,12345,Y,26-35
+# 2016-03-15^ANY^Acomputers^A33^AM^Apromo-0-2^Arefer-0-2,23456,N,26-35
+# Generate 500k records per ID.
+def fake_omniture(scale=1, child=0):
+	if (child >= scale):
+		print "Argument mismatch: child too large for scale"
+		return 1
+
+	output = open("fake_weblog.%06d.txt" % child, "w")
+
+	random.seed(child)
+	zipf_generator = zipf(15, 2.5)
+
+	# Generate data in the week of 2016-03-01 + 7 days * child
+	date_min = datetime(2016, 03, 01 + (7 * child), 0, 0)
+	date_max = datetime(2016, 03, 01 + (7 * child) + 6, 23, 59)
+
+	# Categories with base weights.
+	categories = [
+		("accessories", 0.1),
+		("automotive", 0.15),
+		("books", 0.2),
+		("clothing", 0.3),
+		("computers", 0.4),
+		("electronics", 0.5),
+		("games", 0.6),
+		("grocery", 0.65),
+		("handbags", 0.7),
+		("home&garden", 0.75),
+		("movies", 0.8),
+		("outdoors", 0.85),
+		("shoes", 0.95),
+		("tools", 1.0)
+	]
+
+	# Generate 7 random promos for the week.
+	promotions = dict((x, (random.choice(categories)[0], random.uniform(0.03, 0.10))) for x in range(0, 7))
+
+	# Zip code history runs.
+	zip_code_history = {}
+
+	# Age grouping.
+	age_groups = [ (18, "18-25"), (26, "26-35"), (35, "35-50"), (51, "50+") ]
+
+	for i in xrange(0, 500000):
+		date_time = faker.date_time_between(start_date=date_min, end_date=date_max)
+		offset = date_time - date_min
+
+		state = faker.state_abbr()
+
+		# "Daily Deal" check.
+		promo_id = offset.days
+		promotion = promotions[promo_id]
+		promo_name = ""
+		promo_tag = "{0}-{1}".format(promotion[0], promo_id)
+		if random.random() < promotion[1]:
+			promo_name = promo_tag
+		else:
+			promotion = None
+
+		# Referrer ID
+		referrer_id = "search"
+
+		# Select a category.
+		# If there is a promotion, use its category.
+		if promotion != None:
+			category = promotion[0]
+		else:
+			value = random.random()
+			fuzz_factor = (random.random() - 0.5) / 30
+
+			i = 0
+			prob = categories[i][1] + fuzz_factor
+			while prob <= value and i <= len(categories):
+				i += 1
+				prob = categories[i][1]
+			category = categories[i][0]
+
+		# If from a promo, 75% chance of a referring site.
+		# Zipfian distribution of referrers within this child bucket.
+		# XXX: Need to switch this to a checksum.
+		if promotion and random.random() < 0.75:
+			# Mix up the offsets a bit based on promo tag.
+			shuffle_seed = (sum([ math.sqrt(ord(x)) for x in promo_tag ]) % 99) / 100.0
+			ids = range(1, 20)
+			random.shuffle(ids, lambda: shuffle_seed)
+			referrer_index = zipf_generator.next() - 1
+			referrer = ids[referrer_index]
+			referrer_id = "{0}-partnerid-{1}".format(promo_tag, referrer)
+		elif random.random() < 0.30:
+			# Idea here is offsets are shuffled based on category.
+			shuffle_seed = (sum([ math.sqrt(ord(x)) for x in category ]) % 99) / 100.0
+			ids = range(1, 20)
+			random.shuffle(ids, lambda: shuffle_seed)
+			referrer_index = zipf_generator.next() - 1
+			referrer = ids[referrer_index]
+			referrer_id = "partnerid-{0}".format(referrer)
+
+		# Zip code. 70% chance of re-using the old zip code within this category.
+		if category not in zip_code_history or random.random() > 0.7:
+			zip_code_history[category] = faker.postcode()[0:4] + "0"
+		zip_code = zip_code_history[category]
+
+		# Age and sex.
+		if category == "handbags":
+			if promo_name != "" and random.random() > 0.5:
+				age = int(random.gammavariate(5, 1) + 30)
+			else:
+				age = int(random.gammavariate(5, 4) + 18)
+			sex = "M"
+			if random.random() < 0.85:
+				sex = "F"
+		elif category == "accessories" or category == "shoes":
+			if promo_name != "" and random.random() > 0.5:
+				age = int(random.gammavariate(5, 1) + 30)
+			else:
+				age = int(random.gammavariate(5, 5) + 18)
+			sex = "M"
+			if random.random() < 0.75:
+				sex = "F"
+		elif category == "grocery":
+			age = int(random.gammavariate(5, 3) + 18)
+			sex = "M"
+			if random.random() < 0.5:
+				sex = "F"
+		elif category == "books":
+			age = int(random.gammavariate(5, 2) + 40)
+			sex = "M"
+			if random.random() < 0.8:
+				sex = "F"
+		elif category == "games" or category == "electronics":
+			if promo_name != "" and random.random() > 0.5:
+				age = int(random.gammavariate(5, 1) + 18)
+			else:
+				age = int(random.gammavariate(5, 2) + 18)
+			sex = "M"
+			if random.random() < 0.3:
+				sex = "F"
+		elif category == "computers" or category == "outdoors":
+			age = int(random.gammavariate(5, 2) + 18)
+			sex = "M"
+			if random.random() < 0.3:
+				sex = "F"
+		elif category == "movies" or category == "clothing":
+			if promo_name != "" and random.random() > 0.5:
+				age = int(random.gammavariate(5, 1) + 30)
+			else:
+				age = int(random.gammavariate(5, 4) + 18)
+			sex = "M"
+			if random.random() < 0.5:
+				sex = "F"
+		elif category == "home&garden":
+			age = int(random.gammavariate(5, 2) + 30)
+			sex = "M"
+			if random.random() < 0.5:
+				sex = "F"
+		elif category == "automotive" or category == "tools":
+			age = int(random.gammavariate(5, 3) + 18)
+			sex = "M"
+			if random.random() < 0.10:
+				sex = "F"
+
+		is_promo = "0" if promo_name == "" else "1"
+		age_group = [ x[1] for x in age_groups if x[0] <= age ][-1]
+
+		record = [ str(date_time).replace(" ", "T"), state, category,
+		    str(age), sex, promo_name, referrer_id, zip_code, is_promo, age_group ]
+		output.write('|'.join(record) + "\n")
 
 def fake_raw_timeseries(scale=1, child=0):
 	nDevices = int(scale*math.log(scale)+1)
