@@ -17,7 +17,6 @@ class ambari_server {
   require repos_setup
   $path="/bin:/usr/bin:/sbin:/usr/sbin"
 
-
   # Ambari doesn't facilitate secure installations but we ease the pain a bit
   # by adding an account and putting it in the users group. This will allow
   # impersonation if we use views to run jobs. Ambari should not be run as root
@@ -27,12 +26,12 @@ class ambari_server {
     before => Package["ambari-server"],
     groups => "users",
   }
-
-->
+  ->
   exec { "delete bad repos on server":
     command => "rm -rf /etc/yum.repos.d/hdp.repo",
     path => $path,
   }
+  ->
   package { "ambari-server":
     ensure => installed
   }
@@ -51,21 +50,6 @@ class ambari_server {
   ->
   exec { "Fix Ambari's embedded Postgres to survive reboot":
     command => "chkconfig postgresql --levels 2345 on",
-    path => $path,
-  }
-  ->
-  exec { "sleep for heartbeat":
-    command => "sleep 90 && echo \"inserting pause for the heartbeat\"",
-    path => $path,
-  }
-  ->
-  exec { "deploy blueprint":
-    command => "curl -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/blueprint.json -u admin:admin http://localhost:8080/api/v1/blueprints/BP",
-    path => $path,
-  }
- ->
-  exec { "install blueprint":
-    command => "curl -iv -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/cluster.txt -u admin:admin http://localhost:8080/api/v1/clusters/supportLab",
     path => $path,
   }
 }
