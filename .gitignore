@@ -2,3 +2,6 @@
 current.profile
 generated/
 *~
+files/ambari.repo
+files/hdp.repo
+.config.bak

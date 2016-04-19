@@ -1,0 +1,145 @@
+{
+ "configurations": [],
+ "host_groups": [
+  {
+   "name": "host_group_1",
+   "components": [
+    {
+     "name": "AMBARI_SERVER"
+    },
+    {
+     "name": "ZOOKEEPER_CLIENT"
+    },
+    {
+     "name": "ZOOKEEPER_SERVER"
+    },
+    {
+     "name": "YARN_CLIENT"
+    },
+    {
+     "name": "HIVE_CLIENT"
+    },
+    {
+     "name": "TEZ_CLIENT"
+    },
+    {
+     "name": "PIG"
+    },
+    {
+     "name": "MAPREDUCE2_CLIENT"
+    },
+    {
+     "name": "MYSQL_SERVER"
+    },
+    {
+     "name": "HDFS_CLIENT"
+    },
+    {
+     "name": "METRICS_COLLECTOR"
+    },
+    {
+     "name": "METRICS_MONITOR"
+    }
+   ],
+   "cardinality": "1"
+  },
+  {
+   "name": "host_group_2",
+   "components": [
+    {
+     "name": "TEZ_CLIENT"
+    },
+    {
+     "name": "YARN_CLIENT"
+    },
+    {
+     "name": "MAPREDUCE2_CLIENT"
+    },
+    {
+     "name": "HDFS_CLIENT"
+    },
+    {
+     "name": "ZOOKEEPER_SERVER"
+    },
+    {
+     "name": "ZOOKEEPER_CLIENT"
+    },
+    {
+     "name": "NODEMANAGER"
+    },
+    {
+     "name": "HIVE_SERVER"
+    },
+    {
+     "name": "WEBHCAT_SERVER"
+    },
+    {
+     "name": "HIVE_METASTORE"
+    },
+    {
+     "name": "NAMENODE"
+    },
+    {
+     "name": "HCAT"
+    },
+    {
+     "name": "METRICS_MONITOR"
+    },
+    {
+     "name": "DATANODE"
+    }
+   ],
+   "cardinality": "1"
+  },
+  {
+   "name": "host_group_3",
+   "components": [
+    {
+     "name": "YARN_CLIENT"
+    },
+    {
+     "name": "TEZ_CLIENT"
+    },
+    {
+     "name": "MAPREDUCE2_CLIENT"
+    },
+    {
+     "name": "HDFS_CLIENT"
+    },
+    {
+     "name": "ZOOKEEPER_CLIENT"
+    },
+    {
+     "name": "NODEMANAGER"
+    },
+    {
+     "name": "ZOOKEEPER_SERVER"
+    },
+    {
+     "name": "RESOURCEMANAGER"
+    },
+    {
+     "name": "APP_TIMELINE_SERVER"
+    },
+    {
+     "name": "METRICS_MONITOR"
+    },
+    {
+     "name": "HISTORYSERVER"
+    },
+    {
+     "name": "SECONDARY_NAMENODE"
+    },
+    {
+     "name": "DATANODE"
+    }
+   ],
+   "cardinality": "1"
+  }
+ ],
+ "Blueprints": {
+  "stack_name": "HDP",
+  "stack_version": "2.3",
+  "blueprint_name": "hdpcluster"
+ }
+}
