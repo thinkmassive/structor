@@ -16,7 +16,6 @@
 class ambari_agent {
 
   require repos_setup
-  require jdk
 
   $tmp_dir = "/tmp"
   $conf_dir = "/etc/ambari-agent/conf"
