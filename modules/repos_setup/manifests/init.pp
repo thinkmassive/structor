@@ -52,6 +52,9 @@ class repos_setup {
         source => "puppet:///files/repos/${os_version}.hdp.repo.${hdp_short_version}",
       }
     }
+    exec { "yum-clean-all":
+      command => "/usr/bin/yum clean all",
+    }
   }
 
   if ($operatingsystem == "ubuntu" and $operatingsystemmajrelease == "14.04") {
