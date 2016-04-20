@@ -82,10 +82,11 @@ profile[:client_mem] ||= 1024
 (hdp_version, hdp_version_major, hdp_version_minor, hdp_version_patch) = findVersion(profile)
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  if Vagrant.has_plugin?("vagrant-cachier")
-    # Configure cached packages to be shared between instances of the same base box.
-    config.cache.scope = :box
-  end
+## Disable vagrant-cachier to avoid yum errors while applying blueprint to multinode cluster
+#  if Vagrant.has_plugin?("vagrant-cachier")
+#    # Configure cached packages to be shared between instances of the same base box.
+#    config.cache.scope = :box
+#  end
 
   # All Vagrant configuration is done here. The most common configuration
   # Every Vagrant virtual environment requires a box to build off of.
