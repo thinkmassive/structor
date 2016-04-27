@@ -14,31 +14,16 @@
 #   limitations under the License.
 
 class blueprint {
-  require repos_setup
+  require ambari_server
   $path="/bin:/usr/bin:/sbin:/usr/sbin"
 
-
-  # Ambari doesn't facilitate secure installations but we ease the pain a bit
-  # by adding an account and putting it in the users group. This will allow
-  # impersonation if we use views to run jobs. Ambari should not be run as root
-  # in a real setting but this can't be automated today.
-  user { "ambari" : 
-    ensure => present,
-    before => Package["ambari-server"],
-    groups => "users",
-  }
-
-  package { "ambari-server":
-    ensure => installed
-  }
-  ->
   exec { "deploy blueprint":
     command => "curl -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/blueprint.json -u admin:admin http://localhost:8080/api/v1/blueprints/BP",
     path => $path,
   }
  ->
   exec { "install blueprint":
-    command => "curl -iv -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/cluster.txt -u admin:admin http://localhost:8080/api/v1/clusters/supportLab",
+    command => "curl -iv -H \"X-Requested-By: ambari\" -X POST --data @/vagrant/files/cluster.json -u admin:admin http://localhost:8080/api/v1/clusters/supportLab",
     path => $path,
   }
 }

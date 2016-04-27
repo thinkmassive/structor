@@ -1,6 +1,6 @@
 {
   "os": "centos6",
-  "ambari_version": "2.2.0.0",
+  "ambari_version": "2.2.1.1",
   "hdp_short_version": "2.3.4",
 
   "vm_mem": 4096,
@@ -18,7 +18,7 @@
   "nodes": [
     {"hostname": "ambari-slave1", "ip": "192.168.59.12", "roles": ["ambari-agent"] },
     {"hostname": "ambari-slave2", "ip": "192.168.59.13", "roles": ["ambari-agent"] },
-    {"hostname": "ambari-server", "ip": "192.168.59.11", "roles": ["ambari-server", "ambari-agent", "kdc"] }
+    {"hostname": "ambari-server", "ip": "192.168.59.11", "roles": ["ambari-server", "ambari-agent", "kdc", "blueprint"] }
     
   ]
 }

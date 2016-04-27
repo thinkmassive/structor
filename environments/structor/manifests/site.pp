@@ -38,6 +38,10 @@ if hasrole($roles, 'ambari-server') {
   include ambari_server
 }
 
+if hasrole($roles, 'blueprint') {
+  include blueprint
+}
+
 if hasrole($roles, 'ambari-views') {
   include ambari_views
 }
