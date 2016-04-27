@@ -30,14 +30,6 @@ if $security == "true" and hasrole($roles, 'kdc') {
   include kerberos_kdc
 }
 
-if hasrole($roles, 'proxy-server') {
-  include proxy_server
-}
-
-if hasrole($roles, 'proxy-client') {
-  include proxy_client
-}
-
 if hasrole($roles, 'ambari-agent') {
   include ambari_agent
 }

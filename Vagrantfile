@@ -18,7 +18,7 @@ require 'json'
 VAGRANTFILE_API_VERSION = "2"
 
 # Profile search path:
-$profile_path = ["current.profile"]
+$profile_path = ["current.profile","profiles/support-lab.profile"]
 
 ###############################################################################
 # Loads a profile, which is a JSON file describing a specific configuation.
