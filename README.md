@@ -18,7 +18,7 @@ vagrant up
 ## HDP 2.4 temporary branch, hardly tested
 
 The currently supported OSes and the providers:
-* CentOS 7
+* CentOS 6
 
 The currently supported projects:
 * Ambari
