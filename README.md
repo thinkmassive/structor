@@ -8,41 +8,20 @@ Structor creates Hadoops.
 ```
 # Install VirtualBox 5 or later.
 # Install Vagrant 1.8.1 or later.
-git clone https://github.com/cartershanklin/structor
+git clone https://github.com/thinkmassive/structor
 cd structor
-ln -s profiles/hdp250.profile current.profile
+ln -s profiles/support-lab.profile current.profile
 vagrant up
-# When that finishes, open http://192.168.59.11/ or vagrant ssh hdp250
+# When that finishes, open http://192.168.59.11/ or vagrant ssh ambari-server
 ```
 
-## Some details.
+## HDP 2.4 temporary branch, hardly tested
 
 The currently supported OSes and the providers:
-* CentOS 6
 * CentOS 7
-* Ubuntu 14.04
 
 The currently supported projects:
 * Ambari
-* Ambari Views
-* Flume
-* HBase
-* HDFS
-* Hive
-* Hive 2
-* Hive ODBC Client
-* HiveServer 2
-* Kafka
-* MapReduce
-* Oozie
-* Pig
-* Postgres
-* Slider
-* Spark
-* Tez
-* Wildfly (known better as JBoss)
-* Yarn
-* Zookeeper
 
 ## Modify the cluster
 
@@ -53,13 +32,7 @@ create a link in the top level directory named current.profile that
 links to the desired profile.
 
 Some profiles:
-* 1node-nonsecure - a single node non-secure Hadoop cluster
-* 3node-nonsecure - a three node non-secure Hadoop cluster
-* 3node-secure - a three node secure Hadoop cluster
-* 5node-nonsecure - a five node secure Hadoop cluster
-
-You are encouraged to contribute new working profiles that can be
-shared by others.
+* support-lab - a three node non-secure Hadoop cluster (KDC installed, not configured) with a basic Ambari blueprint applied
 
 The types of control knob in the profile file are:
 * nodes - a list of virtual machines to create
@@ -81,34 +54,13 @@ that node. The available roles are:
 * slave - HDFS DataNode & Yarn NodeManager
 * yarn - Yarn Resource Manager and MapReduce Job History Server
 * zk - Zookeeper Server
-* proxy-server - Squid proxy server for yum caching
-* proxy-client -  Squid proxy client for yum caching
-
-This is an example of the current default.profile
-```
-{
-  "domain": "example.com",
-  "realm": "EXAMPLE.COM",
-  "security": false,
-  "vm_mem": 2048,
-  "server_mem": 300,
-  "client_mem": 200,
-  "clients" : [ "hdfs", "hive", "oozie", "pig", "tez", "yarn", "zk" ],
-  "nodes": [
-    { "hostname": "gw", "ip": "240.0.0.10", "roles": [ "client" ] },
-    { "hostname": "nn", "ip": "240.0.0.11",
-      "roles": [ "kdc", "hive-db", "hive-meta", "nn", "yarn", "zk" ] },
-    { "hostname": "slave1", "ip": "240.0.0.12", "roles": [ "oozie", "slave" ] }
-  ]
-}
-```
 
 ## Bring up the cluster
 
 Use `vagrant up` to bring up the cluster. This will take 30 to 40 minutes for 
 a 3 node cluster depending on your hardware and network connection.
 
-Use `vagrant ssh gw`` to login to the gateway machine. If you configured 
+Use `vagrant ssh ambari-server` to login to the gateway machine. If you configured 
 security, you'll need to kinit before you run any hadoop commands.
 
 ## Set up on Mac
@@ -124,11 +76,7 @@ in /etc/hosts:
 
 ### Finding the Web UIs
 
-| Server      | Non-Secure                   | Secure                        |
-|:-----------:|:----------------------------:|:-----------------------------:|
-| NameNode    | http://nn.example.com:50070/ | https://nn.example.com:50470/ |
-| ResourceMgr | http://nn.example.com:8088/  | https://nn.example.com:8090/  |
-| JobHistory  | http://nn.example.com:19888/ | https://nn.example.com:19890/ |
+Refer to Ambari for component placement
 
 ### Set up Kerberos (for security)
 
