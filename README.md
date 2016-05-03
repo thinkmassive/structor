@@ -117,12 +117,9 @@ security, you'll need to kinit before you run any hadoop commands.
 
 in /etc/hosts:
 ```
-240.0.0.2 proxy.example.com
-240.0.0.10 gw.example.com
-240.0.0.11 nn.example.com
-240.0.0.12 slave1.example.com
-240.0.0.13 slave2.example.com
-240.0.0.14 slave3.example.com
+192.168.59.11 ambari-server.support.com ambari-server
+192.168.59.12 ambari-slave1.support.com ambari-slave1
+192.168.59.13 ambari-slave2.support.com ambari-slave2
 ```
 
 ### Finding the Web UIs
