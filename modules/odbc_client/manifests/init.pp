@@ -34,7 +34,13 @@ class odbc_client {
       $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/centos6/$rpm"
       $expected_sums="expected_sums_odbc_centos6.txt"
     } else {
-      # XXX: No CentOS 7 driver yet.
+      $version="2.1.4.1004"
+      $build="hive-odbc-native-$version"
+      $rpmbase="$build-1.el7.x86_64"
+      $rpm="$rpmbase.rpm"
+      #$driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/centos6/$rpm"
+      $driver_url="file:///vagrant/hive-odbc-native-2.1.4.1004-1.el7.x86_64.rpm"
+      $expected_sums="expected_sums_odbc_centos7.txt"
     }
   } else {
     package { [ "unixodbc", "unixodbc-dev", "libsasl2-modules-gssapi-mit" ]:
