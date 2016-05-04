@@ -6,7 +6,7 @@ drop view max_revenue_cached;
 create view revenue_cached as
 select
 	l_suppkey as supplier_no,
-	sum(l_extendedprice * (1 - l_discount)) as total_revenue
+	sum(cast(l_extendedprice as decimal(15, 2)) * (1 - cast(l_discount as decimal(15, 2)))) as total_revenue
 from
 	lineitem
 where
@@ -16,7 +16,7 @@ group by l_suppkey;
 
 create view max_revenue_cached as
 select
-	max(total_revenue) as max_revenue
+	max(cast(total_revenue as decimal(15, 2))) as max_revenue
 from
 	revenue_cached;
 

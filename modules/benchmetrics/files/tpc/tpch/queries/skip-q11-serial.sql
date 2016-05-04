@@ -101,3 +101,21 @@ source tpch_query18.sql;
 source tpch_query19.sql;
 !echo FINISH EXECUTE hive tpc tpch_query19.sql;
 !date +%s.%N;
+
+!echo START EXECUTE hive tpc tpch_query20.sql;
+!date +%s.%N;
+source tpch_query20.sql;
+!echo FINISH EXECUTE hive tpc tpch_query20.sql;
+!date +%s.%N;
+
+!echo START EXECUTE hive tpc tpch_query21.sql;
+!date +%s.%N;
+source tpch_query21.sql;
+!echo FINISH EXECUTE hive tpc tpch_query21.sql;
+!date +%s.%N;
+
+!echo START EXECUTE hive tpc tpch_query22.sql;
+!date +%s.%N;
+source tpch_query22.sql;
+!echo FINISH EXECUTE hive tpc tpch_query22.sql;
+!date +%s.%N;
