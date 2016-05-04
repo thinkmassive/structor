@@ -60,6 +60,9 @@ Useful links:
 <% if @tez.length > 0 -%>
   <li><a href="http://<%= @tez[0] %>:80/tez-ui/">Tez UI</a></li>
 <% end -%>
+<% if @hive2_server2.length > 0 -%>
+  <li><a href="http://<%= @tez[0] %>:80/tez-ui2/">Tez UI (Hive 2)</a></li>
+<% end -%>
 <% if @yarn.length > 0 -%>
   <li><a href="http://<%= @yarn[0] %>:8088/">YARN Resource Manager</a></li>
 <% end -%>
