@@ -1,4 +1,6 @@
 .vagrant
 current.profile
+files/blueprint.json
+files/cluster.json
 generated/
 *~
