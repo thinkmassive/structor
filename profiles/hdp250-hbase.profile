@@ -1,5 +1,6 @@
 {
   "hdp_short_version": "2.5.0",
+  "os": "centos7",
   "java_version": "java-1.8.0-openjdk",
   "vm_mem": 8192,
   "vm_cpus": 4,
@@ -8,7 +9,7 @@
   "server_mem": 768,
   "client_mem": 1024,
 
-  "security": false,
+  "security": true,
   "domain": "example.com",
   "realm": "EXAMPLE.COM",
 
