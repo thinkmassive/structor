@@ -122,12 +122,12 @@
 
   <property>
     <name>phoenix.queryserver.keytab.file</name>
-    <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/phoenix.keytab</value>
+    <value><%= scope.lookupvar('hdfs_client::keytab_dir') %>/http.keytab</value>
   </property>
 
   <property>
     <name>phoenix.queryserver.kerberos.principal</name>
-    <value>phoenix/_HOST@<%= @realm %></value>
+    <value>HTTP/_HOST@<%= @realm %></value>
   </property>
 
 <% end %>
