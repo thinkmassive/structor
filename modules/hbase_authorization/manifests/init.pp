@@ -23,6 +23,12 @@ class hbase_authorization {
       user => "hbase",
     }
     ->
+    exec { "Wait for HBase to settle":
+      command => "sleep 10",
+      path => "$path",
+      require => Service["hbase-master"],
+    }
+    ->
     exec { "hbase shell -n /vagrant/modules/hbase_authorization/files/grants.txt":
       cwd => "/",
       path => "$path",
