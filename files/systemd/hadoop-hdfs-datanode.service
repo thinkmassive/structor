@@ -7,7 +7,7 @@ EnvironmentFile=/etc/systemd/system/hadoop-hdfs-datanode.service.d/default.conf
 ExecStart=/usr/hdp/current/hadoop-hdfs-datanode/etc/rc.d/init.d/hadoop-hdfs-datanode start
 Group=root
 PIDFile=/var/run/pid/hdfs/hadoop-hdfs-datanode.pid
-Restart=on-failure
+Restart=always
 Type=forking
 User=root
 

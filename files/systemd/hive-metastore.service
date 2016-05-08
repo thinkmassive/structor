@@ -7,7 +7,7 @@ EnvironmentFile=/etc/systemd/system/hive-metastore.service.d/default.conf
 ExecStart=/usr/hdp/current/hive-metastore/etc/rc.d/init.d/hive-metastore start
 Group=root
 PIDFile=/var/run/hive/hive.pid
-Restart=on-failure
+Restart=always
 Type=forking
 User=root
 

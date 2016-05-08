@@ -6,7 +6,7 @@ After=syslog.target network.target remote-fs.target nss-lookup.target
 EnvironmentFile=/etc/systemd/system/kafka.service.d/default.conf
 ExecStart=/usr/hdp/current/kafka-broker/bin/kafka-server-start.sh /usr/hdp/current/kafka-broker/config/server.properties
 Group=kafka
-Restart=on-failure
+Restart=always
 Type=simple
 User=kafka
 
