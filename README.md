@@ -9,6 +9,8 @@
 git clone https://github.com/thinkmassive/structor
 cd structor
 ln -s profiles/support-lab.profile current.profile
+cp -f profiles/support-lab.blueprint files/blueprint.json
+cp -f profiles/support-lab.cluster files/cluster.json
 vagrant up
 # When that finishes, open http://192.168.59.11/ or vagrant ssh ambari-server
 ```
