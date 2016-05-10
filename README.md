@@ -8,12 +8,18 @@ Structor creates Hadoops.
 ```
 # Install VirtualBox 5 or later.
 # Install Vagrant 1.8.1 or later.
-git clone https://github.com/cartershanklin/structor
-cd structor
-ln -s profiles/hdp250.profile current.profile
+git clone https://github.com/hortonworks/support-tooling
+cd support-tooling/labs/structor
+ln -sf profiles/support-lab.profile current.profile
+cp -f profiles/support-lab.blueprint files/blueprint.json
+cp -f profiles/support-lab.cluster files/cluster.json
 vagrant up
-# When that finishes, open http://192.168.59.11/ or vagrant ssh hdp250
+# When that finishes, open http://192.168.59.11/ or vagrant ssh ambari-server
 ```
+
+NOTE: The support-lab profile is currently inconsistent with the hostnames 
+and IPs below. It will be converted to match the rest of structor when time
+permits. This will require updates to the SME exercises as well.
 
 ## Some details.
 
@@ -53,6 +59,7 @@ create a link in the top level directory named current.profile that
 links to the desired profile.
 
 Some profiles:
+* support-lab - a three node Hadoop cluster deployed via Ambari Blueprint
 * 1node-nonsecure - a single node non-secure Hadoop cluster
 * 3node-nonsecure - a three node non-secure Hadoop cluster
 * 3node-secure - a three node secure Hadoop cluster
