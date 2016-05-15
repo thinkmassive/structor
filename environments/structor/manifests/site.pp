@@ -65,6 +65,9 @@ if hasrole($roles, 'client') {
   if hasrole($clients, 'odbc') {
     include odbc_client
   }
+  if hasrole($clients, 'odbc-phoenix') {
+    include odbc_phoenix
+  }
   if hasrole($clients, 'oozie') {
     include oozie_client
   }
