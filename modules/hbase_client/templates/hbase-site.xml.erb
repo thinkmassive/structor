@@ -67,6 +67,21 @@
     <value>/hbase</value>
   </property>
 
+  <property>
+    <name>hbase.hregion.max.filesize</name>
+    <value>805306368</value>
+  </property>
+
+  <property>
+    <name>phoenix.connection.isNamespaceMappingEnabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>phoenix.queryserver.serialization</name>
+    <value>JSON</value>
+  </property>
+
 <% if @security == "true" -%>
   <property>
     <name>hbase.security.authentication</name>
