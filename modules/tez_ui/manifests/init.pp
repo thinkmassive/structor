@@ -37,6 +37,11 @@ class tez_ui {
     require => Package["unzip"],
   }
   ->
+  file { "/var/www/html/tez-ui/scripts":
+    ensure => directory,
+    mode => '755',
+  }
+  ->
   file { "/var/www/html/tez-ui/scripts/configs.js":
     ensure => file,
     content => template('tez_ui/configs.js.erb'),
@@ -54,12 +59,11 @@ class tez_ui {
     cwd => "/var/www/html/tez-ui2",
     path => $path,
     require => Package["unzip"],
-    unless => "test -d /usr/hdp/$hdp_version/tez_hive2/",
+    onlyif => "test -d /usr/hdp/$hdp_version/tez_hive2/",
   }
   ->
   file { "/var/www/html/tez-ui2/scripts/configs.js":
     ensure => file,
     content => template('tez_ui/configs.js.erb'),
-    unless => "test -d /usr/hdp/$hdp_version/tez_hive2/",
   }
 }
