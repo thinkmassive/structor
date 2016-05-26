@@ -18,8 +18,9 @@
       eval(@nodes).select {|node| node[:roles].include? 'nn'}[0][:hostname] +
       "." + @domain;
    # The list of roles and hive servers that need to proxy for others
-   @hcat_roles = ['hcat', 'hue'];
+   @hcat_roles = ['hcat'];
    @hive_roles = ['hive-meta', 'hive-server2'];
+   @http_roles = ['hcat', 'hue', 'phoenix-query-server'];
    @ambari_servers = eval(@nodes).select {|node| node[:roles].include? 'ambari-server'
        }.map{|node| node[:hostname] + "." + @domain}.join(",");
    @hcat_servers = eval(@nodes).
@@ -28,6 +29,9 @@
    @hive_servers = eval(@nodes).
       select {|node| (node[:roles] & @hive_roles).length > 0}.
       map{|node| node[:hostname] + "." + @domain}.join(",");
+   @http_servers = eval(@nodes).
+      select {|node| (node[:roles] & @http_roles).length > 0}.
+      map{|node| node[:hostname] + "." + @domain}.join(",");
    @hue_servers = eval(@nodes).select {|node| node[:roles].include? 'hue'
        }.map{|node| node[:hostname] + "." + @domain}.join(",");
    @llap_servers = eval(@nodes).select {|node| node[:roles].include? 'hive2-llap'
@@ -35,6 +39,8 @@
    @oozie_servers = eval(@nodes).
       select {|node| node[:roles].include? 'oozie'}.
       map{|node| node[:hostname] + "." + @domain}.join(",");
+   @phoenix_servers = eval(@nodes).select {|node| node[:roles].include? 'phoenix-query-server'
+       }.map{|node| node[:hostname] + "." + @domain}.join(",");
   -%>
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
@@ -176,7 +182,7 @@ DEFAULT</value>
     
   <property>
     <name>hadoop.proxyuser.HTTP.hosts</name>
-    <value><%= @hcat_servers %></value>
+    <value><%= @http_servers %></value>
   </property>
     
   <property>

@@ -15,9 +15,15 @@
 
 class tez_ui {
   require httpd
+  require tez_client
 
   $path="/bin:/usr/bin"
 
+  package { "unzip":
+    ensure => installed,
+  }
+
+  # Main Tez UI.
   file { "/var/www/html/tez-ui":
     ensure => directory,
     mode => '755',
@@ -28,9 +34,35 @@ class tez_ui {
     creates => "/var/www/html/tez-ui/index.html",
     cwd => "/var/www/html/tez-ui",
     path => $path,
+    require => Package["unzip"],
+  }
+  ->
+  file { "/var/www/html/tez-ui/scripts":
+    ensure => directory,
+    mode => '755',
   }
   ->
   file { "/var/www/html/tez-ui/scripts/configs.js":
+    ensure => file,
+    content => template('tez_ui/configs.js.erb'),
+  }
+
+  # Hive 2 Tez UI (if applicable)
+  file { "/var/www/html/tez-ui2":
+    ensure => directory,
+    mode => '755',
+  }
+  ->
+  exec { "Extract the Tez2 UI WAR":
+    command => "unzip /usr/hdp/$hdp_version/tez_hive2/ui/tez-ui-*.war",
+    creates => "/var/www/html/tez-ui2/index.html",
+    cwd => "/var/www/html/tez-ui2",
+    path => $path,
+    require => Package["unzip"],
+    onlyif => "test -d /usr/hdp/$hdp_version/tez_hive2/",
+  }
+  ->
+  file { "/var/www/html/tez-ui2/scripts/configs.js":
     ensure => file,
     content => template('tez_ui/configs.js.erb'),
   }

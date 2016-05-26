@@ -5,20 +5,16 @@ import pprint
 import random
 import socket
 import sys
-import urllib2 as url
+import requests
+from requests_kerberos import HTTPKerberosAuth
 
 # To get this example on secure:
 #  Be on CentOS 7. Ubuntu 14 might work too.
 #  Switch PQS to JSON mode.
 #  sudo yum install -y epel-release
 #  sudo yum install -y python-pip krb5-devel python-devel
-#  sudo pip install urllib2_kerberos
-#  sudo pip install kerberos
-#  Change secure to True below
-
-secure = False
-if secure:
-    import urllib2_kerberos as u2k
+#  sudo pip install requests
+#  sudo pip install requests_kerberos
 
 # Sample query counts the number of items in the system catalog.
 pqsUrl = "http://{0}:8765/".format(socket.gethostname())
@@ -28,12 +24,9 @@ def make_request(pqsUrl, request):
 	print "Sending : "
 	pp.pprint(request)
 	request_json = json.dumps(request)
-	if secure:
-		opener = url.build_opener(u2k.HTTPKerberosAuthHandler())
-	else:
-		opener = url.build_opener()
-	opened = opener.open(pqsUrl, request_json)
-	response_json = opened.read()
+	r = requests.post(pqsUrl, json=request, auth=HTTPKerberosAuth())
+	print r.status_code
+	response_json = r.text
 	response = json.loads(response_json)
 	print "Response : "
 	pp.pprint(response)

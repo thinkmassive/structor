@@ -41,6 +41,9 @@
 <tr>
   <td colspan="2"><div id="tbench1_other_div" style="width: 1200px; height: 500px;"></div></td>
 </tr>
+<tr>
+  <td><div id="coverage_div" style="width: 600px; height: 500px;"></div></td>
+</tr>
 <table>
 <script type='text/javascript'>//<![CDATA[ 
  
@@ -50,6 +53,7 @@ google.setOnLoadCallback(drawExplainTimings);
 google.setOnLoadCallback(drawInteractiveFeatures);
 google.setOnLoadCallback(drawTpchTimes);
 google.setOnLoadCallback(drawTbench1);
+google.setOnLoadCallback(drawCoverage);
 
 function drawEtlComparisons() {
   var data = new google.visualization.DataTable();
@@ -155,6 +159,35 @@ function drawTpchTimes() {
     }
   };
   var chart = new google.visualization.ColumnChart(document.getElementById('tpch_times_div'));
+  chart.draw(data, options);
+}
+
+function drawCoverage() {
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Version');
+  data.addColumn('number', 'Coverage');
+  data.addRows([
+    [{v: 'HDP 2.2', f: 'HDP 2.2'}, {{ coverage["hdp229"] }}],
+    [{v: 'HDP 2.3', f: 'HDP 2.3'}, {{ coverage["hdp234"] }}],
+    [{v: 'HDP 2.5', f: 'HDP 2.5'}, {{ coverage["hdp250"] }}],
+  ]);
+  var options = {
+    title: 'SQL 2011 Analytics Coverage (%)',
+    chartArea: {width: '55%'},
+    hAxis: {
+      fontSize:10,
+      title: 'Version'
+    },
+    vAxis: { 
+      title: "Coverage (%)", 
+      viewWindowMode:'explicit',
+      viewWindow:{
+        max:100,
+        min:70
+      }
+    }
+  };
+  var chart = new google.visualization.ColumnChart(document.getElementById('coverage_div'));
   chart.draw(data, options);
 }
  

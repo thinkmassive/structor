@@ -13,51 +13,34 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-class odbc_client {
+class odbc_phoenix {
   $path="/sbin:/usr/sbin:/bin:/usr/bin"
 
-  $config_path="/usr/local/odbc"
+  $install_path="/opt/simba/phoenixodbc"
+  $config_path="$install_path/Setup"
   $odbcini_path="$config_path/odbc.ini"
   $odbcinstini_path="$config_path/odbcinst.ini"
-  $driverini_path="/usr/lib/hive/lib/native/Linux-amd64-64/hortonworks.hiveodbc.ini"
+  $driverini_path="$install_path/lib/64/simba.phoenixodbc.ini"
 
   if ($operatingsystem == "centos") {
     package { [ "unixODBC", "unixODBC-devel", "cyrus-sasl-gssapi", "cyrus-sasl-plain" ]:
       ensure => installed,
       before => Exec["Download ODBC"],
     }
-    if ($operatingsystemmajrelease == "6") {
-      $version="2.0.5.1005"
-      $build="hive-odbc-native-$version"
-      $rpmbase="$build-1.el6.x86_64"
-      $rpm="$rpmbase.rpm"
-      $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/centos6/$rpm"
-      $expected_sums="expected_sums_odbc_centos6.txt"
-    } else {
-      $version="2.1.4.1004"
-      $build="hive-odbc-native-$version"
-      $rpmbase="$build-1.el7.x86_64"
-      $rpm="$rpmbase.rpm"
-      #$driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/centos6/$rpm"
-      $driver_url="file:///vagrant/hive-odbc-native-2.1.4.1004-1.el7.x86_64.rpm"
-      $expected_sums="expected_sums_odbc_centos7.txt"
-    }
+    $version="1.0.0.0004"
+    $build="SimbaPhoenixODBC-64bit-$version"
+    $rpmbase="$build-1"
+    $rpm="$rpmbase.rpm"
+    #$driver_url="http://public-repo-1.hortonworks.com/HDP/phoenix-odbc/$version/centos6/$rpm"
+    $driver_url="file:///vagrant/$rpm"
+    $expected_sums="expected_sums_odbc_centos.txt"
   } else {
-    package { [ "unixodbc", "unixodbc-dev", "libsasl2-modules-gssapi-mit" ]:
-      ensure => installed,
-      before => Exec["Download ODBC"],
-    }
-    $version="2.0.5.1005"
-    $build="hive-odbc-native_$version"
-    $rpmbase="$build-2_amd64"
-    $rpm="$rpmbase.deb"
-    $driver_url="http://public-repo-1.hortonworks.com/HDP/hive-odbc/$version/debian/$rpm"
-    $expected_sums="expected_sums_odbc_ubuntu.txt"
+    fail("No Phoenix ODBC support for Ubuntu")
   }
 
   file { "/tmp/expected_sums_odbc.txt":
     ensure => file,
-    source => "puppet:///modules/odbc_client/$expected_sums",
+    source => "puppet:///modules/odbc_phoenix/$expected_sums",
   }
   ->
   exec { "Download ODBC":
@@ -77,14 +60,7 @@ class odbc_client {
       require => Exec["Download ODBC"],
     }
   } else {
-    exec { "Install ODBC":
-      command => "dpkg -i $rpm",
-      cwd => "/tmp",
-      path => "$path",
-      unless => "dpkg-query -l | grep $build",
-      before => File["$config_path"],
-      require => Exec["Download ODBC"],
-    }
+    fail("No Phoenix ODBC support for Ubuntu")
   }
 
   # Config files.
@@ -97,23 +73,18 @@ class odbc_client {
   ->
   file { "$odbcini_path":
     ensure => file,
-    content => template('odbc_client/odbc.ini.erb'),
+    content => template('odbc_phoenix/odbc.ini.erb'),
   }
   ->
   file { "$odbcinstini_path":
     ensure => file,
-    content => template('odbc_client/odbcinst.ini.erb'),
-  }
-  ->
-  file { "$driverini_path":
-    ensure => file,
-    content => template('odbc_client/hortonworks.hiveodbc.ini.erb'),
+    content => template('odbc_phoenix/odbcinst.ini.erb'),
   }
 
   # Environment.
-  file { "/etc/profile.d/odbc.sh":
+  file { "/etc/profile.d/odbc_phoenix.sh":
     ensure => "file",
-    source => 'puppet:///modules/odbc_client/odbc.sh',
+    source => 'puppet:///modules/odbc_phoenix/odbc_phoenix.sh',
   }
 
   # Install pyodbc.
@@ -146,9 +117,9 @@ class odbc_client {
   }
 
   # Sample query.
-  file { "/home/vagrant/sampleSQLQuery.py":
+  file { "/home/vagrant/samplePythonODBCQuery.py":
     ensure => "file",
-    source => 'puppet:///modules/odbc_client/sampleSQLQuery.py',
+    source => 'puppet:///modules/odbc_phoenix/samplePythonODBCQuery.py',
     owner => vagrant,
     group => vagrant,
   }

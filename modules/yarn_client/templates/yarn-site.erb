@@ -59,12 +59,12 @@
     
   <property>
     <name>yarn.nodemanager.resource.memory-mb</name>
-    <value><% if @vm_mem.to_i <= 4096 %><%= @vm_mem.to_i - 1024 %><% elseif vm_mem.to_i <= 8192 %><%= @vm_mem.to_i - 2048 %><% else %><%= @vm_mem.to_i - 4096 %><% end %></value>
+    <value><% if @vm_mem.to_i <= 4096 %><%= @vm_mem.to_i - 1024 %><% elsif @vm_mem.to_i <= 8192 %><%= @vm_mem.to_i - 2048 %><% else %><%= @vm_mem.to_i - 4096 %><% end %></value>
   </property>
     
   <property>
     <name>yarn.scheduler.maximum-allocation-mb</name>
-    <value><% if @vm_mem.to_i <= 4096 %><%= @vm_mem.to_i - 1024 %><% elseif vm_mem.to_i <= 8192 %><%= @vm_mem.to_i - 2048 %><% else %><%= @vm_mem.to_i - 4096 %><% end %></value>
+    <value><% if @vm_mem.to_i <= 4096 %><%= @vm_mem.to_i - 1024 %><% elsif @vm_mem.to_i <= 8192 %><%= @vm_mem.to_i - 2048 %><% else %><%= @vm_mem.to_i - 4096 %><% end %></value>
   </property>
     
   <property>

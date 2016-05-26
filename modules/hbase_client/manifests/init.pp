@@ -68,7 +68,7 @@ class hbase_client {
 
   # Override Phoenix scripts to better support Kerberos.
   # Should be removed at some point.
-  if ($hdp_version_major+0 == 2 and $hdp_version_minor+0 <= 4) {
+  if ($hdp_version_major+0 == 2) {
     file { '/usr/hdp/current/phoenix-client/bin/psql.py':
       ensure => file,
       source => "puppet:///modules/hbase_client/psql.py",

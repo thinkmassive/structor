@@ -53,22 +53,27 @@ def findFileInPathWithoutRecursion(pattern, path):
 
     return ""
 
-def which(file):
+def which(command):
     for path in os.environ["PATH"].split(os.pathsep):
-        if os.path.exists(os.path.join(path, file)):
-            return os.path.join(path, file)
+        if os.path.exists(os.path.join(path, command)):
+            return os.path.join(path, command)
     return None
 
-def findClasspath(file):
-    aPath = which(file)
-    command = "%s%s" %(aPath, ' classpath')
+def findClasspath(command_name):
+    command_path = which(command_name)
+    if command_path is None:
+        # We don't have this command, so we can't get its classpath
+        return ''
+    command = "%s%s" %(command_path, ' classpath')
     return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.read()
 
 def setPath():
     PHOENIX_CLIENT_JAR_PATTERN = "phoenix-*-client.jar"
     PHOENIX_THIN_CLIENT_JAR_PATTERN = "phoenix-*-thin-client.jar"
     PHOENIX_QUERYSERVER_JAR_PATTERN = "phoenix-server-*-runnable.jar"
+    PHOENIX_TRACESERVER_JAR_PATTERN = "phoenix-tracing-webapp-*-runnable.jar"
     PHOENIX_TESTS_JAR_PATTERN = "phoenix-core-*-tests*.jar"
+    PHOENIX_PHERF_JAR_PATTERN = "phoenix-pherf-*-minimal*.jar"
 
     # Backward support old env variable PHOENIX_LIB_DIR replaced by PHOENIX_CLASS_PATH
     global phoenix_class_path
@@ -94,6 +99,12 @@ def setPath():
 
     global current_dir
     current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    global pherf_conf_path
+    pherf_conf_path = os.path.join(current_dir, "config")
+    pherf_properties_file = find("pherf.properties", pherf_conf_path)
+    if pherf_properties_file == "":
+        pherf_conf_path = os.path.join(current_dir, "..", "phoenix-pherf", "config")
 
     global phoenix_jar_path
     phoenix_jar_path = os.path.join(current_dir, "..", "phoenix-assembly", "target","*")
@@ -151,6 +162,19 @@ def setPath():
     if phoenix_queryserver_jar == "":
         phoenix_queryserver_jar = findFileInPathWithoutRecursion(PHOENIX_QUERYSERVER_JAR_PATTERN, os.path.join(current_dir, ".."))
 
+    global phoenix_traceserver_jar
+    phoenix_traceserver_jar = find(PHOENIX_TRACESERVER_JAR_PATTERN, os.path.join(current_dir, "..", "phoenix-tracing-webapp", "target", "*"))
+    if phoenix_traceserver_jar == "":
+        phoenix_traceserver_jar = findFileInPathWithoutRecursion(PHOENIX_TRACESERVER_JAR_PATTERN, os.path.join(current_dir, "..", "lib"))
+    if phoenix_traceserver_jar == "":
+        phoenix_traceserver_jar = findFileInPathWithoutRecursion(PHOENIX_TRACESERVER_JAR_PATTERN, os.path.join(current_dir, ".."))
+
+    global phoenix_pherf_jar
+    phoenix_pherf_jar = find(PHOENIX_PHERF_JAR_PATTERN, os.path.join(current_dir, "..", "phoenix-pherf", "target", "*"))
+    if phoenix_pherf_jar == "":
+        phoenix_pherf_jar = findFileInPathWithoutRecursion(PHOENIX_PHERF_JAR_PATTERN, os.path.join(current_dir, "..", "lib"))
+    if phoenix_pherf_jar == "":
+        phoenix_pherf_jar = findFileInPathWithoutRecursion(PHOENIX_PHERF_JAR_PATTERN, os.path.join(current_dir, ".."))
 
     global phoenix_thin_client_jar
     phoenix_thin_client_jar = find(PHOENIX_THIN_CLIENT_JAR_PATTERN, os.path.join(current_dir, "..", "phoenix-server-client", "target", "*"))
@@ -197,7 +221,6 @@ if __name__ == "__main__":
     print "phoenix_class_path:", phoenix_class_path
     print "hbase_conf_dir:", hbase_conf_dir
     print "hbase_conf_path:", hbase_conf_path
-    print "hadoop_conf_dir:", hadoop_conf
     print "current_dir:", current_dir
     print "phoenix_jar_path:", phoenix_jar_path
     print "phoenix_client_jar:", phoenix_client_jar
@@ -209,4 +232,4 @@ if __name__ == "__main__":
     print "testjar:", testjar
     print "phoenix_queryserver_jar:", phoenix_queryserver_jar
     print "phoenix_thin_client_jar:", phoenix_thin_client_jar
-    print "hadoop_classpath:", hadoop_classpath
+    print "hadoop_classpath:", hadoop_classpath 

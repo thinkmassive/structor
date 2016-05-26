@@ -1,5 +1,6 @@
 {
   "hdp_short_version": "2.3.4",
+  "os": "centos7",
   "vm_mem": 9216,
   "vm_cpus": 4,
 
